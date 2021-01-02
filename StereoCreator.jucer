@@ -12,6 +12,7 @@
         <FILE id="PEj0d5" name="FirstOrderDirectivityVisualizer.h" compile="0"
               resource="0" file="resources/customComponents/FirstOrderDirectivityVisualizer.h"/>
         <FILE id="TJ8V37" name="ImgPaths.h" compile="0" resource="0" file="resources/customComponents/ImgPaths.h"/>
+        <FILE id="al6FxI" name="LevelMeter.h" compile="0" resource="0" file="resources/customComponents/LevelMeter.h"/>
         <FILE id="k29zAK" name="ReverseSlider.h" compile="0" resource="0" file="resources/customComponents/ReverseSlider.h"/>
         <FILE id="ZOsPsB" name="SimpleLabel.h" compile="0" resource="0" file="resources/customComponents/SimpleLabel.h"/>
         <FILE id="jm4z0R" name="TitleBar.h" compile="0" resource="0" file="resources/customComponents/TitleBar.h"/>

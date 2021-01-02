@@ -32,23 +32,25 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     aaLogoBgPath.loadPathFromData (aaLogoData, sizeof (aaLogoData));
     
     // colours
-    colours[0] = Colour(0xFDBA4949);
-    colours[1] = Colour(0xFD49BA64);
+    colours[0] = Colour(0xFD49BA64);
+    colours[1] = Colour(0xFDBA4949);
     colours[2] = Colour(0xFDBAAF49);
     
     
     // combo box
     addAndMakeVisible(cbStereoMode);
     cbAttStereoMode.reset(new ComboBoxAttachment (valueTreeState, "stereoMode", cbStereoMode));
-    cbStereoMode.addItem("m/s", eStereoMode::msIdx);
-    cbStereoMode.addItem("pass through", eStereoMode::passThroughIdx);
-//    cbStereoMode.setItemEnabled(eStereoMode::passThroughIdx, false);
+    cbStereoMode.addItem("pseudo-m/s", eStereoMode::pseudoMsIdx);
+    cbStereoMode.addItem("pseudo-stereo", eStereoMode::pseudoStereoIdx);
+    cbStereoMode.addItem("true-m/s", eStereoMode::trueMsIdx);
+    cbStereoMode.addItem("true-stereo", eStereoMode::trueStereoIdx);
+    cbStereoMode.addItem("blumlein", eStereoMode::blumleinIdx);
     cbStereoMode.setEditableText(false);
     cbStereoMode.setJustificationType(Justification::centred);
     cbStereoMode.setSelectedId(processor.getStereoModeIdx());
     cbStereoMode.addListener(this);
     
-    // sliders
+    // rotary sliders
     addAndMakeVisible(&slMidGain[0]);
     slAttMidGain[0].reset(new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[0]));
     slMidGain[0].setSliderStyle (Slider::Rotary);
@@ -96,18 +98,44 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slMidPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slMidPattern.addListener(this);
     
+    addAndMakeVisible(&slXyPattern);
+    slAttXyPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyPattern", slXyPattern));
+    slXyPattern.setSliderStyle(Slider::Rotary);
+    slXyPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+    slXyPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
+    slXyPattern.addListener(this);
+    
+    // linear sliders
+    addAndMakeVisible(&slXyAngle);
+    slAttXyAngle.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyAngle", slXyAngle));
+    slXyAngle.setSliderStyle(Slider::LinearHorizontal);
+    slXyAngle.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+    slXyAngle.setColour(Slider::thumbColourId, globalLaF.AARed);
+//    slXyAngle.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
+    slXyAngle.setTextValueSuffix(CharPointer_UTF8 (R"(°)"));
+    slXyAngle.addListener(this);
+    
+    addAndMakeVisible(&slRotation);
+    slAttRotation.reset(new ReverseSlider::SliderAttachment (valueTreeState, "blumleinRot", slRotation));
+    slRotation.setSliderStyle(Slider::LinearHorizontal);
+    slRotation.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+    slRotation.setColour(Slider::thumbColourId, globalLaF.AARed);
+//    slRotation.setColour (Slider::rotarySliderOutlineColourId, Colours::black);
+    slRotation.setTextValueSuffix(CharPointer_UTF8 (R"(°)"));
+    slRotation.addListener(this);
+    
     // buttons
     addAndMakeVisible(&tbChSwitch);
     tbAttChSwitch.reset(new ButtonAttachment (valueTreeState, "channelSwitch", tbChSwitch));
-    tbChSwitch.setButtonText("channel switch");
+    tbChSwitch.setButtonText("channel swap");
     
     addAndMakeVisible(&tbAutoLevels);
     tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
-    tbAutoLevels.setButtonText("auto levels");
+    tbAutoLevels.setButtonText("link gains");
     
     // group components and labels
     addAndMakeVisible(&grpStereoMode);
-    grpStereoMode.setText("choose setup");
+    grpStereoMode.setText("setup");
     grpStereoMode.setTextLabelPosition (Justification::centredLeft);
     
     addAndMakeVisible(&grpMidGain[0]);
@@ -133,7 +161,22 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     addAndMakeVisible(&grpMidPattern);
     grpMidPattern.setText("mid pattern");
     grpMidPattern.setTextLabelPosition(Justification::centred);
+    
+    addAndMakeVisible(&grpXyPattern);
+    grpXyPattern.setText("pattern");
+    grpXyPattern.setTextLabelPosition(Justification::centred);
+    
+    addAndMakeVisible(&grpXyAngle);
+    grpXyAngle.setText("recording angle");
+    grpXyAngle.setTextLabelPosition(Justification::centred);
+    
+    addAndMakeVisible(&grpRotation);
+    grpRotation.setText("rotation");
+    grpRotation.setTextLabelPosition(Justification::centred);
 
+    addAndMakeVisible(&grpInputMeters);
+    grpInputMeters.setText("input - output levels");
+    grpInputMeters.setTextLabelPosition(Justification::centredLeft);
     
     // directivity visualiser
     addAndMakeVisible(&dirVis[0]);
@@ -143,6 +186,20 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     addAndMakeVisible(&dirVis[1]);
     dirVis[1].setDirWeight(-0.5f);
     dirVis[1].setColour(colours[1]);
+    
+    // meters
+    for (int i = 0; i < 4; ++i)
+    {
+        addAndMakeVisible(&inputMeter[i]);
+        inputMeter[i].setColour(globalLaF.AARed);
+        inputMeter[i].setLabelText(inMeterLabelText[i]);
+    }
+    addAndMakeVisible(&outputMeter[0]);
+    outputMeter[0].setColour(globalLaF.AARed);
+    outputMeter[0].setLabelText(outMeterLabelText[0]);
+    addAndMakeVisible(&outputMeter[1]);
+    outputMeter[1].setColour(globalLaF.AARed);
+    outputMeter[1].setLabelText(outMeterLabelText[1]);
     
     
     startTimer(30);
@@ -171,103 +228,108 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
     g.fillPath (aaLogoBgPath);
     
-    if (processor.getNumInpCh() == 2)
+    float sliderRange;
+    float newAlphaMid;
+    float newAlphaSide;
+    
+    if (processor.getNumInpCh() == 2) // two channel input
     {
+        setComboBoxItemsEnabled(true);
+        inputMeter[0].setVisible(true);
+        inputMeter[1].setVisible(true);
+        inputMeter[2].setVisible(false);
+        inputMeter[3].setVisible(false);
+        
         switch (processor.getStereoModeIdx())
         {
-            case msIdx:
+            case pseudoMsIdx:
                 tbAutoLevels.setVisible(true);
                 
-                slMidGain[0].setVisible(true);
-                grpMidGain[0].setVisible(true);
-                slSideGain[0].setVisible(true);
-                grpSideGain[0].setVisible(true);
-                slMidGain[1].setVisible(false);
-                grpMidGain[1].setVisible(false);
-                slSideGain[1].setVisible(false);
-                grpSideGain[1].setVisible(false);
-                slWidth.setVisible(false);
-                grpWidth.setVisible(false);
-                slMidPattern.setVisible(false);
-                grpMidPattern.setVisible(false);
+                setSliderVisibility(true, false, false, false, false, false, false);
            
                 dirVis[0].setPatternRotation(90.0f);
                 dirVis[0].setDirWeight(0.0f);
                 dirVis[1].setPatternRotation(90.0f);
                 dirVis[1].setDirWeight(1.0f);
+                
+                sliderRange = slMidGain[0].getMaximum() + std::abs(slMidGain[0].getMinimum());
+                newAlphaMid = (slMidGain[0].getValue() + std::abs(slMidGain[0].getMinimum())) / sliderRange * 0.75f;
+                newAlphaMid += 0.25f;
+                newAlphaSide = (slSideGain[0].getValue() + std::abs(slSideGain[0].getMinimum())) / sliderRange * 0.75f;
+                newAlphaSide += 0.25f;
+                dirVis[0].setPatternAlpha(newAlphaMid);
+                dirVis[1].setPatternAlpha(newAlphaSide);
+                
                 break;
-            case passThroughIdx:
-                
-                dirVis[0].setPatternRotation(90.0f);
-                dirVis[0].setDirWeight(- slWidth.getValue() / (2.0f * slWidth.getMaximum()));
-                dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight(slWidth.getValue() / (2.0f * slWidth.getMaximum()));
-//                setPolarPatterns(slWidth.getValue() / (2.0f * slWidth.getMaximum()));
-                
+            case pseudoStereoIdx:
                 tbAutoLevels.setVisible(false);
-                
-                slMidGain[0].setVisible(false);
-                grpMidGain[0].setVisible(false);
-                slSideGain[0].setVisible(false);
-                grpSideGain[0].setVisible(false);
-                slMidGain[1].setVisible(false);
-                grpMidGain[1].setVisible(false);
-                slSideGain[1].setVisible(false);
-                grpSideGain[1].setVisible(false);
-                slWidth.setVisible(true);
-                grpWidth.setVisible(true);
-                slMidPattern.setVisible(false);
-                grpMidPattern.setVisible(false);
+                setSliderVisibility(false, false, true, false, false, false, false);
+
+                dirVis[0].setPatternRotation(- 90.0f);
+                dirVis[0].setDirWeight((slWidth.getValue() / (slWidth.getMaximum())) * 0.75f);
+                dirVis[1].setPatternRotation(90.0f);
+                dirVis[1].setDirWeight((slWidth.getValue() / (slWidth.getMaximum())) * 0.75f);
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternAlpha(1.0f);
                 break;
                 
             default:
                 break;
         }
     }
-    else
+    else // four channel input
     {
+        setComboBoxItemsEnabled(false);
+        inputMeter[0].setVisible(true);
+        inputMeter[1].setVisible(true);
+        inputMeter[2].setVisible(true);
+        inputMeter[3].setVisible(true);
+        
         switch (processor.getStereoModeIdx())
         {
-            case msIdx:
+            case trueMsIdx:
                 tbAutoLevels.setVisible(true);
                 
-                slMidGain[0].setVisible(false);
-                grpMidGain[0].setVisible(false);
-                slSideGain[0].setVisible(false);
-                grpSideGain[0].setVisible(false);
-                slMidGain[1].setVisible(true);
-                grpMidGain[1].setVisible(true);
-                slSideGain[1].setVisible(true);
-                grpSideGain[1].setVisible(true);
-                slWidth.setVisible(false);
-                grpWidth.setVisible(false);
-                slMidPattern.setVisible(true);
-                grpMidPattern.setVisible(true);
+                setSliderVisibility(false, true, false, true, false, false, false);
                 
                 dirVis[0].setPatternRotation(0.0f);
-                dirVis[0].setDirWeight(- (slMidPattern.getValue() - 1.0f) / 2);
+                dirVis[0].setDirWeight(slMidPattern.getValue());
                 dirVis[1].setPatternRotation(90.0f);
                 dirVis[1].setDirWeight(1.0f);
-                break;
-            case passThroughIdx:
-                dirVis[0].setPatternRotation(90.0f);
-                dirVis[0].setDirWeight(- slWidth.getValue() / (2.0f * slWidth.getMaximum()));
-                dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight(slWidth.getValue() / (2.0f * slWidth.getMaximum()));
                 
+                sliderRange = slMidGain[1].getMaximum() + std::abs(slMidGain[1].getMinimum());
+                newAlphaMid = (slMidGain[1].getValue() + std::abs(slMidGain[1].getMinimum())) / sliderRange * 0.75f;
+                newAlphaMid += 0.25f;
+                newAlphaSide = (slSideGain[1].getValue() + std::abs(slSideGain[1].getMinimum())) / sliderRange * 0.75f;
+                newAlphaSide += 0.25f;
+                dirVis[0].setPatternAlpha(newAlphaMid);
+                dirVis[1].setPatternAlpha(newAlphaSide);
+                
+                break;
+            case trueStereoIdx:
                 tbAutoLevels.setVisible(false);
+                setSliderVisibility(false, false, false, false, false, true, true);
                 
-                slMidGain[1].setVisible(false);
-                grpMidGain[1].setVisible(false);
-                slSideGain[1].setVisible(false);
-                grpSideGain[1].setVisible(false);
-                slWidth.setVisible(true);
-                grpWidth.setVisible(true);
-                slMidPattern.setVisible(false);
-                grpMidPattern.setVisible(false);
+                dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
+                dirVis[0].setDirWeight(slXyPattern.getValue());
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternRotation(slXyAngle.getValue() / 2.0f);
+                dirVis[1].setDirWeight(slXyPattern.getValue());
+                dirVis[1].setPatternAlpha(1.0f);
                 break;
+            case blumleinIdx:
+                setSliderVisibility(false, false, false, false, true, false, false);
                 
+                dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
+                dirVis[0].setDirWeight(1.0f);
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternRotation(slRotation.getValue() + 45.0f);
+                dirVis[1].setDirWeight(1.0f);
+                dirVis[1].setPatternAlpha(1.0f);
+                break;
             default:
+                cbStereoMode.setSelectedId(eStereoMode::trueMsIdx);
+                repaint();
                 break;
         }
     }
@@ -276,7 +338,6 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 
 void StereoCreatorAudioProcessorEditor::resized()
 {
-
     const int leftRightMargin = 30;
     const int headerHeight = 60;
     const int footerHeight = 25;
@@ -289,6 +350,11 @@ void StereoCreatorAudioProcessorEditor::resized()
     const int toggleBtHeight = 20;
     const int sideAreaWidth = comboBoxWidth;
     const int arrayWidth = 100;
+    const int linearSliderHeight = 40;
+    const int dirVisHeight = 150;
+    const float meterWidth = 12;
+    const float meterHeight = 150;
+    const float meterSpacing = 2;
     
     const int vSpace = 5;
     const int hSpace = 10;
@@ -321,54 +387,80 @@ void StereoCreatorAudioProcessorEditor::resized()
     tbChSwitch.setBounds(sideArea.removeFromTop(toggleBtHeight));
     sideArea.removeFromTop(vSpace);
     tbAutoLevels.setBounds(sideArea.removeFromTop(toggleBtHeight));
+    sideArea.removeFromTop(5 * vSpace);
+    grpInputMeters.setBounds(sideArea.removeFromTop(grpHeight));
+    sideArea.removeFromTop(vSpace);
+    Rectangle<int> inputMeterArea (sideArea.removeFromTop(meterHeight));
+    inputMeterArea.removeFromLeft(hSpace);
+    for (int i = 0; i < 4; i++)
+    {
+        inputMeter[i].setBounds(inputMeterArea.removeFromLeft(meterWidth));
+        inputMeterArea.removeFromLeft(meterSpacing);
+    }
+    inputMeterArea.removeFromLeft(3 * hSpace);
+    outputMeter[0].setBounds(inputMeterArea.removeFromLeft(meterWidth));
+    inputMeterArea.removeFromLeft(meterSpacing);
+    outputMeter[1].setBounds(inputMeterArea.removeFromLeft(meterWidth));
     
     //--------------- MAIN AREA ----------------
     Rectangle<int> mainArea (area.removeFromRight(area.getWidth() - hSpace));
-    Rectangle<int> mainArea4Ch = mainArea;
     
-    Rectangle<int> rotarySlArea2Ch (mainArea.removeFromTop(rotarySliderHeight + grpHeight + vSpace));
-    Rectangle<int> slLabelArea2Ch (rotarySlArea2Ch.removeFromTop(grpHeight));
+    Rectangle<int> rotarySlArea (mainArea.removeFromTop(rotarySliderHeight + grpHeight + vSpace));
+    Rectangle<int> twoRotSlArea = rotarySlArea;
+    Rectangle<int> threeRotSlArea = rotarySlArea;
+    twoRotSlArea.removeFromLeft((threeSlWidth / 2) - (twoSlWidth / 2));
+    Rectangle<int> twoLabelArea (twoRotSlArea.removeFromTop(grpHeight));
+    Rectangle<int> threeLabelArea (threeRotSlArea.removeFromTop(grpHeight));
     
-    Rectangle<int> rotarySlArea4Ch (mainArea4Ch.removeFromTop(rotarySliderHeight + grpHeight + vSpace));
-    Rectangle<int> slLabelArea4Ch (rotarySlArea4Ch.removeFromTop(grpHeight));
+    // labels
+    grpMidGain[0].setBounds(twoLabelArea.removeFromLeft(rotarySliderWidth));
+    twoLabelArea.removeFromLeft(hSpace);
+    grpSideGain[0].setBounds(twoLabelArea.removeFromLeft(rotarySliderWidth));
     
-    slLabelArea2Ch.removeFromLeft((threeSlWidth / 2) - (twoSlWidth / 2));
-    grpMidGain[0].setBounds(slLabelArea2Ch.removeFromLeft(rotarySliderWidth));
-    slLabelArea2Ch.removeFromLeft(hSpace);
-    grpSideGain[0].setBounds(slLabelArea2Ch.removeFromLeft(rotarySliderWidth));
-    
-    
-    grpMidGain[1].setBounds (slLabelArea4Ch.removeFromLeft(rotarySliderWidth));
-    slLabelArea4Ch.removeFromLeft(hSpace);
-    grpSideGain[1].setBounds(slLabelArea4Ch.removeFromLeft(rotarySliderWidth));
-    slLabelArea4Ch.removeFromLeft(hSpace);
-    grpMidPattern.setBounds(slLabelArea4Ch.removeFromLeft(rotarySliderWidth));
+    grpMidGain[1].setBounds(threeLabelArea.removeFromLeft(rotarySliderWidth));
+    threeLabelArea.removeFromLeft(hSpace);
+    grpSideGain[1].setBounds(threeLabelArea.removeFromLeft(rotarySliderWidth));
+    threeLabelArea.removeFromLeft(hSpace);
+    grpMidPattern.setBounds(threeLabelArea.removeFromLeft(rotarySliderWidth));
     
     grpWidth.setBounds(grpSideGain[1].getBounds());
+    grpXyPattern.setBounds(grpSideGain[1].getBounds());
     
-    rotarySlArea2Ch.removeFromTop(vSpace);
-    rotarySlArea2Ch.removeFromLeft((threeSlWidth / 2) - (twoSlWidth / 2));
-    slMidGain[0].setBounds(rotarySlArea2Ch.removeFromLeft(rotarySliderWidth));
-    rotarySlArea2Ch.removeFromLeft(hSpace);
-    slSideGain[0].setBounds(rotarySlArea2Ch.removeFromLeft(rotarySliderWidth));
+    // slider
+    twoRotSlArea.removeFromTop(vSpace);
+    threeRotSlArea.removeFromTop(vSpace);
+    // reference sliders/labels for placing two sliders in the plugin
+    slMidGain[0].setBounds(twoRotSlArea.removeFromLeft(rotarySliderWidth));
+    twoRotSlArea.removeFromLeft(hSpace);
+    slSideGain[0].setBounds(twoRotSlArea.removeFromLeft(rotarySliderWidth));
     
-    rotarySlArea4Ch.removeFromTop(vSpace);
-    slMidGain[1].setBounds (rotarySlArea4Ch.removeFromLeft(rotarySliderWidth));
-    rotarySlArea4Ch.removeFromLeft(hSpace);
-    slSideGain[1].setBounds(rotarySlArea4Ch.removeFromLeft(rotarySliderWidth));
-    rotarySlArea4Ch.removeFromLeft(hSpace);
-    slMidPattern.setBounds(rotarySlArea4Ch.removeFromLeft(rotarySliderWidth));
+    // reference sliders for placing one or three sliders in the plugin
+    slMidGain[1].setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
+    threeRotSlArea.removeFromLeft(hSpace);
+    slSideGain[1].setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
+    threeRotSlArea.removeFromLeft(hSpace);
+    slMidPattern.setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
     
     slWidth.setBounds(slSideGain[1].getBounds());
-
-    // directivity visualiser
-    Rectangle<int> dirVisArea (mainArea4Ch.removeFromLeft(threeSlWidth));
+    slXyPattern.setBounds(slSideGain[1].getBounds());
+    
+    // directivity visualiser and meters
+    Rectangle<int> dirVisArea (mainArea.removeFromTop(dirVisHeight));
+    dirVisArea.removeFromLeft((threeSlWidth / 2) - dirVisHeight + hSpace);
     dirVis[0].setBounds(dirVisArea);
     dirVis[1].setBounds(dirVisArea);
     
+    // reference for placing a linear slider below the directivity visualiser
+    Rectangle<int> bottomArea (mainArea.removeFromTop(linearSliderHeight + 2 * vSpace + grpHeight));
+    bottomArea.removeFromLeft((threeSlWidth / 2) - (twoSlWidth / 2) - hSpace);
+    bottomArea.removeFromRight((threeSlWidth / 2) - (twoSlWidth / 2));
+    Rectangle<int> bottomLabelArea (bottomArea.removeFromTop(grpHeight));
+    grpXyAngle.setBounds(bottomLabelArea);
+    slXyAngle.setBounds(bottomArea);
     
     
-    
+    slRotation.setBounds(slXyAngle.getBounds());
+    grpRotation.setBounds(grpXyAngle.getBounds());
 }
 
 void StereoCreatorAudioProcessorEditor::comboBoxChanged(ComboBox *cb)
@@ -383,14 +475,42 @@ void StereoCreatorAudioProcessorEditor::sliderValueChanged(Slider *slider)
 
 void StereoCreatorAudioProcessorEditor::timerCallback()
 {
-//    if (processor.wrongBusConfiguration.get())
-//    {
-//        title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
-//        title.showAlertSymbol(true);
-//        return;
-//    }
-//
-//    title.showAlertSymbol(false);
+    for (int i = 0; i < 4; ++i)
+    {
+        inputMeter[i].setLevel(processor.inRms[i].get());
+    }
+    outputMeter[0].setLevel(processor.outRms[0].get());
+    outputMeter[1].setLevel(processor.outRms[1].get());
 }
 
+void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled(bool twoChannelInput)
+{
+        cbStereoMode.setItemEnabled(eStereoMode::pseudoMsIdx, twoChannelInput);
+        cbStereoMode.setItemEnabled(eStereoMode::pseudoStereoIdx, twoChannelInput);
+        cbStereoMode.setItemEnabled(eStereoMode::trueMsIdx, !twoChannelInput);
+        cbStereoMode.setItemEnabled(eStereoMode::trueStereoIdx, !twoChannelInput);
+        cbStereoMode.setItemEnabled(eStereoMode::blumleinIdx, !twoChannelInput);
+}
 
+void StereoCreatorAudioProcessorEditor::setSliderVisibility(bool msTwoCh, bool msFourCh, bool width, bool msPattern, bool rotation, bool xyPattern, bool xyAngle)
+{
+    slMidGain[0].setVisible(msTwoCh);
+    grpMidGain[0].setVisible(msTwoCh);
+    slSideGain[0].setVisible(msTwoCh);
+    grpSideGain[0].setVisible(msTwoCh);
+    slMidGain[1].setVisible(msFourCh);
+    grpMidGain[1].setVisible(msFourCh);
+    slSideGain[1].setVisible(msFourCh);
+    grpSideGain[1].setVisible(msFourCh);
+    slWidth.setVisible(width);
+    grpWidth.setVisible(width);
+    slMidPattern.setVisible(msPattern);
+    grpMidPattern.setVisible(msPattern);
+    
+    slXyAngle.setVisible(xyAngle);
+    grpXyAngle.setVisible(xyAngle);
+    slXyPattern.setVisible(xyPattern);
+    grpXyPattern.setVisible(xyPattern);
+    slRotation.setVisible(rotation);
+    grpRotation.setVisible(rotation);
+}

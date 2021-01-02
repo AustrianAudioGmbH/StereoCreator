@@ -69,6 +69,7 @@ public:
 //        muteButton = nullptr;
         soloActive = false;
         rotation = 0.0f;
+        patternAlpha = 1.0f;
         
         colour = Colour(0xFFD0011B);
         
@@ -117,7 +118,7 @@ public:
         g.strokePath(path, PathStrokeType(0.5f));
 
         // draw directivity
-        g.setColour (colour.withMultipliedAlpha(!isActive ? 0.0f : 1.0f));
+        g.setColour (colour.withMultipliedAlpha(!isActive ? 0.0f : patternAlpha));
         path.clear();
         
         int idx=0;
@@ -182,6 +183,11 @@ public:
 //        muteButton = mute;
 //    }
     
+    void setPatternAlpha(float newAlpha)
+    {
+        patternAlpha = newAlpha;
+    }
+    
 //    float calcAlpha()
 //    {
 //        if ((soloButton == nullptr || !soloActive) && (muteButton == nullptr || !muteButton->getToggleState()))
@@ -219,6 +225,7 @@ private:
     AffineTransform transform;
     Rectangle<int> plotArea;
     float dirWeight;
+    float patternAlpha;
     bool isActive;
 //    MuteSoloButton* soloButton;
 //    MuteSoloButton* muteButton;

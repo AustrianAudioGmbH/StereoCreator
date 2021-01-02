@@ -12,8 +12,11 @@
 
 enum eStereoMode
 {
-    msIdx = 1,
-    passThroughIdx = 2
+    pseudoMsIdx = 1,
+    pseudoStereoIdx = 2,
+    trueMsIdx = 3,
+    trueStereoIdx = 4,
+    blumleinIdx = 5
 };
 
 
@@ -67,8 +70,13 @@ public:
     int getNumInpCh() { return numInputs; }
     void getMidGain (float sideGain);
     void getSideGain (float midGain);
+    void getXyAngleRelatedGains(float currentAngle);
+    void getBlumleinRotationGains (float currentRotation);
     
 //    Atomic<bool> wrongBusConfiguration = false;
+    
+    Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    Atomic<float> outRms[2] = { 0.0f, 0.0f};
     
 private:
     AudioProcessorValueTreeState params;
@@ -86,12 +94,26 @@ private:
     AudioBuffer<float> msLeftRightBuffer;
     AudioBuffer<float> chSwitchBuffer;
     AudioBuffer<float> passThroughLeftRightBuffer;
+    AudioBuffer<float> rotatedEightLeftRightBuffer;
+    AudioBuffer<float> xyLeftRightBuffer;
+    AudioBuffer<float> blumleinLeftRightBuffer;
 
     // pan law
     const static int panTableSize = 10000;
+    const static int xyAnglePanTableSize = 4996;
     float panLawExp = 4.5f / 3.01f;
     float panTableLeft[panTableSize];
     float panTableRight[panTableSize];
+    float xyAnglePanTableFront[xyAnglePanTableSize];
+    float xyAnglePanTableLeft[xyAnglePanTableSize];
+    
+    float xyEightRotationGainFront = 0.7f;
+    float xyEightRotationGainLeft = 0.7f;
+    float blumleinEightRotationGainFront = 0.7f;
+    float blumleinEightRotationGainLeft = 0.7f;
+    
+    float hyperCardioidLimit = 0.75;
+    float wideCardioidLimit = 0.37;
     
     bool midGainChanged = false;
     bool sideGainChanged = false;

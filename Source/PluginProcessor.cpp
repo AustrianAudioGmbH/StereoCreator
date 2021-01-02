@@ -16,14 +16,17 @@ StereoCreatorAudioProcessor::StereoCreatorAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                        ),
 params(*this, nullptr, "StereoCreator", {
-    std::make_unique<AudioParameterInt> ("stereoMode", "Stereo Mode", 1, 2, 1, "",
+    std::make_unique<AudioParameterInt> ("stereoMode", "Stereo Mode", 1, 5, 1, "",
                                            [](int value, int maximumStringLength) {return String(value + 1);}, nullptr),
-    std::make_unique<AudioParameterFloat> ("msMidGain", "MS Mid Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
-    std::make_unique<AudioParameterFloat> ("msSideGain", "MS Side Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
-    std::make_unique<AudioParameterFloat> ("lrWidth", "LR Width", NormalisableRange<float>( 0.0f, 100.0f, 1.0f), 100.0f,  "%", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("msMidGain", "MS Mid Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), -6.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("msSideGain", "MS Side Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), -6.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("lrWidth", "LR Width", NormalisableRange<float>( 0.0f, 100.0f, 1.0f), 70.0f,  "%", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterBool>("channelSwitch", "Channel Switch", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
     std::make_unique<AudioParameterBool>("autoLevelMode", "Auto Level Mode", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
-    std::make_unique<AudioParameterFloat> ("msMidPattern", "MS Mid Pattern", NormalisableRange<float> (- 1.0f, 1.0f, 0.01f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr)
+    std::make_unique<AudioParameterFloat> ("msMidPattern", "MS Mid Pattern", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("trueStXyPattern", "True-Stereo XY Pattern", NormalisableRange<float> (0.37f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("trueStXyAngle", "True-Stereo XY Angle", NormalisableRange<float> (30.0f, 150.0f, 0.5f), 90.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("blumleinRot", "Blumlein Rotation", NormalisableRange<float> (- 30.0f, 30.0f, 0.5f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr)
 })
 {
     params.addParameterListener("stereoMode", this);
@@ -32,6 +35,9 @@ params(*this, nullptr, "StereoCreator", {
     params.addParameterListener("channelSwitch", this);
     params.addParameterListener("autoLevelMode", this);
     params.addParameterListener("msMidPattern", this);
+    params.addParameterListener("trueStXyPattern", this);
+    params.addParameterListener("trueStXyAngle", this);
+    params.addParameterListener("blumleinRot", this);
     
     stereoModeIdx = params.getRawParameterValue("stereoMode");
     channelSwitchOn = params.getRawParameterValue("channelSwitch");
@@ -129,6 +135,12 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     chSwitchBuffer.clear();
     passThroughLeftRightBuffer.setSize(2, currentBlockSize);
     passThroughLeftRightBuffer.clear();
+    rotatedEightLeftRightBuffer.setSize(2, currentBlockSize);
+    rotatedEightLeftRightBuffer.clear();
+    xyLeftRightBuffer.setSize(2, currentBlockSize);
+    xyLeftRightBuffer.clear();
+    blumleinLeftRightBuffer.setSize(2, currentBlockSize);
+    blumleinLeftRightBuffer.clear();
     
     for (int i = 0; i < panTableSize; i++)
     {
@@ -137,7 +149,12 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 //        panTableLeft[i] = cos((float) i / ((float) panTableSize));
 //        panTableRight[i] = sin((float) i / ((float) panTableSize - 1.0f));
     }
-
+    
+    for (int i = 0; i < xyAnglePanTableSize; i++)
+    {
+        xyAnglePanTableLeft[i] = panTableRight[i + 2501];
+        xyAnglePanTableFront[i] = panTableLeft[i + 2501];
+    }
 }
 
 void StereoCreatorAudioProcessor::releaseResources()
@@ -170,6 +187,11 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     int numSamples = buffer.getNumSamples();
     
+    for (int i = 0; i < buffer.getNumChannels(); ++i)
+    {
+        inRms[i] = buffer.getRMSLevel (i, 0, numSamples);
+    }
+    
     const float* readPointerLeft = buffer.getReadPointer(0);
     const float* readPointerRight = buffer.getReadPointer(1);
     
@@ -182,6 +204,9 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     float* writePointerMsLeft = msLeftRightBuffer.getWritePointer(0);
     float* writePointerMsRight = msLeftRightBuffer.getWritePointer(1);
     
+    float eightPatternMultiplier = params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load()) * hyperCardioidLimit; // maximum is hyper cardioid => 0.75
+    float omniPatternMultiplier = 1.0f - eightPatternMultiplier;
+    
     FloatVectorOperations::copy (writePointerOmniLR, readPointerLeft, numSamples);
     FloatVectorOperations::add (writePointerOmniLR, readPointerRight, numSamples);
     
@@ -193,8 +218,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     {
         switch ((int) stereoModeIdx->load())
         {
-            case eStereoMode::msIdx: // when ms is chosen
-                // creating omni and eight patterns
+            case eStereoMode::pseudoMsIdx: // when ms is chosen
+                // creating ms left and right patterns
                 FloatVectorOperations::multiply(writePointerOmniLR, Decibels::decibelsToGain(params.getRawParameterValue("msMidGain")->load()), numSamples);
                 FloatVectorOperations::multiply(writePointerEightLR, Decibels::decibelsToGain(params.getRawParameterValue("msSideGain")->load()), numSamples);
                 FloatVectorOperations::copy(writePointerMsLeft, writePointerOmniLR, numSamples);
@@ -206,16 +231,19 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 buffer.copyFrom(0, 0, msLeftRightBuffer, 0, 0, numSamples);
                 buffer.copyFrom(1, 0, msLeftRightBuffer, 1, 0, numSamples);
                 break;
-            case eStereoMode::passThroughIdx: // when pass through is chosen
-                // adding up the cardioids according to the width setting
-                FloatVectorOperations::copy(writePointerPassThroughLeft, readPointerLeft, numSamples);
-                FloatVectorOperations::multiply(writePointerPassThroughLeft, 1.0f - params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load()), numSamples);
+            case eStereoMode::pseudoStereoIdx: // when pass through is chosen
+                // adding up omni and eight according to the width setting
+                FloatVectorOperations::multiply(writePointerEightLR, eightPatternMultiplier, numSamples);
+                FloatVectorOperations::multiply(writePointerOmniLR, omniPatternMultiplier, numSamples);
                 
-                FloatVectorOperations::copy(writePointerPassThroughRight, readPointerRight, numSamples);
-                FloatVectorOperations::multiply(writePointerPassThroughRight, 1.0f - params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load()), numSamples);
+                FloatVectorOperations::copy(writePointerPassThroughLeft, writePointerOmniLR, numSamples);
+                FloatVectorOperations::add(writePointerPassThroughLeft, writePointerEightLR, numSamples);
                 
-                buffer.addFrom(0, 0, passThroughLeftRightBuffer, 1, 0, numSamples);
-                buffer.addFrom(1, 0, passThroughLeftRightBuffer, 0, 0, numSamples);
+                FloatVectorOperations::copy(writePointerPassThroughRight, writePointerOmniLR, numSamples);
+                FloatVectorOperations::subtract(writePointerPassThroughRight, writePointerEightLR, numSamples);
+                
+                buffer.copyFrom(0, 0, passThroughLeftRightBuffer, 0, 0, numSamples);
+                buffer.copyFrom(1, 0, passThroughLeftRightBuffer, 1, 0, numSamples);
                 
                 // compensating gain difference of cardioids vs omni
                 buffer.applyGain(0, 0, numSamples, 1.0f - (1.0f - params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load())) / 3.0f);
@@ -238,6 +266,15 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         float* writePointerOmniFB = omniEightFbBuffer.getWritePointer(0);
         float* writePointerEightFB = omniEightFbBuffer.getWritePointer(1);
         
+        float* writePointerRotatedEightLeft = rotatedEightLeftRightBuffer.getWritePointer(0);
+        float* writePointerRotatedEightRight = rotatedEightLeftRightBuffer.getWritePointer(1);
+        
+        float* writePointerXyLeft = xyLeftRightBuffer.getWritePointer(0);
+        float* writePointerXyRight = xyLeftRightBuffer.getWritePointer(1);
+        
+        float* writePointerBlumleinLeft = blumleinLeftRightBuffer.getWritePointer(0);
+        float* writePointerBlumleinRight = blumleinLeftRightBuffer.getWritePointer(1);
+        
         FloatVectorOperations::copy (writePointerOmniFB, readPointerFront, numSamples);
         FloatVectorOperations::add (writePointerOmniFB, readPointerBack, numSamples);
         
@@ -246,10 +283,10 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         
         switch ((int) stereoModeIdx->load())
         {
-            case eStereoMode::msIdx:
-                FloatVectorOperations::copy(writePointerMsMid, readPointerBack, numSamples);
+            case eStereoMode::trueMsIdx:
+                FloatVectorOperations::copy(writePointerMsMid, writePointerEightFB, numSamples);
                 FloatVectorOperations::multiply(writePointerMsMid, params.getRawParameterValue("msMidPattern")->load(), numSamples);
-                FloatVectorOperations::add(writePointerMsMid, readPointerFront, numSamples);
+                FloatVectorOperations::addWithMultiply(writePointerMsMid, writePointerOmniFB, 1.0f - params.getRawParameterValue("msMidPattern")->load(), numSamples);
                 
                 FloatVectorOperations::multiply(writePointerMsMid, Decibels::decibelsToGain(params.getRawParameterValue("msMidGain")->load()), numSamples);
                 FloatVectorOperations::multiply(writePointerEightLR, Decibels::decibelsToGain(params.getRawParameterValue("msSideGain")->load()), numSamples);
@@ -259,24 +296,58 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 
                 FloatVectorOperations::copy(writePointerMsRight, writePointerMsMid, numSamples);
                 FloatVectorOperations::subtract(writePointerMsRight, writePointerEightLR, numSamples);
-                
 
-
-                
                 buffer.copyFrom(0, 0, msLeftRightBuffer, 0, 0, numSamples);
                 buffer.copyFrom(1, 0, msLeftRightBuffer, 1, 0, numSamples);
-                buffer.clear(2, 0, numSamples);
-                buffer.clear(3, 0, numSamples);
                 break;
                 
+            case eStereoMode::trueStereoIdx:
+                FloatVectorOperations::multiply(writePointerEightFB, xyEightRotationGainFront, numSamples);
+                FloatVectorOperations::multiply(writePointerEightLR, xyEightRotationGainLeft, numSamples);
+                
+                FloatVectorOperations::copy(writePointerRotatedEightLeft, writePointerEightFB, numSamples);
+                FloatVectorOperations::add(writePointerRotatedEightLeft, writePointerEightLR, numSamples);
+                
+                FloatVectorOperations::copy(writePointerRotatedEightRight, writePointerEightFB, numSamples);
+                FloatVectorOperations::subtract(writePointerRotatedEightRight, writePointerEightLR, numSamples);
+                
+                FloatVectorOperations::multiply(writePointerRotatedEightLeft, params.getRawParameterValue("trueStXyPattern")->load(), numSamples);
+                FloatVectorOperations::multiply(writePointerRotatedEightRight, params.getRawParameterValue("trueStXyPattern")->load(), numSamples);
+                FloatVectorOperations::multiply(writePointerOmniFB, 1.0f - params.getRawParameterValue("trueStXyPattern")->load(), numSamples);
+                
+                FloatVectorOperations::copy(writePointerXyLeft, writePointerRotatedEightLeft, numSamples);
+                FloatVectorOperations::add(writePointerXyLeft, writePointerOmniFB, numSamples);
+                
+                FloatVectorOperations::copy(writePointerXyRight, writePointerRotatedEightRight, numSamples);
+                FloatVectorOperations::add(writePointerXyRight, writePointerOmniFB, numSamples);
+                
+                buffer.copyFrom(0, 0, xyLeftRightBuffer, 0, 0, numSamples);
+                buffer.copyFrom(1, 0, xyLeftRightBuffer, 1, 0, numSamples);
+                break;
+                
+            case eStereoMode::blumleinIdx:
+                FloatVectorOperations::copyWithMultiply(writePointerBlumleinLeft, writePointerEightFB, blumleinEightRotationGainFront, numSamples);
+                FloatVectorOperations::addWithMultiply(writePointerBlumleinLeft, writePointerEightLR, blumleinEightRotationGainLeft, numSamples);
+                
+                FloatVectorOperations::copyWithMultiply(writePointerBlumleinRight, writePointerEightFB, blumleinEightRotationGainLeft, numSamples);
+                FloatVectorOperations::subtractWithMultiply(writePointerBlumleinRight, writePointerEightLR, blumleinEightRotationGainFront, numSamples);
+                
+                buffer.copyFrom(0, 0, blumleinLeftRightBuffer, 0, 0, numSamples);
+                buffer.copyFrom(1, 0, blumleinLeftRightBuffer, 1, 0, numSamples);
+                break;
             default:
                 break;
         }
+        buffer.clear(2, 0, numSamples);
+        buffer.clear(3, 0, numSamples);
     }
     else
     {
         return;
     }
+    
+    outRms[0] = buffer.getRMSLevel(0, 0, numSamples);
+    outRms[1] = buffer.getRMSLevel(1, 0, numSamples);
     
     if (channelSwitchOn->load() >= 0.5f)
     {
@@ -326,6 +397,14 @@ void StereoCreatorAudioProcessor::parameterChanged(const String &parameterID, fl
         midGainChanged = false;
         
     }
+    else if (parameterID == "trueStXyAngle")
+    {
+        getXyAngleRelatedGains(params.getRawParameterValue("trueStXyAngle")->load());
+    }
+    else if (parameterID == "blumleinRot")
+    {
+        getBlumleinRotationGains(params.getRawParameterValue("blumleinRot")->load());
+    }
 }
 
 //==============================================================================
@@ -370,4 +449,27 @@ void StereoCreatorAudioProcessor::getSideGain(float midGain)
         }
     }
     params.getParameter("msSideGain")->setValueNotifyingHost (params.getParameter("msSideGain")->convertTo0to1(Decibels::gainToDecibels(panTableLeft[panIdx])));
+}
+
+
+void StereoCreatorAudioProcessor::getXyAngleRelatedGains(float currentAngle)
+{
+    float angleRange = params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getLength() / 2.0f;
+    currentAngle /= 2.0f;
+    currentAngle = (currentAngle - (params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getStart() / 2)) / angleRange * xyAnglePanTableSize;
+    
+    xyEightRotationGainLeft = xyAnglePanTableLeft[(int) currentAngle - 1];
+    xyEightRotationGainFront = xyAnglePanTableFront[(int) currentAngle - 1];
+}
+
+void StereoCreatorAudioProcessor::getBlumleinRotationGains(float currentRotation)
+{
+    float rotationOffset = 45.0f;
+    currentRotation += rotationOffset;
+    float rotationRange = params.getParameter("blumleinRot")->getNormalisableRange().getRange().getLength();
+    currentRotation = (currentRotation - (params.getParameter("blumleinRot")->getNormalisableRange().getRange().getEnd() / 2)) / rotationRange * xyAnglePanTableSize;
+    
+    blumleinEightRotationGainLeft = xyAnglePanTableLeft[(int) currentRotation - 1];
+    blumleinEightRotationGainFront = xyAnglePanTableFront[(int) currentRotation - 1];
+
 }

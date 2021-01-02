@@ -15,6 +15,7 @@
 #include "../resources/customComponents/SimpleLabel.h"
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
+#include "../resources/customComponents/LevelMeter.h"
 
 
 typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
@@ -37,10 +38,12 @@ public:
     void comboBoxChanged (ComboBox* cb) override;
     void sliderValueChanged (Slider* slider) override;
     
-
+    void setComboBoxItemsEnabled(bool twoChannelInput);
+    void setSliderVisibility(bool msTwoCh, bool msFourCh, bool width, bool pattern, bool rotation, bool xyPattern, bool xyAngle);
+    
 private:
     static const int EDITOR_WIDTH = 580;
-    static const int EDITOR_HEIGHT = 350;
+    static const int EDITOR_HEIGHT = 400;
     
     StereoCreatorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
@@ -50,15 +53,15 @@ private:
     LaF globalLaF;
     TooltipWindow tooltipWindow;
     
-    Slider slMidGain[2], slSideGain[2], slWidth, slMidPattern;
+    Slider slMidGain[2], slSideGain[2], slWidth, slMidPattern, slXyPattern, slXyAngle, slRotation;
     ComboBox cbStereoMode;
     ToggleButton tbChSwitch, tbAutoLevels;
     
-    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttWidth, slAttMidPattern;
+    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttWidth, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation;
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
     std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttAutoLevels;
  
-    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpWidth, grpMidPattern;
+    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpWidth, grpMidPattern, grpXyPattern, grpXyAngle, grpRotation, grpInputMeters;
     
 //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
 //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
@@ -69,6 +72,12 @@ private:
     Path aaLogoBgPath;
     Image arrayImage;
     Rectangle<float> arrayImageArea;
+    
+    LevelMeter inputMeter[4];
+    LevelMeter outputMeter[2];
+    
+    const juce::String inMeterLabelText[4] = { "L", "R", "F", "B" };
+    const juce::String outMeterLabelText[4] = { "L", "R"};
     
     void timerCallback() override;
 
