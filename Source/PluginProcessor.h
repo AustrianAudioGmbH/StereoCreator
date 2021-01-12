@@ -19,6 +19,11 @@ enum eStereoMode
     blumleinIdx = 5
 };
 
+enum eCurrentActiveLayer
+{
+    layerA = 1,
+    layerB = 2
+};
 
 //==============================================================================
 /**
@@ -72,6 +77,8 @@ public:
     void getSideGain (float midGain);
     void getXyAngleRelatedGains(float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
+    void changeAbLayerState();
+    void setAbLayer(int desiredLayer);
     
 //    Atomic<bool> wrongBusConfiguration = false;
     
@@ -80,6 +87,16 @@ public:
     
 private:
     AudioProcessorValueTreeState params;
+    
+    // AB layer handling
+    Identifier nodeA = "layerA";
+    Identifier nodeB = "layerB";
+    Identifier allStates = "savedLayers";
+    ValueTree layerA;
+    ValueTree layerB;
+    ValueTree allValueTreeStates;
+
+    int abLayerState;
     
     int numInputs;
     

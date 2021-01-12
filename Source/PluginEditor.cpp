@@ -133,6 +133,22 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
     tbAutoLevels.setButtonText("link gains");
     
+    addAndMakeVisible(&tbAbLayer[0]);
+    tbAbLayer[0].setButtonText("A");
+    tbAbLayer[0].addListener(this);
+    tbAbLayer[0].setClickingTogglesState(true);
+    tbAbLayer[0].setRadioGroupId(1);
+    tbAbLayer[0].setToggleState(true, NotificationType::dontSendNotification);
+    
+    addAndMakeVisible(&tbAbLayer[1]);
+    tbAbLayer[1].setButtonText("B");
+    tbAbLayer[1].addListener(this);
+    tbAbLayer[1].setClickingTogglesState(true);
+    tbAbLayer[1].setRadioGroupId(1);
+    tbAbLayer[1].setToggleState(false, NotificationType::dontSendNotification);
+    
+    setAbButtonAlphaFromLayerState(eCurrentActiveLayer::layerA);
+    
     // group components and labels
     addAndMakeVisible(&grpStereoMode);
     grpStereoMode.setText("setup");
@@ -355,6 +371,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     const float meterWidth = 12;
     const float meterHeight = 150;
     const float meterSpacing = 2;
+    const float abLayerButtonHeight = 28;
     
     const int vSpace = 5;
     const int hSpace = 10;
@@ -372,6 +389,13 @@ void StereoCreatorAudioProcessorEditor::resized()
     area.removeFromRight (leftRightMargin);
     Rectangle<int> headerArea = area.removeFromTop (headerHeight);
     title.setBounds (headerArea);
+    Rectangle<int> abButtonArea = headerArea.removeFromRight(3 * abLayerButtonHeight);
+    abButtonArea.removeFromTop((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
+    abButtonArea.removeFromBottom((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
+    tbAbLayer[0].setBounds(abButtonArea.removeFromLeft(abLayerButtonHeight));
+    abButtonArea.removeFromLeft(abLayerButtonHeight / 2);
+    tbAbLayer[1].setBounds(abButtonArea.removeFromLeft(abLayerButtonHeight));
+    
 
     area.removeFromTop(topMargin);
     arrayImageArea = area.removeFromLeft(arrayWidth).toFloat();
@@ -473,6 +497,42 @@ void StereoCreatorAudioProcessorEditor::sliderValueChanged(Slider *slider)
 
 }
 
+void StereoCreatorAudioProcessorEditor::buttonClicked(Button *button)
+{
+    if (button == &tbAbLayer[0])
+    {
+        bool isToggled = button->getToggleState();
+        if (isToggled < 0.5f)
+        {
+            processor.setAbLayer(eCurrentActiveLayer::layerB);
+            setAbButtonAlphaFromLayerState(eCurrentActiveLayer::layerB);
+        }
+    }
+    else if (button == &tbAbLayer[1])
+    {
+        bool isToggled = button->getToggleState();
+        if (isToggled < 0.5f)
+        {
+            processor.setAbLayer(eCurrentActiveLayer::layerA);
+            setAbButtonAlphaFromLayerState(eCurrentActiveLayer::layerA);
+        }
+    }
+}
+
+void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState(int layerState)
+{
+    if (layerState == eCurrentActiveLayer::layerA)
+    {
+        tbAbLayer[0].setAlpha(1.0f);
+        tbAbLayer[1].setAlpha(0.3f);
+    }
+    else
+    {
+        tbAbLayer[0].setAlpha(0.3f);
+        tbAbLayer[1].setAlpha(1.0f);
+    }
+}
+
 void StereoCreatorAudioProcessorEditor::timerCallback()
 {
     for (int i = 0; i < 4; ++i)
@@ -513,4 +573,32 @@ void StereoCreatorAudioProcessorEditor::setSliderVisibility(bool msTwoCh, bool m
     grpXyPattern.setVisible(xyPattern);
     slRotation.setVisible(rotation);
     grpRotation.setVisible(rotation);
+}
+
+
+// implement this for AAX automation shortchut
+int StereoCreatorAudioProcessorEditor::getControlParameterIndex (Component& control)
+{
+    if (&control == &slMidGain[0])
+        return 1;
+    else if (&control == &slMidGain[1])
+        return 2;
+    else if (&control == &slSideGain[0])
+        return 3;
+    else if (&control == &slSideGain[1])
+        return 4;
+    else if (&control == &slWidth)
+        return 5;
+    else if (&control == &slMidPattern)
+        return 6;
+    else if (&control == &slXyPattern)
+        return 7;
+    else if (&control == &slXyAngle)
+        return 8;
+    else if (&control == &slRotation)
+        return 9;
+    else if (&control == &tbChSwitch)
+        return 10;
+    
+    return -1;
 }

@@ -27,7 +27,8 @@ params(*this, nullptr, "StereoCreator", {
     std::make_unique<AudioParameterFloat> ("trueStXyPattern", "True-Stereo XY Pattern", NormalisableRange<float> (0.37f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterFloat> ("trueStXyAngle", "True-Stereo XY Angle", NormalisableRange<float> (30.0f, 150.0f, 0.5f), 90.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
     std::make_unique<AudioParameterFloat> ("blumleinRot", "Blumlein Rotation", NormalisableRange<float> (- 30.0f, 30.0f, 0.5f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr)
-})
+}),
+layerA(nodeA), layerB(nodeB), allValueTreeStates(allStates)
 {
     params.addParameterListener("stereoMode", this);
     params.addParameterListener("msMidGain", this);
@@ -376,12 +377,42 @@ void StereoCreatorAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    if (abLayerState == eCurrentActiveLayer::layerA)
+    {
+        layerA = params.copyState();
+    }
+    if (abLayerState == eCurrentActiveLayer::layerB)
+    {
+        layerB = params.copyState();
+    }
+
+    ValueTree vtsState = params.copyState();
+    ValueTree AState = layerA.createCopy();
+    ValueTree BState = layerB.createCopy();
+    
+    allValueTreeStates.removeAllChildren(nullptr);
+    allValueTreeStates.addChild(vtsState, 0, nullptr);
+    allValueTreeStates.addChild(AState, 1, nullptr);
+    allValueTreeStates.addChild(BState, 2, nullptr);
+    
+    std::unique_ptr<XmlElement> xml (allValueTreeStates.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void StereoCreatorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState != nullptr)
+    {
+        if (xmlState->hasTagName (allValueTreeStates.getType()))
+        {
+            allValueTreeStates = ValueTree::fromXml (*xmlState);
+            params.replaceState(allValueTreeStates.getChild(1));
+        }
+    }
+    layerB = allValueTreeStates.getChild(2).createCopy();
 }
 
 void StereoCreatorAudioProcessor::parameterChanged(const String &parameterID, float newValue)
@@ -472,4 +503,24 @@ void StereoCreatorAudioProcessor::getBlumleinRotationGains(float currentRotation
     blumleinEightRotationGainLeft = xyAnglePanTableLeft[(int) currentRotation - 1];
     blumleinEightRotationGainFront = xyAnglePanTableFront[(int) currentRotation - 1];
 
+}
+
+void StereoCreatorAudioProcessor::setAbLayer(int desiredLayer)
+{
+    abLayerState = desiredLayer;
+    changeAbLayerState();
+}
+
+void StereoCreatorAudioProcessor::changeAbLayerState()
+{
+    if (abLayerState == eCurrentActiveLayer::layerB)
+    {
+        layerA = params.copyState();
+        params.state = layerB.createCopy();
+    }
+    else
+    {
+        layerB = params.copyState();
+        params.state = layerA.createCopy();
+    }
 }
