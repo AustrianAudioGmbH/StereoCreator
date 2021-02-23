@@ -1,10 +1,25 @@
 /*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
+ ==============================================================================
+ PluginEditor.cpp
+ Author: Simon Beck
+ 
+ Copyright (c) 2019 - Austrian Audio GmbH
+ www.austrian.audio
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ==============================================================================
+ */
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -28,7 +43,9 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     tooltipWindow.setLookAndFeel(&globalLaF);
     tooltipWindow.setMillisecondsBeforeTipAppears(500);
     
-    arrayImage = ImageCache::getFromMemory (arrayPng, arrayPngSize);
+    arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
+    arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
+    
     aaLogoBgPath.loadPathFromData (aaLogoData, sizeof (aaLogoData));
     
     // colours
@@ -217,7 +234,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     outputMeter[1].setColour(globalLaF.AARed);
     outputMeter[1].setLabelText(outMeterLabelText[1]);
     
-    
     startTimer(30);
 }
 
@@ -235,21 +251,14 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (globalLaF.ClBackground);
     
     
-    g.drawImage(arrayImage, -25, 55, arrayImageArea.getWidth() + 80, currHeight - 50, 0, 0, arrayImage.getWidth(), arrayImage.getHeight());
-    
-    // background logo
-    aaLogoBgPath.applyTransform (aaLogoBgPath.getTransformToScaleToFit (0.4f * currWidth, 0.25f * currHeight,
-                                                                        0.7f * currWidth, 0.7f * currWidth, true, Justification::centred));
-    g.setColour (Colours::white.withAlpha(0.1f));
-    g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
-    g.fillPath (aaLogoBgPath);
-    
     float sliderRange;
     float newAlphaMid;
     float newAlphaSide;
     
     if (processor.getNumInpCh() == 2) // two channel input
     {
+        g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
+        
         setComboBoxItemsEnabled(true);
         inputMeter[0].setVisible(true);
         inputMeter[1].setVisible(true);
@@ -295,6 +304,8 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     }
     else // four channel input
     {
+        g.drawImage(arrayImage4Ch, 20, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
+        
         setComboBoxItemsEnabled(false);
         inputMeter[0].setVisible(true);
         inputMeter[1].setVisible(true);
@@ -350,6 +361,15 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         }
     }
     
+    // background logo
+    aaLogoBgPath.applyTransform (aaLogoBgPath.getTransformToScaleToFit (0.50f * currWidth, 0.25f * currHeight,
+                                                                        0.58f * currWidth, 0.58f * currWidth, true, Justification::centred));
+    
+    
+    g.setColour (Colours::white.withAlpha(0.1f));
+    g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
+    g.fillPath (aaLogoBgPath);
+    
 }
 
 void StereoCreatorAudioProcessorEditor::resized()
@@ -365,7 +385,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     const int comboBoxHeight = 20;
     const int toggleBtHeight = 20;
     const int sideAreaWidth = comboBoxWidth;
-    const int arrayWidth = 100;
+    const int arrayWidth = 160;
     const int linearSliderHeight = 40;
     const int dirVisHeight = 150;
     const float meterWidth = 12;
@@ -414,14 +434,15 @@ void StereoCreatorAudioProcessorEditor::resized()
     sideArea.removeFromTop(5 * vSpace);
     grpInputMeters.setBounds(sideArea.removeFromTop(grpHeight));
     sideArea.removeFromTop(vSpace);
+    
     Rectangle<int> inputMeterArea (sideArea.removeFromTop(meterHeight));
-    inputMeterArea.removeFromLeft(hSpace);
+    inputMeterArea.removeFromLeft(hSpace - 1);
     for (int i = 0; i < 4; i++)
     {
         inputMeter[i].setBounds(inputMeterArea.removeFromLeft(meterWidth));
         inputMeterArea.removeFromLeft(meterSpacing);
     }
-    inputMeterArea.removeFromLeft(3 * hSpace);
+    inputMeterArea.removeFromLeft(4 * hSpace);
     outputMeter[0].setBounds(inputMeterArea.removeFromLeft(meterWidth));
     inputMeterArea.removeFromLeft(meterSpacing);
     outputMeter[1].setBounds(inputMeterArea.removeFromLeft(meterWidth));

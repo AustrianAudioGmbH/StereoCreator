@@ -1,10 +1,25 @@
 /*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
+ ==============================================================================
+ PluginEditor.h
+ Author: Simon Beck
+ 
+ Copyright (c) 2019 - Austrian Audio GmbH
+ www.austrian.audio
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ==============================================================================
+ */
 
 #pragma once
 
@@ -47,7 +62,7 @@ public:
     void setAbButtonAlphaFromLayerState(int layerState);
     
 private:
-    static const int EDITOR_WIDTH = 580;
+    static const int EDITOR_WIDTH = 640;
     static const int EDITOR_HEIGHT = 400;
     
     StereoCreatorAudioProcessor& processor;
@@ -76,7 +91,8 @@ private:
     Colour colours[3];
     
     Path aaLogoBgPath;
-    Image arrayImage;
+    Image arrayImage2Ch;
+    Image arrayImage4Ch;
     Rectangle<float> arrayImageArea;
     
     LevelMeter inputMeter[4];
