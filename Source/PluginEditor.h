@@ -74,12 +74,14 @@ private:
     LaF globalLaF;
     TooltipWindow tooltipWindow;
     
-    Slider slMidGain[2], slSideGain[2], slWidth, slMidPattern, slXyAngle, slRotation;// , slXyPattern
+    Slider slMidGain[2], slSideGain[2], slWidth, slXyAngle, slRotation;// , slXyPattern, slMidPattern,
     ComboBox cbStereoMode;
     ToggleButton tbChSwitch, tbAutoLevels;
     TextButton tbAbLayer[2];
     
-    DirSlider slXyPattern;
+    DirSlider slXyPattern, slMidPattern;
+    
+    
     
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttWidth, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation;
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
@@ -103,6 +105,20 @@ private:
     
     const juce::String inMeterLabelText[4] = { "L", "R", "F", "B" };
     const juce::String outMeterLabelText[4] = { "L", "R"};
+    
+    const float omniFact = 0.0f;
+    const float eightFact = 1.0f;
+    const float bCardFact = 0.37f;
+    const float cardFact = 0.5f;
+    const float sCardFact = 0.634f;
+    const float hCardFact = 0.75f;
+    
+    Path bCardPath;
+    Path cardPath;
+    Path sCardPath;
+    Path hCardPath;
+    Path eightPath;
+    Path omniPath;
     
     void timerCallback() override;
 

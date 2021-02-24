@@ -75,6 +75,7 @@ public:
         setSliderStyle (Slider::Rotary);
         addAndMakeVisible(&dirStripTop);
         addAndMakeVisible(&dirStripBottom);
+//        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
     }
 
     ~DirSlider () {}
@@ -96,6 +97,7 @@ public:
             omniPath.loadPathFromData (omniData, sizeof (omniData));
 //            revCardPath.loadPathFromData (cardData, sizeof (cardData));
 //            revCardPath.applyTransform (AffineTransform::rotation(M_PI));
+//            dirStripTop.setPatternPathsAndFactors(bCardPath, hCardPath, bCardFact, hCardFact);
         }
         
         ~DirPatternStrip() {}
@@ -109,59 +111,28 @@ public:
             int boundsY = bounds.getY() + topMargin;
             int width = bounds.getWidth() - 2*lrMargin;
             
-//            revCardPath.applyTransform (revCardPath.getTransformToScaleToFit(boundsX,
-//                                                                             boundsY, dirImgSize, dirImgSize,
-//                                                                             true, Justification::centred));
+            leftPath.applyTransform (leftPath.getTransformToScaleToFit(boundsX,
+                                                                             boundsY, dirImgSize, dirImgSize,
+                                                                             true, Justification::centred));
             (slider->isEnabled()) ? g.setColour (Colours::white) : g.setColour (Colours::white.withMultipliedAlpha(0.5f));
-//            g.strokePath (revCardPath, PathStrokeType (activePatternPath == revCardFact ? 2.0f : 1.0f));
+            g.strokePath (leftPath, PathStrokeType (activePatternPath == patternFactorL ? 2.0f : 1.0f));
             
-            omniPath.applyTransform (omniPath.getTransformToScaleToFit(boundsX + 0.33 * width - dirImgSize/2.0f + 2.0f ,
-                                                                       boundsY, dirImgSize, dirImgSize,
-                                                                       true, Justification::centred));
-            //g.strokePath (omniPath, PathStrokeType (activePatternPath == omniFact ? 2.0f : 1.0f));
 
-            cardPath.applyTransform (cardPath.getTransformToScaleToFit(boundsX + 0.66 * width - dirImgSize/2.0f - 1.0f,
-                                                                       boundsY, dirImgSize, dirImgSize,
-                                                                       true, Justification::centred));
-           // g.strokePath (cardPath, PathStrokeType (activePatternPath == cardFact ? 2.0f : 1.0f));
 
-            eightPath.applyTransform (eightPath.getTransformToScaleToFit(boundsX + width - dirImgSize,
+            rightPath.applyTransform (rightPath.getTransformToScaleToFit(boundsX + width - dirImgSize,
                                                                          boundsY, dirImgSize, dirImgSize,
                                                                          true, Justification::centred));
-            g.strokePath (eightPath, PathStrokeType (activePatternPath == eightFact ? 2.0f : 1.0f));
+            g.strokePath (rightPath, PathStrokeType (activePatternPath == patternFactorR ? 2.0f : 1.0f));
         }
         
-//        void setTopPatternPathsAndFactors (float patternFactorTopLeft, float patternFactorTopRight)
-//        {
-//            patternFactorTopL = patternFactorTopLeft;
-//            patternFactorTopR = patternFactorTopRight;
-//
-//            if (patternFactorTopLeft == omniFact)
-//            {
-//                topLPath = omniPath;
-//            }
-//            else if (patternFactorTopLeft == eightFact)
-//            {
-//
-//            }
-//
-//            const float omniFact = 0.0f;
-//            const float eightFact = 1.0f;
-//            const float bCardFact = 0.37f;
-//            const float cardFact = 0.5f;
-//            const float sCardFact = 0.634f;
-//            const float hCardFact = 0.75f;
-//        }
-//
-//        void setBottomPatternPathsAndFactors (float patternFactorBottomLeft, float patternFactorBottomRight)
-//        {
-//
-//        }
-//
-//        float getPatternPath(float patternFactor)
-//        {
-//
-//        }
+        void setPatternPathsAndFactors (Path pathL, Path pathR, float factorL, float factorR)
+        {
+            leftPath = pathL;
+            rightPath = pathR;
+            
+            patternFactorL = factorL;
+            patternFactorR = factorR;
+        }
         
         void mouseMove(const MouseEvent &e) override
         {
@@ -173,9 +144,9 @@ public:
             activePatternPath = -1;
             
             // highlight active polar pattern path
-            if (omniPath.getBounds().contains(posf)) activePatternPath = omniFact;
-            else if (eightPath.getBounds().contains(posf)) activePatternPath = eightFact;
-            else if (cardPath.getBounds().contains(posf)) activePatternPath = cardFact;
+            if (leftPath.getBounds().contains(posf)) activePatternPath = patternFactorL;
+            else if (rightPath.getBounds().contains(posf)) activePatternPath = patternFactorR;
+//            else if (cardPath.getBounds().contains(posf)) activePatternPath = cardFact;
 //            else if (revCardPath.getBounds().contains(posf)) activePatternPath = revCardFact;
             
             if (oldActivePath != activePatternPath)
@@ -210,10 +181,10 @@ public:
         const float hCardFact = 0.75f;
 //        const float revCardFact = -0.5f;
         
-        float patternFactorTopL;
-        float patternFactorTopR;
-        float patternFactorBottomL;
-        float patternFactorBottomR;
+        float patternFactorL;
+        float patternFactorR;
+//        float patternFactorBottomL;
+//        float patternFactorBottomR;
         
         Path bCardPath;
         Path cardPath;
@@ -221,12 +192,12 @@ public:
         Path hCardPath;
         Path eightPath;
         Path omniPath;
-        Path revCardPath;
+//        Path revCardPath;
         
-        Path topLPath;
-        Path topRPath;
-        Path bottomLPath;
-        Path bottomRPath;
+        Path leftPath;
+        Path rightPath;
+//        Path bottomLPath;
+//        Path bottomRPath;
         
         DirSlider* slider;
     };
@@ -234,9 +205,7 @@ public:
     void paint (Graphics& g) override
     {
         auto& lf = getLookAndFeel();
-//        auto style = getSliderStyle();
-
-//        auto sliderPos = (float) valueToProportionOfLength (getValue());
+        
         
         float minRotaryAngle = 3.76991153f;
         float maxRotaryAngle = 8.7964592f;
@@ -250,23 +219,9 @@ public:
         
         lf.drawRotarySlider(g, sliderRect.getX(), sliderRect.getY(), sliderRect.getWidth(), sliderRect.getHeight(), currentValue, minRotaryAngle, maxRotaryAngle, *this);
         
-        
-//        lf.drawLinearSlider (g,
-//                             sliderRect.getX(), sliderRect.getY(),
-//                             sliderRect.getWidth(), sliderRect.getHeight(),
-//                             getLinearSliderPos (sliderPos),
-//                             getLinearSliderPos (0.0f), getLinearSliderPos (0.0f),
-//                             style, *this);
-        
         if (tooltipActive)
             tooltipValueBox->setVisible(true);
 
-    }
-
-    float getLinearSliderPos (double pos) const
-    {
-        return (float) (sliderRect.getX() + pos * sliderRect.getWidth());
-        
     }
     
     void valueChanged() override
@@ -376,6 +331,10 @@ public:
             tooltipValueBox->setEditable(shouldBeEditable);
     }
 
+    
+    DirPatternStrip dirStripTop;
+    DirPatternStrip dirStripBottom;
+    
 private:
     int lastDistanceFromDragStart;
     bool reversed;
@@ -392,8 +351,5 @@ private:
     float patternStripSize;
     
     std::unique_ptr<Label> tooltipValueBox;
-    
-    DirPatternStrip dirStripTop;
-    DirPatternStrip dirStripBottom;
 
 };

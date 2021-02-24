@@ -46,6 +46,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
     arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
     
+    bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
+    cardPath.loadPathFromData (cardData, sizeof (cardData));
+    sCardPath.loadPathFromData (sCardData, sizeof (sCardData));
+    hCardPath.loadPathFromData (hCardData, sizeof (hCardData));
+    eightPath.loadPathFromData (eightData, sizeof (eightData));
+    omniPath.loadPathFromData (omniData, sizeof (omniData));
+    
+    
     aaLogoBgPath.loadPathFromData (aaLogoData, sizeof (aaLogoData));
     
     // colours
@@ -110,19 +118,23 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&slMidPattern);
     slAttMidPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "msMidPattern", slMidPattern));
-    slMidPattern.setSliderStyle(Slider::Rotary);
-    slMidPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+//    slMidPattern.setSliderStyle(Slider::Rotary);
+//    slMidPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+    slMidPattern.setTooltipEditable(true);
     slMidPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slMidPattern.addListener(this);
+    slMidPattern.dirStripTop.setPatternPathsAndFactors(bCardPath, cardPath, bCardFact, cardFact);
+    slMidPattern.dirStripBottom.setPatternPathsAndFactors(omniPath, hCardPath, omniFact, hCardFact);
     
     addAndMakeVisible(&slXyPattern);
     slAttXyPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyPattern", slXyPattern));
     //slXyPattern.setSliderStyle(Slider::Rotary);
-    //slXyPattern.setColour (Slider::thumbColourId, colours[2]); // colour of knob
     slXyPattern.setTooltipEditable (true);
     //slXyPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slXyPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slXyPattern.addListener(this);
+    slXyPattern.dirStripTop.setPatternPathsAndFactors(cardPath, sCardPath, cardFact, sCardFact);
+    slXyPattern.dirStripBottom.setPatternPathsAndFactors(bCardPath, sCardPath, bCardFact, hCardFact);
     
     // linear sliders
     addAndMakeVisible(&slXyAngle);
