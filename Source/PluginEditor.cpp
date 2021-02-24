@@ -117,8 +117,10 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&slXyPattern);
     slAttXyPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyPattern", slXyPattern));
-    slXyPattern.setSliderStyle(Slider::Rotary);
-    slXyPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+    //slXyPattern.setSliderStyle(Slider::Rotary);
+    //slXyPattern.setColour (Slider::thumbColourId, colours[2]); // colour of knob
+    slXyPattern.setTooltipEditable (true);
+    //slXyPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slXyPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slXyPattern.addListener(this);
     

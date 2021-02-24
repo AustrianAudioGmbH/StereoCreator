@@ -343,11 +343,11 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 break;
                 
             case eStereoMode::blumleinIdx:
-                FloatVectorOperations::copyWithMultiply(writePointerBlumleinLeft, writePointerEightFB, blumleinEightRotationGainFront, numSamples);
-                FloatVectorOperations::addWithMultiply(writePointerBlumleinLeft, writePointerEightLR, blumleinEightRotationGainLeft, numSamples);
+                FloatVectorOperations::copyWithMultiply(writePointerBlumleinLeft, writePointerEightFB, blumleinEightRotationGainLeft, numSamples);
+                FloatVectorOperations::addWithMultiply(writePointerBlumleinLeft, writePointerEightLR, blumleinEightRotationGainFront, numSamples);
                 
-                FloatVectorOperations::copyWithMultiply(writePointerBlumleinRight, writePointerEightFB, blumleinEightRotationGainLeft, numSamples);
-                FloatVectorOperations::subtractWithMultiply(writePointerBlumleinRight, writePointerEightLR, blumleinEightRotationGainFront, numSamples);
+                FloatVectorOperations::copyWithMultiply(writePointerBlumleinRight, writePointerEightFB, blumleinEightRotationGainFront, numSamples);
+                FloatVectorOperations::subtractWithMultiply(writePointerBlumleinRight, writePointerEightLR, blumleinEightRotationGainLeft, numSamples);
                 
                 buffer.copyFrom(0, 0, blumleinLeftRightBuffer, 0, 0, numSamples);
                 buffer.copyFrom(1, 0, blumleinLeftRightBuffer, 1, 0, numSamples);
@@ -373,6 +373,16 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         buffer.copyFrom(0, 0, chSwitchBuffer, 0, 0, numSamples);
         buffer.copyFrom(1, 0, chSwitchBuffer, 1, 0, numSamples);
     }
+    
+//    msLeftRightBuffer.clear();
+//    xyLeftRightBuffer.clear();
+//    blumleinLeftRightBuffer.clear();
+//    rotatedEightLeftRightBuffer.clear();
+//    omniEightFbBuffer.clear();
+//    msMidBuffer.clear();
+//    omniEightLrBuffer.clear();
+//    passThroughLeftRightBuffer.clear();
+    
     
 }
 
@@ -501,23 +511,33 @@ void StereoCreatorAudioProcessor::getSideGain(float midGain)
 
 void StereoCreatorAudioProcessor::getXyAngleRelatedGains(float currentAngle)
 {
-    float angleRange = params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getLength() / 2.0f;
-    currentAngle /= 2.0f;
-    currentAngle = (currentAngle - (params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getStart() / 2)) / angleRange * xyAnglePanTableSize;
+//    float angleRange = params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getLength() / 2.0f;
+//    currentAngle /= 2.0f;
+//    currentAngle = (currentAngle - (params.getParameter("trueStXyAngle")->getNormalisableRange().getRange().getStart() / 2)) / angleRange * xyAnglePanTableSize;
+//
+//    xyEightRotationGainLeft = xyAnglePanTableLeft[(int) currentAngle - 1];
+//    xyEightRotationGainFront = xyAnglePanTableFront[(int) currentAngle];
     
-    xyEightRotationGainLeft = xyAnglePanTableLeft[(int) currentAngle - 1];
-    xyEightRotationGainFront = xyAnglePanTableFront[(int) currentAngle - 1];
+    float angle = currentAngle / 2.0f;
+    
+    xyEightRotationGainFront = cos(angle * MathConstants<float>::pi / 180.0f);
+    xyEightRotationGainLeft = sin(angle * MathConstants<float>::pi / 180.0f);
 }
 
 void StereoCreatorAudioProcessor::getBlumleinRotationGains(float currentRotation)
 {
-    float rotationOffset = 45.0f;
-    currentRotation += rotationOffset;
-    float rotationRange = params.getParameter("blumleinRot")->getNormalisableRange().getRange().getLength();
-    currentRotation = (currentRotation - (params.getParameter("blumleinRot")->getNormalisableRange().getRange().getEnd() / 2)) / rotationRange * xyAnglePanTableSize;
+//    float rotationOffset = 45.0f;
+//    currentRotation += rotationOffset;
+//    float rotationRange = params.getParameter("blumleinRot")->getNormalisableRange().getRange().getLength();
+//    currentRotation = (currentRotation - (params.getParameter("blumleinRot")->getNormalisableRange().getRange().getEnd() / 2)) / rotationRange * xyAnglePanTableSize;
+//
+//    blumleinEightRotationGainLeft = xyAnglePanTableLeft[(int) currentRotation - 1];
+//    blumleinEightRotationGainFront = xyAnglePanTableFront[(int) currentRotation - 1];
     
-    blumleinEightRotationGainLeft = xyAnglePanTableLeft[(int) currentRotation - 1];
-    blumleinEightRotationGainFront = xyAnglePanTableFront[(int) currentRotation - 1];
+    float angle = currentRotation + 45.0f;
+    
+    blumleinEightRotationGainFront = cos(angle * MathConstants<float>::pi / 180.0f);
+    blumleinEightRotationGainLeft = sin(angle * MathConstants<float>::pi / 180.0f);
 
 }
 

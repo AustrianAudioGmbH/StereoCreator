@@ -139,8 +139,8 @@ private:
     float xyAnglePanTableFront[xyAnglePanTableSize];
     float xyAnglePanTableLeft[xyAnglePanTableSize];
     
-    float xyEightRotationGainFront = 0.7f;
-    float xyEightRotationGainLeft = 0.7f;
+    float xyEightRotationGainFront = 0.707f;
+    float xyEightRotationGainLeft = 0.707f;
     float blumleinEightRotationGainFront = 0.7f;
     float blumleinEightRotationGainLeft = 0.7f;
     

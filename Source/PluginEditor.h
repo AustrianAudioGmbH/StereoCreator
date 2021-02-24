@@ -31,6 +31,7 @@
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
 #include "../resources/customComponents/LevelMeter.h"
+#include "../resources/customComponents/DirSlider.h"
 
 
 typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
@@ -73,10 +74,12 @@ private:
     LaF globalLaF;
     TooltipWindow tooltipWindow;
     
-    Slider slMidGain[2], slSideGain[2], slWidth, slMidPattern, slXyPattern, slXyAngle, slRotation;
+    Slider slMidGain[2], slSideGain[2], slWidth, slMidPattern, slXyAngle, slRotation;// , slXyPattern
     ComboBox cbStereoMode;
     ToggleButton tbChSwitch, tbAutoLevels;
     TextButton tbAbLayer[2];
+    
+    DirSlider slXyPattern;
     
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttWidth, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation;
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
