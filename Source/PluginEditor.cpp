@@ -49,8 +49,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
     arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
     
-    arrayImage4Ch = arrayImage4Ch.rescaled(arrayImage4Ch.getWidth() * 4, arrayImage4Ch.getHeight() * 4);
-    arrayImage2Ch = arrayImage2Ch.rescaled(arrayImage2Ch.getWidth() * 4, arrayImage2Ch.getHeight() * 4);
+//    arrayImage4Ch = arrayImage4Ch.rescaled(arrayImage4Ch.getWidth() * 4, arrayImage4Ch.getHeight() * 4);
+//    arrayImage2Ch = arrayImage2Ch.rescaled(arrayImage2Ch.getWidth() * 4, arrayImage2Ch.getHeight() * 4);
     
     bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
     cardPath.loadPathFromData (cardData, sizeof (cardData));
