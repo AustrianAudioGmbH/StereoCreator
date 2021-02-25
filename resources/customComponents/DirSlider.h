@@ -59,6 +59,8 @@ class DirSlider : public Slider
 public:
     DirSlider () :
         Slider(),
+        dirStripTop(this),
+        dirStripBottom(this),
         lastDistanceFromDragStart(0),
         reversed(false),
         isDual(false),
@@ -67,9 +69,7 @@ public:
         tooltipWidth(40),
         tooltipHeight(20),
         activePolarPatternPath(-1.0f),
-        patternStripSize(12),
-        dirStripTop(this),
-        dirStripBottom(this)
+        patternStripSize(12)
     {
         setTextBoxStyle (Slider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
         setSliderStyle (Slider::Rotary);

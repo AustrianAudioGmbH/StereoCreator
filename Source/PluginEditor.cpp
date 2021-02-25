@@ -39,12 +39,18 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
 //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
 //    title.showAlertSymbol(false);
     
+    
+    
     addAndMakeVisible(&footer);
     tooltipWindow.setLookAndFeel(&globalLaF);
     tooltipWindow.setMillisecondsBeforeTipAppears(500);
     
+    // loading image data
     arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
     arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
+    
+    arrayImage4Ch = arrayImage4Ch.rescaled(arrayImage4Ch.getWidth() * 4, arrayImage4Ch.getHeight() * 4);
+    arrayImage2Ch = arrayImage2Ch.rescaled(arrayImage2Ch.getWidth() * 4, arrayImage2Ch.getHeight() * 4);
     
     bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
     cardPath.loadPathFromData (cardData, sizeof (cardData));
@@ -52,7 +58,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     hCardPath.loadPathFromData (hCardData, sizeof (hCardData));
     eightPath.loadPathFromData (eightData, sizeof (eightData));
     omniPath.loadPathFromData (omniData, sizeof (omniData));
-    
     
     aaLogoBgPath.loadPathFromData (aaLogoData, sizeof (aaLogoData));
     
@@ -108,13 +113,16 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slSideGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
     slSideGain[1].addListener (this);
     
-    addAndMakeVisible(&slWidth);
-    slAttWidth.reset(new ReverseSlider::SliderAttachment (valueTreeState, "lrWidth", slWidth));
-    slWidth.setSliderStyle(Slider::Rotary);
-    slWidth.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
-    slWidth.setTextValueSuffix(" %");
-    slWidth.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
-    slWidth.addListener(this);
+    addAndMakeVisible(&slPseudoStPattern);
+    slAttPseudoStPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "lrWidth", slPseudoStPattern));
+//    slPseudoStPattern.setSliderStyle(Slider::Rotary);
+//    slPseudoStPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
+//    slPseudoStPattern.setTextValueSuffix(" %");
+    slPseudoStPattern.setTooltipEditable(true);
+    slPseudoStPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
+    slPseudoStPattern.addListener(this);
+    slPseudoStPattern.dirStripTop.setPatternPathsAndFactors(bCardPath, cardPath, bCardFact, cardFact);
+    slPseudoStPattern.dirStripBottom.setPatternPathsAndFactors(omniPath, hCardPath, omniFact, hCardFact);
     
     addAndMakeVisible(&slMidPattern);
     slAttMidPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "msMidPattern", slMidPattern));
@@ -158,7 +166,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     // buttons
     addAndMakeVisible(&tbChSwitch);
     tbAttChSwitch.reset(new ButtonAttachment (valueTreeState, "channelSwitch", tbChSwitch));
-    tbChSwitch.setButtonText("channel swap");
+    tbChSwitch.setButtonText("L/R channel swap");
     
     addAndMakeVisible(&tbAutoLevels);
     tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
@@ -201,9 +209,9 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     grpSideGain[1].setText("side gain");
     grpSideGain[1].setTextLabelPosition(Justification::centred);
     
-    addAndMakeVisible(&grpWidth);
-    grpWidth.setText("width");
-    grpWidth.setTextLabelPosition(Justification::centred);
+    addAndMakeVisible(&grpPseudoStPattern);
+    grpPseudoStPattern.setText("pattern");
+    grpPseudoStPattern.setTextLabelPosition(Justification::centred);
     
     addAndMakeVisible(&grpMidPattern);
     grpMidPattern.setText("mid pattern");
@@ -271,6 +279,8 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     
     if (processor.getNumInpCh() == 2) // two channel input
     {
+        title.setLineBounds(true, 0, 0, 0); // deafult line
+        
         g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
         
         setComboBoxItemsEnabled(true);
@@ -305,9 +315,9 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
                 setSliderVisibility(false, false, true, false, false, false, false);
 
                 dirVis[0].setPatternRotation(- 90.0f);
-                dirVis[0].setDirWeight((slWidth.getValue() / (slWidth.getMaximum())) * 0.75f);
+                dirVis[0].setDirWeight(slPseudoStPattern.getValue());
                 dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight((slWidth.getValue() / (slWidth.getMaximum())) * 0.75f);
+                dirVis[1].setDirWeight(slPseudoStPattern.getValue());
                 dirVis[0].setPatternAlpha(1.0f);
                 dirVis[1].setPatternAlpha(1.0f);
                 break;
@@ -318,7 +328,8 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     }
     else // four channel input
     {
-        g.drawImage(arrayImage4Ch, 20, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
+        title.setLineBounds(false, 0, 28, 102);
+        g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
         
         setComboBoxItemsEnabled(false);
         inputMeter[0].setVisible(true);
@@ -359,6 +370,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
                 dirVis[1].setPatternAlpha(1.0f);
                 break;
             case blumleinIdx:
+                tbAutoLevels.setVisible(false);
                 setSliderVisibility(false, false, false, false, true, false, false);
                 
                 dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
@@ -378,12 +390,9 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     // background logo
     aaLogoBgPath.applyTransform (aaLogoBgPath.getTransformToScaleToFit (0.50f * currWidth, 0.25f * currHeight,
                                                                         0.58f * currWidth, 0.58f * currWidth, true, Justification::centred));
-    
-    
     g.setColour (Colours::white.withAlpha(0.1f));
     g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
     g.fillPath (aaLogoBgPath);
-    
 }
 
 void StereoCreatorAudioProcessorEditor::resized()
@@ -482,7 +491,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     threeLabelArea.removeFromLeft(hSpace);
     grpMidPattern.setBounds(threeLabelArea.removeFromLeft(rotarySliderWidth));
     
-    grpWidth.setBounds(grpSideGain[1].getBounds());
+    grpPseudoStPattern.setBounds(grpSideGain[1].getBounds());
     grpXyPattern.setBounds(grpSideGain[1].getBounds());
     
     // slider
@@ -500,7 +509,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     threeRotSlArea.removeFromLeft(hSpace);
     slMidPattern.setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
     
-    slWidth.setBounds(slSideGain[1].getBounds());
+    slPseudoStPattern.setBounds(slSideGain[1].getBounds());
     slXyPattern.setBounds(slSideGain[1].getBounds());
     
     // directivity visualiser and meters
@@ -597,8 +606,8 @@ void StereoCreatorAudioProcessorEditor::setSliderVisibility(bool msTwoCh, bool m
     grpMidGain[1].setVisible(msFourCh);
     slSideGain[1].setVisible(msFourCh);
     grpSideGain[1].setVisible(msFourCh);
-    slWidth.setVisible(width);
-    grpWidth.setVisible(width);
+    slPseudoStPattern.setVisible(width);
+    grpPseudoStPattern.setVisible(width);
     slMidPattern.setVisible(msPattern);
     grpMidPattern.setVisible(msPattern);
     
@@ -622,7 +631,7 @@ int StereoCreatorAudioProcessorEditor::getControlParameterIndex (Component& cont
         return 3;
     else if (&control == &slSideGain[1])
         return 4;
-    else if (&control == &slWidth)
+    else if (&control == &slPseudoStPattern)
         return 5;
     else if (&control == &slMidPattern)
         return 6;

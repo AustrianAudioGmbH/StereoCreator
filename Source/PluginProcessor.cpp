@@ -35,10 +35,10 @@ params(*this, nullptr, "StereoCreator", {
                                            [](int value, int maximumStringLength) {return String(value + 1);}, nullptr),
     std::make_unique<AudioParameterFloat> ("msMidGain", "MS Mid Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), -6.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
     std::make_unique<AudioParameterFloat> ("msSideGain", "MS Side Gain", NormalisableRange<float>( - 32.0f, 3.0f, 0.1f), -6.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
-    std::make_unique<AudioParameterFloat> ("lrWidth", "LR Width", NormalisableRange<float>( 0.0f, 100.0f, 1.0f), 70.0f,  "%", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("lrWidth", "LR Width", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.5f,  "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterBool>("channelSwitch", "Channel Switch", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
     std::make_unique<AudioParameterBool>("autoLevelMode", "Auto Level Mode", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
-    std::make_unique<AudioParameterFloat> ("msMidPattern", "MS Mid Pattern", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("msMidPattern", "MS Mid Pattern", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterFloat> ("trueStXyPattern", "True-Stereo XY Pattern", NormalisableRange<float> (0.37f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterFloat> ("trueStXyAngle", "True-Stereo XY Angle", NormalisableRange<float> (30.0f, 150.0f, 0.5f), 90.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
     std::make_unique<AudioParameterFloat> ("blumleinRot", "Blumlein Rotation", NormalisableRange<float> (- 30.0f, 30.0f, 0.5f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr)
@@ -221,8 +221,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     float* writePointerMsLeft = msLeftRightBuffer.getWritePointer(0);
     float* writePointerMsRight = msLeftRightBuffer.getWritePointer(1);
     
-    float eightPatternMultiplier = params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load()) * hyperCardioidLimit; // maximum is hyper cardioid => 0.75
-    float omniPatternMultiplier = 1.0f - eightPatternMultiplier;
+//    float eightPatternMultiplier = params.getParameter("lrWidth")->convertTo0to1(params.getRawParameterValue("lrWidth")->load()) * hyperCardioidLimit; // maximum is hyper cardioid => 0.75
+//    float omniPatternMultiplier = 1.0f - eightPatternMultiplier;
     
     FloatVectorOperations::copy (writePointerOmniLR, readPointerLeft, numSamples);
     FloatVectorOperations::add (writePointerOmniLR, readPointerRight, numSamples);
@@ -250,8 +250,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 break;
             case eStereoMode::pseudoStereoIdx: // when pass through is chosen
                 // adding up omni and eight according to the width setting
-                FloatVectorOperations::multiply(writePointerEightLR, eightPatternMultiplier, numSamples);
-                FloatVectorOperations::multiply(writePointerOmniLR, omniPatternMultiplier, numSamples);
+                FloatVectorOperations::multiply(writePointerEightLR, params.getRawParameterValue("lrWidth")->load(), numSamples);
+                FloatVectorOperations::multiply(writePointerOmniLR, 1.0f - params.getRawParameterValue("lrWidth")->load(), numSamples);
                 
                 FloatVectorOperations::copy(writePointerPassThroughLeft, writePointerOmniLR, numSamples);
                 FloatVectorOperations::add(writePointerPassThroughLeft, writePointerEightLR, numSamples);
