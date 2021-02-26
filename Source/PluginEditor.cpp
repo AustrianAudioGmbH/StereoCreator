@@ -79,6 +79,9 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     cbStereoMode.setJustificationType(Justification::centred);
     cbStereoMode.setSelectedId(processor.getStereoModeIdx());
     cbStereoMode.addListener(this);
+    cbStereoMode.setSelectedId( processor.getStereoModeIdx() );
+    
+//            zeroDelayModeActive() ? oldProxDistance = 0 : oldProxDistance = oldProxDistanceB;
     
     // rotary sliders
     addAndMakeVisible(&slMidGain[0]);
@@ -88,6 +91,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slMidGain[0].setTextValueSuffix(" dB");
     slMidGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
     slMidGain[0].addListener (this);
+    setDirVisAlphaFromSliderValues(&slMidGain[0], 0);
     
     addAndMakeVisible(&slMidGain[1]);
     slAttMidGain[1].reset(new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[1]));
@@ -96,6 +100,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slMidGain[1].setTextValueSuffix(" dB");
     slMidGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
     slMidGain[1].addListener (this);
+    setDirVisAlphaFromSliderValues(&slMidGain[1], 0);
     
     addAndMakeVisible(&slSideGain[0]);
     slAttSideGain[0].reset(new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[0]));
@@ -104,6 +109,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slSideGain[0].setTextValueSuffix(" dB");
     slSideGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
     slSideGain[0].addListener (this);
+    setDirVisAlphaFromSliderValues(&slSideGain[0], 1);
     
     addAndMakeVisible(&slSideGain[1]);
     slAttSideGain[1].reset(new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[1]));
@@ -112,6 +118,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slSideGain[1].setTextValueSuffix(" dB");
     slSideGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
     slSideGain[1].addListener (this);
+    setDirVisAlphaFromSliderValues(&slSideGain[1], 1);
     
     addAndMakeVisible(&slPseudoStPattern);
     slAttPseudoStPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "lrWidth", slPseudoStPattern));
@@ -256,6 +263,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     outputMeter[1].setColour(globalLaF.AARed);
     outputMeter[1].setLabelText(outMeterLabelText[1]);
     
+    setSliderVisibility(false, false, false, false, false, false, false);
+    
     startTimer(30);
 }
 
@@ -267,16 +276,10 @@ StereoCreatorAudioProcessorEditor::~StereoCreatorAudioProcessorEditor()
 //==============================================================================
 void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 {
-
     const int currHeight = getHeight();
     const int currWidth = getWidth();
     
     g.fillAll (globalLaF.ClBackground);
-    
-    
-    float sliderRange;
-    float newAlphaMid;
-    float newAlphaSide;
     
     if (processor.getNumInpCh() == 2) // two channel input
     {
@@ -289,43 +292,6 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         inputMeter[1].setVisible(true);
         inputMeter[2].setVisible(false);
         inputMeter[3].setVisible(false);
-        
-        switch (processor.getStereoModeIdx())
-        {
-            case pseudoMsIdx:
-//                tbAutoLevels.setVisible(true);
-                
-                setSliderVisibility(true, false, false, false, false, false, false);
-           
-                dirVis[0].setPatternRotation(90.0f);
-                dirVis[0].setDirWeight(0.0f);
-                dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight(1.0f);
-                
-                sliderRange = slMidGain[0].getMaximum() + std::abs(slMidGain[0].getMinimum());
-                newAlphaMid = (slMidGain[0].getValue() + std::abs(slMidGain[0].getMinimum())) / sliderRange * 0.75f;
-                newAlphaMid += 0.25f;
-                newAlphaSide = (slSideGain[0].getValue() + std::abs(slSideGain[0].getMinimum())) / sliderRange * 0.75f;
-                newAlphaSide += 0.25f;
-                dirVis[0].setPatternAlpha(newAlphaMid);
-                dirVis[1].setPatternAlpha(newAlphaSide);
-                
-                break;
-            case pseudoStereoIdx:
-//                tbAutoLevels.setVisible(false);
-                setSliderVisibility(false, false, true, false, false, false, false);
-
-                dirVis[0].setPatternRotation(- 90.0f);
-                dirVis[0].setDirWeight(slPseudoStPattern.getValue());
-                dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight(slPseudoStPattern.getValue());
-                dirVis[0].setPatternAlpha(1.0f);
-                dirVis[1].setPatternAlpha(1.0f);
-                break;
-                
-            default:
-                break;
-        }
     }
     else // four channel input
     {
@@ -337,55 +303,6 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         inputMeter[1].setVisible(true);
         inputMeter[2].setVisible(true);
         inputMeter[3].setVisible(true);
-        
-        switch (processor.getStereoModeIdx())
-        {
-            case trueMsIdx:
-//                tbAutoLevels.setVisible(true);
-                
-                setSliderVisibility(false, true, false, true, false, false, false);
-                
-                dirVis[0].setPatternRotation(0.0f);
-                dirVis[0].setDirWeight(slMidPattern.getValue());
-                dirVis[1].setPatternRotation(90.0f);
-                dirVis[1].setDirWeight(1.0f);
-                
-                sliderRange = slMidGain[1].getMaximum() + std::abs(slMidGain[1].getMinimum());
-                newAlphaMid = (slMidGain[1].getValue() + std::abs(slMidGain[1].getMinimum())) / sliderRange * 0.75f;
-                newAlphaMid += 0.25f;
-                newAlphaSide = (slSideGain[1].getValue() + std::abs(slSideGain[1].getMinimum())) / sliderRange * 0.75f;
-                newAlphaSide += 0.25f;
-                dirVis[0].setPatternAlpha(newAlphaMid);
-                dirVis[1].setPatternAlpha(newAlphaSide);
-                
-                break;
-            case trueStereoIdx:
-//                tbAutoLevels.setVisible(false);
-                setSliderVisibility(false, false, false, false, false, true, true);
-                
-                dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
-                dirVis[0].setDirWeight(slXyPattern.getValue());
-                dirVis[0].setPatternAlpha(1.0f);
-                dirVis[1].setPatternRotation(slXyAngle.getValue() / 2.0f);
-                dirVis[1].setDirWeight(slXyPattern.getValue());
-                dirVis[1].setPatternAlpha(1.0f);
-                break;
-            case blumleinIdx:
-//                tbAutoLevels.setVisible(false);
-                setSliderVisibility(false, false, false, false, true, false, false);
-                
-                dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
-                dirVis[0].setDirWeight(1.0f);
-                dirVis[0].setPatternAlpha(1.0f);
-                dirVis[1].setPatternRotation(slRotation.getValue() + 45.0f);
-                dirVis[1].setDirWeight(1.0f);
-                dirVis[1].setPatternAlpha(1.0f);
-                break;
-            default:
-                cbStereoMode.setSelectedId(eStereoMode::trueMsIdx);
-                repaint();
-                break;
-        }
     }
     
     // background logo
@@ -534,12 +451,115 @@ void StereoCreatorAudioProcessorEditor::resized()
 
 void StereoCreatorAudioProcessorEditor::comboBoxChanged(ComboBox *cb)
 {
+    if (cb == &cbStereoMode)
+    {
+        switch (cb->getSelectedId())
+        {
+            case pseudoMsIdx:
+                setDirVisAlphaFromSliderValues(&slMidGain[0], 0);
+                setDirVisAlphaFromSliderValues(&slSideGain[0], 1);
+                
+                setSliderVisibility(true, false, false, false, false, false, false);
+                
+                dirVis[0].setPatternRotation(90.0f);
+                dirVis[0].setDirWeight(0.0f);
+                dirVis[1].setPatternRotation(90.0f);
+                dirVis[1].setDirWeight(1.0f);
+                
+                break;
+            case pseudoStereoIdx:
+                setSliderVisibility(false, false, true, false, false, false, false);
+                
+                dirVis[0].setPatternRotation(- 90.0f);
+                dirVis[0].setDirWeight(slPseudoStPattern.getValue());
+                dirVis[1].setPatternRotation(90.0f);
+                dirVis[1].setDirWeight(slPseudoStPattern.getValue());
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternAlpha(1.0f);
+                break;
+            case trueMsIdx:
+                setDirVisAlphaFromSliderValues(&slMidGain[1], 0);
+                setDirVisAlphaFromSliderValues(&slSideGain[1], 1);
+                
+                setSliderVisibility(false, true, false, true, false, false, false);
+                
+                dirVis[0].setPatternRotation(0.0f);
+                dirVis[0].setDirWeight(slMidPattern.getValue());
+                dirVis[1].setPatternRotation(90.0f);
+                dirVis[1].setDirWeight(1.0f);
+                
+                break;
+            case trueStereoIdx:
+                setSliderVisibility(false, false, false, false, false, true, true);
+                
+                dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
+                dirVis[0].setDirWeight(slXyPattern.getValue());
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternRotation(slXyAngle.getValue() / 2.0f);
+                dirVis[1].setDirWeight(slXyPattern.getValue());
+                dirVis[1].setPatternAlpha(1.0f);
+                break;
+            case blumleinIdx:
+                setSliderVisibility(false, false, false, false, true, false, false);
+                
+                dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
+                dirVis[0].setDirWeight(1.0f);
+                dirVis[0].setPatternAlpha(1.0f);
+                dirVis[1].setPatternRotation(slRotation.getValue() + 45.0f);
+                dirVis[1].setDirWeight(1.0f);
+                dirVis[1].setPatternAlpha(1.0f);
+                break;
+            default:
+                cbStereoMode.setSelectedId(eStereoMode::trueMsIdx);
+                break;
+        }
+    }
     repaint();
 }
 
 void StereoCreatorAudioProcessorEditor::sliderValueChanged(Slider *slider)
 {
-
+    if (slider == &slMidGain[0])
+    {
+        setDirVisAlphaFromSliderValues(slider, 0);
+    }
+    else if (slider == &slMidGain[1])
+    {
+        setDirVisAlphaFromSliderValues(slider, 0);
+    }
+    else if (slider == &slSideGain[0])
+    {
+        setDirVisAlphaFromSliderValues(slider, 1);
+    }
+    else if (slider == &slSideGain[1])
+    {
+        setDirVisAlphaFromSliderValues(slider, 1);
+    }
+    else if (slider == &slPseudoStPattern)
+    {
+        dirVis[0].setDirWeight(slider->getValue());
+        dirVis[1].setDirWeight(slider->getValue());
+    }
+    else if (slider == &slMidPattern)
+    {
+        dirVis[0].setDirWeight(slider->getValue());
+    }
+    else if (slider == &slXyPattern)
+    {
+        dirVis[0].setDirWeight(slider->getValue());
+        dirVis[1].setDirWeight(slider->getValue());
+    }
+    else if (slider == &slXyAngle)
+    {
+        dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
+        dirVis[1].setPatternRotation(slXyAngle.getValue() / 2.0f);
+    }
+    else if (slider == &slRotation)
+    {
+        dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
+        dirVis[1].setPatternRotation(slRotation.getValue() + 45.0f);
+    }
+    repaint();
 }
 
 void StereoCreatorAudioProcessorEditor::buttonClicked(Button *button)
@@ -576,6 +596,15 @@ void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState(int layer
         tbAbLayer[0].setAlpha(0.3f);
         tbAbLayer[1].setAlpha(1.0f);
     }
+}
+
+void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues(Slider *slider, int dirVisIdx)
+{
+    float sliderRange = slider->getMaximum() + std::abs(slider->getMinimum());
+    float newAlpha = (slider->getValue() + std::abs(slider->getMinimum())) / sliderRange * 0.75f;
+    newAlpha += 0.25f;
+    dirVis[dirVisIdx].setPatternAlpha(newAlpha);
+    repaint();
 }
 
 void StereoCreatorAudioProcessorEditor::timerCallback()

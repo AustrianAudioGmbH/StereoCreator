@@ -62,6 +62,8 @@ public:
     
     void setAbButtonAlphaFromLayerState(int layerState);
     
+    void setDirVisAlphaFromSliderValues (Slider* slider, int dirVisIdx);
+    
 private:
     static const int EDITOR_WIDTH = 640;
     static const int EDITOR_HEIGHT = 400;

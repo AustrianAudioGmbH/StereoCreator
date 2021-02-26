@@ -134,6 +134,15 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     
     numInputs = getTotalNumInputChannels();
     
+    if (numInputs == 2)
+    {
+//        stereoModeIdx. = eStereoMode::pseudoMsIdx;
+        stereoModeIdx->store(eStereoMode::pseudoMsIdx);
+    }
+    else
+    {
+        stereoModeIdx->store(eStereoMode::trueMsIdx);
+    }
 //    if (getTotalNumInputChannels() != 2 && getTotalNumInputChannels() != 4)
 //        wrongBusConfiguration = true;
 //    else
