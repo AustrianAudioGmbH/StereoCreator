@@ -95,6 +95,8 @@ public:
     void changeAbLayerState();
     void setAbLayer(int desiredLayer);
     
+    void applyGainWithRamp (float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel);
+    
 //    Atomic<bool> wrongBusConfiguration = false;
     
     Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -132,24 +134,34 @@ private:
 
     // pan law
     const static int panTableSize = 10000;
-    const static int xyAnglePanTableSize = 4996;
+//    const static int xyAnglePanTableSize = 4996;
     float panLawExp = 4.5f / 3.01f;
     float panTableLeft[panTableSize];
     float panTableRight[panTableSize];
-    float xyAnglePanTableFront[xyAnglePanTableSize];
-    float xyAnglePanTableLeft[xyAnglePanTableSize];
+//    float xyAnglePanTableFront[xyAnglePanTableSize];
+//    float xyAnglePanTableLeft[xyAnglePanTableSize];
     
-    float xyEightRotationGainFront = 0.707f;
-    float xyEightRotationGainLeft = 0.707f;
-    float blumleinEightRotationGainFront = 0.7f;
-    float blumleinEightRotationGainLeft = 0.7f;
+    float currentXyEightRotationGainFront;
+    float currentXyEightRotationGainLeft;
+    float previousXyEightRotationGainFront;
+    float previousXyEightRotationGainLeft;
     
-    float hyperCardioidLimit = 0.75;
-    float wideCardioidLimit = 0.37;
+    float currentBlumleinEightRotationGainFront;
+    float currentBlumleinEightRotationGainLeft;
+    float previousBlumleinEightRotationGainFront;
+    float previousBlumleinEightRotationGainLeft;
+    
+//    float hyperCardioidLimit = 0.75;
+//    float wideCardioidLimit = 0.37;
     
     bool midGainChanged = false;
     bool sideGainChanged = false;
     
+    float previousMidGain;
+    float previousSideGain;
+    float previousPseudoStereoPattern;
+    float previousMsMidPattern;
+    float previousTrueStereoPattern;
     
     
     int currentBlockSize;
