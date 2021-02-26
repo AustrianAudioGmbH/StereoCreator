@@ -170,7 +170,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&tbAutoLevels);
     tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
-    tbAutoLevels.setButtonText("link gains");
+    tbAutoLevels.setButtonText("constant levels");
     
     addAndMakeVisible(&tbAbLayer[0]);
     tbAbLayer[0].setButtonText("A");
@@ -292,7 +292,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         switch (processor.getStereoModeIdx())
         {
             case pseudoMsIdx:
-                tbAutoLevels.setVisible(true);
+//                tbAutoLevels.setVisible(true);
                 
                 setSliderVisibility(true, false, false, false, false, false, false);
            
@@ -311,7 +311,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
                 
                 break;
             case pseudoStereoIdx:
-                tbAutoLevels.setVisible(false);
+//                tbAutoLevels.setVisible(false);
                 setSliderVisibility(false, false, true, false, false, false, false);
 
                 dirVis[0].setPatternRotation(- 90.0f);
@@ -340,7 +340,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         switch (processor.getStereoModeIdx())
         {
             case trueMsIdx:
-                tbAutoLevels.setVisible(true);
+//                tbAutoLevels.setVisible(true);
                 
                 setSliderVisibility(false, true, false, true, false, false, false);
                 
@@ -359,7 +359,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
                 
                 break;
             case trueStereoIdx:
-                tbAutoLevels.setVisible(false);
+//                tbAutoLevels.setVisible(false);
                 setSliderVisibility(false, false, false, false, false, true, true);
                 
                 dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
@@ -370,7 +370,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
                 dirVis[1].setPatternAlpha(1.0f);
                 break;
             case blumleinIdx:
-                tbAutoLevels.setVisible(false);
+//                tbAutoLevels.setVisible(false);
                 setSliderVisibility(false, false, false, false, true, false, false);
                 
                 dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);

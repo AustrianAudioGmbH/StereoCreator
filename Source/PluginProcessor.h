@@ -88,8 +88,8 @@ public:
 
     int getStereoModeIdx() { return static_cast<int> (stereoModeIdx->load()); }
     int getNumInpCh() { return numInputs; }
-    void getMidGain (float sideGain);
-    void getSideGain (float midGain);
+//    void getMidGain (float sideGain);
+//    void getSideGain (float midGain);
     void getXyAngleRelatedGains(float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
     void changeAbLayerState();
@@ -133,11 +133,11 @@ private:
     AudioBuffer<float> blumleinLeftRightBuffer;
 
     // pan law
-    const static int panTableSize = 10000;
-//    const static int xyAnglePanTableSize = 4996;
-    float panLawExp = 4.5f / 3.01f;
-    float panTableLeft[panTableSize];
-    float panTableRight[panTableSize];
+//    const static int panTableSize = 10000;
+////    const static int xyAnglePanTableSize = 4996;
+//    float panLawExp = 4.5f / 3.01f;
+//    float panTableLeft[panTableSize];
+//    float panTableRight[panTableSize];
 //    float xyAnglePanTableFront[xyAnglePanTableSize];
 //    float xyAnglePanTableLeft[xyAnglePanTableSize];
     
@@ -154,15 +154,15 @@ private:
 //    float hyperCardioidLimit = 0.75;
 //    float wideCardioidLimit = 0.37;
     
-    bool midGainChanged = false;
-    bool sideGainChanged = false;
+//    bool midGainChanged = false;
+//    bool sideGainChanged = false;
     
     float previousMidGain;
     float previousSideGain;
     float previousPseudoStereoPattern;
     float previousMsMidPattern;
     float previousTrueStereoPattern;
-    
+    float previousOverallGain;
     
     int currentBlockSize;
     double currentSampleRate;
