@@ -267,6 +267,7 @@ StereoCreatorAudioProcessorEditor::~StereoCreatorAudioProcessorEditor()
 //==============================================================================
 void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 {
+
     const int currHeight = getHeight();
     const int currWidth = getWidth();
     
@@ -599,24 +600,42 @@ void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled(bool twoChannelI
 void StereoCreatorAudioProcessorEditor::setSliderVisibility(bool msTwoCh, bool msFourCh, bool width, bool msPattern, bool rotation, bool xyPattern, bool xyAngle)
 {
     slMidGain[0].setVisible(msTwoCh);
+    slMidGain[0].setEnabled(msTwoCh);
     grpMidGain[0].setVisible(msTwoCh);
+    grpMidGain[0].setEnabled(msTwoCh);
     slSideGain[0].setVisible(msTwoCh);
+    slSideGain[0].setEnabled(msTwoCh);
     grpSideGain[0].setVisible(msTwoCh);
+    grpSideGain[0].setEnabled(msTwoCh);
     slMidGain[1].setVisible(msFourCh);
+    slMidGain[1].setEnabled(msFourCh);
     grpMidGain[1].setVisible(msFourCh);
+    grpMidGain[1].setEnabled(msFourCh);
     slSideGain[1].setVisible(msFourCh);
+    slSideGain[1].setEnabled(msFourCh);
     grpSideGain[1].setVisible(msFourCh);
+    grpSideGain[1].setEnabled(msFourCh);
     slPseudoStPattern.setVisible(width);
+    slPseudoStPattern.setEnabled(width);
     grpPseudoStPattern.setVisible(width);
+    grpPseudoStPattern.setEnabled(width);
     slMidPattern.setVisible(msPattern);
+    slMidPattern.setEnabled(msPattern);
     grpMidPattern.setVisible(msPattern);
+    grpMidPattern.setEnabled(msPattern);
     
     slXyAngle.setVisible(xyAngle);
+    slXyAngle.setEnabled(xyAngle);
     grpXyAngle.setVisible(xyAngle);
+    grpXyAngle.setEnabled(xyAngle);
     slXyPattern.setVisible(xyPattern);
+    slXyPattern.setEnabled(xyPattern);
     grpXyPattern.setVisible(xyPattern);
+    grpXyAngle.setEnabled(xyPattern);
     slRotation.setVisible(rotation);
+    slRotation.setEnabled(rotation);
     grpRotation.setVisible(rotation);
+    grpRotation.setEnabled(rotation);
 }
 
 
