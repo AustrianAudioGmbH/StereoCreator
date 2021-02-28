@@ -572,6 +572,7 @@ void StereoCreatorAudioProcessorEditor::buttonClicked(Button *button)
             processor.setAbLayer(eCurrentActiveLayer::layerB);
             setAbButtonAlphaFromLayerState(eCurrentActiveLayer::layerB);
         }
+        comboBoxChanged(&cbStereoMode);
     }
     else if (button == &tbAbLayer[1])
     {
@@ -581,6 +582,7 @@ void StereoCreatorAudioProcessorEditor::buttonClicked(Button *button)
             processor.setAbLayer(eCurrentActiveLayer::layerA);
             setAbButtonAlphaFromLayerState(eCurrentActiveLayer::layerA);
         }
+        comboBoxChanged(&cbStereoMode);
     }
 }
 
