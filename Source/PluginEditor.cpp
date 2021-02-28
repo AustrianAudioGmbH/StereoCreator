@@ -177,7 +177,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&tbAutoLevels);
     tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
-    tbAutoLevels.setButtonText("constant levels");
+    tbAutoLevels.setButtonText("consistent levels");
     
     addAndMakeVisible(&tbAbLayer[0]);
     tbAbLayer[0].setButtonText("A");
