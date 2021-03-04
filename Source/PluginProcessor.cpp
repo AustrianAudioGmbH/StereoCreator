@@ -220,6 +220,15 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     int numSamples = buffer.getNumSamples();
     
+    
+    auto playhead = getPlayHead();
+    juce::AudioPlayHead::CurrentPositionInfo posInfo;
+    playhead->getCurrentPosition(posInfo);
+    isPlaying = posInfo.isPlaying;
+    
+//    if (!isPlaying.get())
+//        return;
+    
     for (int i = 0; i < buffer.getNumChannels(); ++i)
     {
         inRms[i] = buffer.getRMSLevel (i, 0, numSamples);
@@ -254,11 +263,11 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         {
             case eStereoMode::pseudoMsIdx: // when ms is chosen
                 // applying mid gain
-                applyGainWithRamp(previousMidGain, currentMidGain, &omniEightLrBuffer, 0);
+                applyGainWithRamp(previousMidGain, currentMidGain, &omniEightLrBuffer, 0, numSamples);
                 previousMidGain = currentMidGain;
                 
                 // apply side gain
-                applyGainWithRamp(previousSideGain, currentSideGain, &omniEightLrBuffer, 1);
+                applyGainWithRamp(previousSideGain, currentSideGain, &omniEightLrBuffer, 1, numSamples);
                 previousSideGain = currentSideGain;
                 
                 // creating ms left and right patterns
@@ -274,8 +283,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 
             case eStereoMode::pseudoStereoIdx: // when pseudo-stereo is chosen
                 // applying pattern weights
-                applyGainWithRamp(1.0f - previousPseudoStereoPattern, 1.0f - currentPseudoStereoPattern, &omniEightLrBuffer, 0);
-                applyGainWithRamp(previousPseudoStereoPattern, currentPseudoStereoPattern, &omniEightLrBuffer, 1);
+                applyGainWithRamp(1.0f - previousPseudoStereoPattern, 1.0f - currentPseudoStereoPattern, &omniEightLrBuffer, 0, numSamples);
+                applyGainWithRamp(previousPseudoStereoPattern, currentPseudoStereoPattern, &omniEightLrBuffer, 1, numSamples);
                 previousPseudoStereoPattern = currentPseudoStereoPattern;
                 
                 // merging omni and eight to obtain patterns
@@ -330,19 +339,19 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 FloatVectorOperations::copy(writePointerMsMid, writePointerEightFB, numSamples);
                 
                 // applying pattern weights
-                applyGainWithRamp(previousMsMidPattern, currentMsMidPattern, &msMidBuffer, 0);
-                applyGainWithRamp(1.0f - previousMsMidPattern, 1.0f - currentMsMidPattern, &omniEightFbBuffer, 0);
+                applyGainWithRamp(previousMsMidPattern, currentMsMidPattern, &msMidBuffer, 0, numSamples);
+                applyGainWithRamp(1.0f - previousMsMidPattern, 1.0f - currentMsMidPattern, &omniEightFbBuffer, 0, numSamples);
                 previousMsMidPattern = currentMsMidPattern;
                 
                 // calculating mid pattern
                 FloatVectorOperations::add(writePointerMsMid, writePointerOmniFB, numSamples);
                 
                 // applying mid gain
-                applyGainWithRamp(previousMidGain, currentMidGain, &msMidBuffer, 0);
+                applyGainWithRamp(previousMidGain, currentMidGain, &msMidBuffer, 0, numSamples);
                 previousMidGain = currentMidGain;
                 
                 // apply side gain
-                applyGainWithRamp(previousSideGain, currentSideGain, &omniEightLrBuffer, 1);
+                applyGainWithRamp(previousSideGain, currentSideGain, &omniEightLrBuffer, 1, numSamples);
                 previousSideGain = currentSideGain;
                 
                 // calculating left and right ms-channel
@@ -359,8 +368,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 
             case eStereoMode::trueStereoIdx:
                 
-                applyGainWithRamp(previousXyEightRotationGainFront, currentXyEightRotationGainFront, &omniEightFbBuffer, 1);
-                applyGainWithRamp(previousXyEightRotationGainLeft, currentXyEightRotationGainLeft, &omniEightLrBuffer, 1);
+                applyGainWithRamp(previousXyEightRotationGainFront, currentXyEightRotationGainFront, &omniEightFbBuffer, 1, numSamples);
+                applyGainWithRamp(previousXyEightRotationGainLeft, currentXyEightRotationGainLeft, &omniEightLrBuffer, 1, numSamples);
                 
                 FloatVectorOperations::copy(writePointerRotatedEightLeft, writePointerEightFB, numSamples);
                 FloatVectorOperations::add(writePointerRotatedEightLeft, writePointerEightLR, numSamples);
@@ -368,9 +377,9 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 FloatVectorOperations::copy(writePointerRotatedEightRight, writePointerEightFB, numSamples);
                 FloatVectorOperations::subtract(writePointerRotatedEightRight, writePointerEightLR, numSamples);
                 
-                applyGainWithRamp(previousTrueStereoPattern, currentTrueStereoPattern, &rotatedEightLeftRightBuffer, 0);
-                applyGainWithRamp(previousTrueStereoPattern, currentTrueStereoPattern, &rotatedEightLeftRightBuffer, 1);
-                applyGainWithRamp(1.0f - previousTrueStereoPattern, 1.0f - currentTrueStereoPattern, &omniEightFbBuffer, 0);
+                applyGainWithRamp(previousTrueStereoPattern, currentTrueStereoPattern, &rotatedEightLeftRightBuffer, 0, numSamples);
+                applyGainWithRamp(previousTrueStereoPattern, currentTrueStereoPattern, &rotatedEightLeftRightBuffer, 1, numSamples);
+                applyGainWithRamp(1.0f - previousTrueStereoPattern, 1.0f - currentTrueStereoPattern, &omniEightFbBuffer, 0, numSamples);
                 previousTrueStereoPattern = currentTrueStereoPattern;
                 previousXyEightRotationGainFront = currentXyEightRotationGainFront;
                 previousXyEightRotationGainLeft = currentXyEightRotationGainLeft;
@@ -392,16 +401,16 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 FloatVectorOperations::copyWithMultiply(writePointerBlumleinRight, writePointerEightLR, - 1.0f, numSamples);
                 
                 // applying FB eight rotation gain for left blumlein channel (copy of FB eight)
-                applyGainWithRamp(previousBlumleinEightRotationGainLeft, currentBlumleinEightRotationGainLeft, &blumleinLeftRightBuffer, 0);
+                applyGainWithRamp(previousBlumleinEightRotationGainLeft, currentBlumleinEightRotationGainLeft, &blumleinLeftRightBuffer, 0, numSamples);
                 // applying LR eight rotation gain for LR eight
-                applyGainWithRamp(previousBlumleinEightRotationGainFront, currentBlumleinEightRotationGainFront, &omniEightLrBuffer, 1);
+                applyGainWithRamp(previousBlumleinEightRotationGainFront, currentBlumleinEightRotationGainFront, &omniEightLrBuffer, 1, numSamples);
                 // adding manipulated FB eight (left blumlein Ch) and LR eight (original LR eight)
                 FloatVectorOperations::add(writePointerBlumleinLeft, writePointerEightLR, numSamples);
                 
                 // applying LR eight rotation gain for right blumlein channel (copy of LR eight)
-                applyGainWithRamp(previousBlumleinEightRotationGainLeft, currentBlumleinEightRotationGainLeft, &blumleinLeftRightBuffer, 1);
+                applyGainWithRamp(previousBlumleinEightRotationGainLeft, currentBlumleinEightRotationGainLeft, &blumleinLeftRightBuffer, 1, numSamples);
                 // applying FB eight rotation gain for FB eight
-                applyGainWithRamp(previousBlumleinEightRotationGainFront, currentBlumleinEightRotationGainFront, &omniEightFbBuffer, 1);
+                applyGainWithRamp(previousBlumleinEightRotationGainFront, currentBlumleinEightRotationGainFront, &omniEightFbBuffer, 1, numSamples);
                 // adding manipulated LR eight (right blumlein Ch) and FB eight (original FB eight)
                 FloatVectorOperations::add(writePointerBlumleinRight, writePointerEightFB, numSamples);
                 
@@ -434,21 +443,22 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         buffer.copyFrom(1, 0, chSwitchBuffer, 1, 0, numSamples);
     }
     
-    if (autoLevelsOn->load() >= 0.5f)
+    if (autoLevelsOn->load() >= 0.5f)// && isPlaying.get())
     {
         auto inputGainMean = (inRms[0].get() + inRms[1].get()) / 2.0f;
         auto outGainMean = (outRms[0].get() + outRms[1].get()) / 2.0f;
-        auto currentOverallGain = inputGainMean / outGainMean;
+        auto currentOverallGain = inputGainMean / (outGainMean + 0.000001f); // to avoid division by zero
         
-        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 0);
-        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 1);
+        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 0, numSamples);
+        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 1, numSamples);
         previousOverallGain = currentOverallGain;
         
         outRms[0] = buffer.getRMSLevel(0, 0, numSamples);
         outRms[1] = buffer.getRMSLevel(1, 0, numSamples);
     }
     
-
+    jassert(buffer.getRMSLevel(0, 0, numSamples) <= 1.0f);
+    jassert(buffer.getRMSLevel(1, 0, numSamples) <= 1.0f);
     
 }
 
@@ -502,9 +512,9 @@ void StereoCreatorAudioProcessor::setStateInformation (const void* data, int siz
         {
             allValueTreeStates = ValueTree::fromXml (*xmlState);
             params.replaceState(allValueTreeStates.getChild(1));
+            layerB = allValueTreeStates.getChild(2).createCopy();
         }
     }
-    layerB = allValueTreeStates.getChild(2).createCopy();
 }
 
 void StereoCreatorAudioProcessor::parameterChanged(const String &parameterID, float newValue)
@@ -601,14 +611,14 @@ void StereoCreatorAudioProcessor::changeAbLayerState()
     }
 }
 
-void StereoCreatorAudioProcessor::applyGainWithRamp(float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel)
+void StereoCreatorAudioProcessor::applyGainWithRamp(float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel, int numSamples)
 {
     if (previousGain == currentGain)
     {
-        buff->applyGain(bufferChannel, 0, buff->getNumSamples(), currentGain);
+        buff->applyGain(bufferChannel, 0, numSamples, currentGain);
     }
     else
     {
-        buff->applyGainRamp(bufferChannel, 0, buff->getNumSamples(), previousGain, currentGain);
+        buff->applyGainRamp(bufferChannel, 0, numSamples, previousGain, currentGain);
     }
 }

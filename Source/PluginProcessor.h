@@ -95,7 +95,7 @@ public:
     void changeAbLayerState();
     void setAbLayer(int desiredLayer);
     
-    void applyGainWithRamp (float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel);
+    void applyGainWithRamp (float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel, int numSamples);
     
 //    Atomic<bool> wrongBusConfiguration = false;
     
@@ -121,6 +121,8 @@ private:
     
     std::atomic<float>* channelSwitchOn;
     std::atomic<float>* autoLevelsOn;
+    
+    Atomic<bool> isPlaying = false;
     
     AudioBuffer<float> omniEightLrBuffer; 
     AudioBuffer<float> omniEightFbBuffer;

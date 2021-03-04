@@ -84,7 +84,6 @@ private:
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
     
     
-    
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation;
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
     std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttAutoLevels;

@@ -265,7 +265,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     setSliderVisibility(false, false, false, false, false, false, false);
     
-    startTimer(30);
+    startTimer(80);
 }
 
 StereoCreatorAudioProcessorEditor::~StereoCreatorAudioProcessorEditor()
@@ -287,22 +287,22 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         
         g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
         
-        setComboBoxItemsEnabled(true);
-        inputMeter[0].setVisible(true);
-        inputMeter[1].setVisible(true);
-        inputMeter[2].setVisible(false);
-        inputMeter[3].setVisible(false);
+//        setComboBoxItemsEnabled(true);
+//        inputMeter[0].setVisible(true);
+//        inputMeter[1].setVisible(true);
+//        inputMeter[2].setVisible(false);
+//        inputMeter[3].setVisible(false);
     }
     else // four channel input
     {
         title.setLineBounds(false, 0, 28, 102);
         g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
         
-        setComboBoxItemsEnabled(false);
-        inputMeter[0].setVisible(true);
-        inputMeter[1].setVisible(true);
-        inputMeter[2].setVisible(true);
-        inputMeter[3].setVisible(true);
+//        setComboBoxItemsEnabled(false);
+//        inputMeter[0].setVisible(true);
+//        inputMeter[1].setVisible(true);
+//        inputMeter[2].setVisible(true);
+//        inputMeter[3].setVisible(true);
     }
     
     // background logo
@@ -519,42 +519,42 @@ void StereoCreatorAudioProcessorEditor::comboBoxChanged(ComboBox *cb)
 
 void StereoCreatorAudioProcessorEditor::sliderValueChanged(Slider *slider)
 {
-    if (slider == &slMidGain[0])
+    if (slider == &slMidGain[0] && cbStereoMode.getSelectedId() == pseudoMsIdx)
     {
         setDirVisAlphaFromSliderValues(slider, 0);
     }
-    else if (slider == &slMidGain[1])
+    else if (slider == &slMidGain[1] && cbStereoMode.getSelectedId() == trueMsIdx)
     {
         setDirVisAlphaFromSliderValues(slider, 0);
     }
-    else if (slider == &slSideGain[0])
+    else if (slider == &slSideGain[0] && cbStereoMode.getSelectedId() == pseudoMsIdx)
     {
         setDirVisAlphaFromSliderValues(slider, 1);
     }
-    else if (slider == &slSideGain[1])
+    else if (slider == &slSideGain[1] && cbStereoMode.getSelectedId() == trueMsIdx)
     {
         setDirVisAlphaFromSliderValues(slider, 1);
     }
-    else if (slider == &slPseudoStPattern)
+    else if (slider == &slPseudoStPattern && cbStereoMode.getSelectedId() == pseudoStereoIdx)
     {
         dirVis[0].setDirWeight(slider->getValue());
         dirVis[1].setDirWeight(slider->getValue());
     }
-    else if (slider == &slMidPattern)
+    else if (slider == &slMidPattern && cbStereoMode.getSelectedId() == trueMsIdx)
     {
         dirVis[0].setDirWeight(slider->getValue());
     }
-    else if (slider == &slXyPattern)
+    else if (slider == &slXyPattern && cbStereoMode.getSelectedId() == trueStereoIdx)
     {
         dirVis[0].setDirWeight(slider->getValue());
         dirVis[1].setDirWeight(slider->getValue());
     }
-    else if (slider == &slXyAngle)
+    else if (slider == &slXyAngle && cbStereoMode.getSelectedId() == trueStereoIdx)
     {
         dirVis[0].setPatternRotation(- slXyAngle.getValue() / 2.0f);
         dirVis[1].setPatternRotation(slXyAngle.getValue() / 2.0f);
     }
-    else if (slider == &slRotation)
+    else if (slider == &slRotation && cbStereoMode.getSelectedId() == blumleinIdx)
     {
         dirVis[0].setPatternRotation(slRotation.getValue() - 45.0f);
         dirVis[1].setPatternRotation(slRotation.getValue() + 45.0f);
@@ -617,6 +617,24 @@ void StereoCreatorAudioProcessorEditor::timerCallback()
     }
     outputMeter[0].setLevel(processor.outRms[0].get());
     outputMeter[1].setLevel(processor.outRms[1].get());
+    
+    if (processor.getNumInpCh() == 2) // two channel input
+    {
+        setComboBoxItemsEnabled(true);
+        inputMeter[0].setVisible(true);
+        inputMeter[1].setVisible(true);
+        inputMeter[2].setVisible(false);
+        inputMeter[3].setVisible(false);
+    }
+    else // four channel input
+    {
+        setComboBoxItemsEnabled(false);
+        inputMeter[0].setVisible(true);
+        inputMeter[1].setVisible(true);
+        inputMeter[2].setVisible(true);
+        inputMeter[3].setVisible(true);
+    }
+    
 }
 
 void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled(bool twoChannelInput)
