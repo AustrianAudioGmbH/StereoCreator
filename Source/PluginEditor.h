@@ -76,19 +76,19 @@ private:
     LaF globalLaF;
     TooltipWindow tooltipWindow;
     
-    Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation;//slWidth, slXyPattern, slMidPattern,
+    Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation, slCompensationGain[5];//slWidth, slXyPattern, slMidPattern,
     ComboBox cbStereoMode;
-    ToggleButton tbChSwitch, tbAutoLevels;
-    TextButton tbAbLayer[2];
+    ToggleButton tbChSwitch;
+    TextButton tbAbLayer[2], tbCalcCompGain;
     
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
     
     
-    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation;
+    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation, slAttCompensationGain[5];
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
-    std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttAutoLevels;
+    std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttCalcCompGain;
  
-    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern, grpMidPattern, grpXyPattern, grpXyAngle, grpRotation, grpInputMeters;
+    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern, grpMidPattern, grpXyPattern, grpXyAngle, grpRotation, grpInputMeters, grpCompensationGain;
     
 //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
 //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";

@@ -669,6 +669,12 @@ public:
             
             g.fillRoundedRectangle(buttonArea, 2.0f);
         }
+        else if (button.getButtonText() == "calculate")
+        {
+            g.setColour(backgroundColour.withMultipliedAlpha(button.getToggleState() ? 1.0f : 0.4f));
+            
+            g.fillRoundedRectangle(buttonArea, 2.0f);
+        }
         else
         {
             g.setColour(backgroundColour.withMultipliedAlpha(isButtonDown ? 1.0f : isMouseOverButton ? 0.6f : 0.9f));

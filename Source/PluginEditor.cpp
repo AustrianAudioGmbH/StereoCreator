@@ -151,6 +151,17 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slXyPattern.dirStripTop.setPatternPathsAndFactors(cardPath, sCardPath, cardFact, sCardFact);
     slXyPattern.dirStripBottom.setPatternPathsAndFactors(bCardPath, sCardPath, bCardFact, hCardFact);
     
+    for (int i = 0; i < 5; i++)
+    {
+        addAndMakeVisible(&slCompensationGain[i]);
+        slAttCompensationGain[i].reset(new ReverseSlider::SliderAttachment (valueTreeState, "compensationGain"+String(i+1), slCompensationGain[i]));
+        slCompensationGain[i].setSliderStyle(Slider::Rotary);
+        slCompensationGain[i].setColour(Slider::rotarySliderOutlineColourId, globalLaF.AARed);
+        slCompensationGain[i].addListener(this);
+        slCompensationGain[i].setTextValueSuffix(" dB");
+        slCompensationGain[i].setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
+    }
+    
     // linear sliders
     addAndMakeVisible(&slXyAngle);
     slAttXyAngle.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyAngle", slXyAngle));
@@ -175,9 +186,11 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     tbAttChSwitch.reset(new ButtonAttachment (valueTreeState, "channelSwitch", tbChSwitch));
     tbChSwitch.setButtonText("L/R channel swap");
     
-    addAndMakeVisible(&tbAutoLevels);
-    tbAttAutoLevels.reset(new ButtonAttachment (valueTreeState, "autoLevelMode", tbAutoLevels));
-    tbAutoLevels.setButtonText("consistent levels");
+    addAndMakeVisible(&tbCalcCompGain);
+    tbAttCalcCompGain.reset(new ButtonAttachment (valueTreeState, "calcCompGain", tbCalcCompGain));
+    tbCalcCompGain.setButtonText("calculate");
+    tbCalcCompGain.addListener(this);
+    tbCalcCompGain.setToggleState(false, NotificationType::dontSendNotification);
     
     addAndMakeVisible(&tbAbLayer[0]);
     tbAbLayer[0].setButtonText("A");
@@ -235,6 +248,10 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     addAndMakeVisible(&grpRotation);
     grpRotation.setText("rotation");
     grpRotation.setTextLabelPosition(Justification::centred);
+    
+    addAndMakeVisible(&grpCompensationGain);
+    grpCompensationGain.setText("compensation gain");
+    grpCompensationGain.setTextLabelPosition (Justification::centredLeft);
 
     addAndMakeVisible(&grpInputMeters);
     grpInputMeters.setText("input - output levels");
@@ -286,23 +303,11 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         title.setLineBounds(true, 0, 0, 0); // deafult line
         
         g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
-        
-//        setComboBoxItemsEnabled(true);
-//        inputMeter[0].setVisible(true);
-//        inputMeter[1].setVisible(true);
-//        inputMeter[2].setVisible(false);
-//        inputMeter[3].setVisible(false);
     }
     else // four channel input
     {
         title.setLineBounds(false, 0, 28, 102);
         g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
-        
-//        setComboBoxItemsEnabled(false);
-//        inputMeter[0].setVisible(true);
-//        inputMeter[1].setVisible(true);
-//        inputMeter[2].setVisible(true);
-//        inputMeter[3].setVisible(true);
     }
     
     // background logo
@@ -317,7 +322,7 @@ void StereoCreatorAudioProcessorEditor::resized()
 {
     const int leftRightMargin = 30;
     const int headerHeight = 60;
-    const int footerHeight = 25;
+    const int footerHeight = 15;
     const int topMargin = 10;
     const int rotarySliderHeight = 70;
     const int rotarySliderWidth = 80;
@@ -333,6 +338,8 @@ void StereoCreatorAudioProcessorEditor::resized()
     const float meterHeight = 150;
     const float meterSpacing = 2;
     const float abLayerButtonHeight = 28;
+    const float compGainHeight = 60;
+    const float compGainWidth = 60;
     
     const int vSpace = 5;
     const int hSpace = 10;
@@ -370,9 +377,23 @@ void StereoCreatorAudioProcessorEditor::resized()
     cbStereoMode.setBounds(sideArea.removeFromTop(comboBoxHeight));
     sideArea.removeFromTop(vSpace);
     tbChSwitch.setBounds(sideArea.removeFromTop(toggleBtHeight));
-    sideArea.removeFromTop(vSpace);
-    tbAutoLevels.setBounds(sideArea.removeFromTop(toggleBtHeight));
-    sideArea.removeFromTop(5 * vSpace);
+    sideArea.removeFromTop(3 * vSpace);
+    
+    Rectangle<int> compGainArea (sideArea.removeFromTop(compGainHeight + grpHeight + vSpace));
+    grpCompensationGain.setBounds(compGainArea.removeFromTop(grpHeight));
+    compGainArea.removeFromTop(vSpace);
+    slCompensationGain[0].setBounds(compGainArea.removeFromLeft(compGainWidth));
+    for (int i = 1; i < 5; i++)
+    {
+        slCompensationGain[i].setBounds(slCompensationGain[0].getBounds());
+    }
+    compGainArea.removeFromLeft(hSpace);
+    compGainArea.removeFromTop(3.5f * vSpace);
+    compGainArea.removeFromBottom(3.5f * vSpace);
+    
+    tbCalcCompGain.setBounds(compGainArea);
+    
+    sideArea.removeFromTop(3 * vSpace);
     grpInputMeters.setBounds(sideArea.removeFromTop(grpHeight));
     sideArea.removeFromTop(vSpace);
     
@@ -584,6 +605,11 @@ void StereoCreatorAudioProcessorEditor::buttonClicked(Button *button)
         }
         comboBoxChanged(&cbStereoMode);
     }
+    else if (button == &tbCalcCompGain)
+    {
+        bool isToggled = button->getToggleState();
+        button->setToggleState(!isToggled, NotificationType::dontSendNotification);
+    }
 }
 
 void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState(int layerState)
@@ -635,6 +661,7 @@ void StereoCreatorAudioProcessorEditor::timerCallback()
         inputMeter[3].setVisible(true);
     }
     
+    tbCalcCompGain.setToggleState(processor.compensationGainCalcOver(), NotificationType::dontSendNotification);
 }
 
 void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled(bool twoChannelInput)
@@ -685,6 +712,17 @@ void StereoCreatorAudioProcessorEditor::setSliderVisibility(bool msTwoCh, bool m
     slRotation.setEnabled(rotation);
     grpRotation.setVisible(rotation);
     grpRotation.setEnabled(rotation);
+    
+    slCompensationGain[0].setEnabled(msTwoCh);
+    slCompensationGain[0].setVisible(msTwoCh);
+    slCompensationGain[1].setEnabled(width);
+    slCompensationGain[1].setVisible(width);
+    slCompensationGain[2].setEnabled(msFourCh);
+    slCompensationGain[2].setVisible(msFourCh);
+    slCompensationGain[3].setEnabled(xyPattern);
+    slCompensationGain[3].setVisible(xyPattern);
+    slCompensationGain[4].setEnabled(rotation);
+    slCompensationGain[4].setVisible(rotation);
 }
 
 

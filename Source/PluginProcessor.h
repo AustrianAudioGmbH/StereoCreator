@@ -88,14 +88,13 @@ public:
 
     int getStereoModeIdx() { return static_cast<int> (stereoModeIdx->load()); }
     int getNumInpCh() { return numInputs; }
-//    void getMidGain (float sideGain);
-//    void getSideGain (float midGain);
     void getXyAngleRelatedGains(float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
     void changeAbLayerState();
     void setAbLayer(int desiredLayer);
     
     void applyGainWithRamp (float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel, int numSamples);
+    bool compensationGainCalcOver() { return autoLevelsOn->load() > 0.5f; }
     
 //    Atomic<bool> wrongBusConfiguration = false;
     
@@ -153,6 +152,13 @@ private:
     float previousBlumleinEightRotationGainFront;
     float previousBlumleinEightRotationGainLeft;
     
+    float previousCompensationGain[5];
+    int counter = 0;
+    float secondsToAverage = 1.5f;
+    int blocksToAverage;
+    float inputGainMean = 0.000001f;
+    float outGainMean = 0.000001f;
+    
 //    float hyperCardioidLimit = 0.75;
 //    float wideCardioidLimit = 0.37;
     
@@ -165,6 +171,8 @@ private:
     float previousMsMidPattern;
     float previousTrueStereoPattern;
     float previousOverallGain;
+    
+    float currentOverallGain;
     
     int currentBlockSize;
     double currentSampleRate;

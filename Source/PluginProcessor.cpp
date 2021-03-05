@@ -37,11 +37,17 @@ params(*this, nullptr, "StereoCreator", {
     std::make_unique<AudioParameterFloat> ("msSideGain", "MS Side Gain", NormalisableRange<float>( - 18.0f, 3.0f, 0.1f), -6.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
     std::make_unique<AudioParameterFloat> ("lrWidth", "LR Width", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.5f,  "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterBool>("channelSwitch", "Channel Switch", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
-    std::make_unique<AudioParameterBool>("autoLevelMode", "Auto Level Mode", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
+    std::make_unique<AudioParameterBool>("calcCompGain", "Calculate Compensation Gain", false, "", [](bool value, int maximumStringLength) {return (value) ? "on" : "off";}, nullptr),
     std::make_unique<AudioParameterFloat> ("msMidPattern", "MS Mid Pattern", NormalisableRange<float> (0.0f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterFloat> ("trueStXyPattern", "True-Stereo XY Pattern", NormalisableRange<float> (0.37f, 0.75f, 0.01f), 0.5f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 2); }, nullptr),
     std::make_unique<AudioParameterFloat> ("trueStXyAngle", "True-Stereo XY Angle", NormalisableRange<float> (30.0f, 150.0f, 0.5f), 90.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
-    std::make_unique<AudioParameterFloat> ("blumleinRot", "Blumlein Rotation", NormalisableRange<float> (- 30.0f, 30.0f, 0.5f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr)
+    std::make_unique<AudioParameterFloat> ("blumleinRot", "Blumlein Rotation", NormalisableRange<float> (- 30.0f, 30.0f, 0.5f), 0.0f, "", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("compensationGain1", "Compensation Gain 1", NormalisableRange<float>( - 9.0f, 9.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("compensationGain2", "Compensation Gain 2", NormalisableRange<float>( - 9.0f, 9.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("compensationGain3", "Compensation Gain 3", NormalisableRange<float>( - 9.0f, 9.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("compensationGain4", "Compensation Gain 4", NormalisableRange<float>( - 9.0f, 9.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr),
+    std::make_unique<AudioParameterFloat> ("compensationGain5", "Compensation Gain 5", NormalisableRange<float>( - 9.0f, 9.0f, 0.1f), 0.0f,  "dB", AudioProcessorParameter::genericParameter, [](float value, int maximumStringLength) { return String(value, 1); }, nullptr)
+
 }),
 layerA(nodeA), layerB(nodeB), allValueTreeStates(allStates)
 {
@@ -49,15 +55,20 @@ layerA(nodeA), layerB(nodeB), allValueTreeStates(allStates)
     params.addParameterListener("msMidGain", this);
     params.addParameterListener("msSideGain", this);
     params.addParameterListener("channelSwitch", this);
-    params.addParameterListener("autoLevelMode", this);
+    params.addParameterListener("calcCompGain", this);
     params.addParameterListener("msMidPattern", this);
     params.addParameterListener("trueStXyPattern", this);
     params.addParameterListener("trueStXyAngle", this);
     params.addParameterListener("blumleinRot", this);
     
+    for (int i = 0; i < 5; i++)
+    {
+        params.addParameterListener("compensationGain"+String(i+1), this);
+    }
+    
     stereoModeIdx = params.getRawParameterValue("stereoMode");
     channelSwitchOn = params.getRawParameterValue("channelSwitch");
-    autoLevelsOn = params.getRawParameterValue("autoLevelMode");
+    autoLevelsOn = params.getRawParameterValue("calcCompGain");
 }
 
 StereoCreatorAudioProcessor::~StereoCreatorAudioProcessor()
@@ -187,6 +198,8 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     previousPseudoStereoPattern = params.getRawParameterValue("lrWidth")->load();
     previousMsMidPattern = params.getRawParameterValue("msMidPattern")->load();
     previousTrueStereoPattern = params.getRawParameterValue("trueStXyPattern")->load();
+    
+    blocksToAverage = secondsToAverage * currentSampleRate / currentBlockSize;
 }
 
 void StereoCreatorAudioProcessor::releaseResources()
@@ -432,9 +445,6 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         return;
     }
     
-    outRms[0] = buffer.getRMSLevel(0, 0, numSamples);
-    outRms[1] = buffer.getRMSLevel(1, 0, numSamples);
-    
     if (channelSwitchOn->load() >= 0.5f)
     {
         chSwitchBuffer.copyFrom(0, 0, buffer, 1, 0, numSamples);
@@ -443,22 +453,38 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         buffer.copyFrom(1, 0, chSwitchBuffer, 1, 0, numSamples);
     }
     
-    if (autoLevelsOn->load() >= 0.5f)// && isPlaying.get())
+    if (autoLevelsOn->load() >= 0.5f)
     {
-        auto inputGainMean = (inRms[0].get() + inRms[1].get()) / 2.0f;
-        auto outGainMean = (outRms[0].get() + outRms[1].get()) / 2.0f;
-        auto currentOverallGain = inputGainMean / (outGainMean + 0.000001f); // to avoid division by zero
-        
-        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 0, numSamples);
-        applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 1, numSamples);
-        previousOverallGain = currentOverallGain;
-        
-        outRms[0] = buffer.getRMSLevel(0, 0, numSamples);
-        outRms[1] = buffer.getRMSLevel(1, 0, numSamples);
+        if (counter == blocksToAverage)
+        {
+            float newOverallGain = (inputGainMean / outGainMean);
+            newOverallGain = Decibels::gainToDecibels(newOverallGain);
+            
+            params.getParameter("compensationGain"+String(stereoModeIdx->load()))->setValueNotifyingHost(params.getParameter("compensationGain"+String(stereoModeIdx->load()))->convertTo0to1(newOverallGain));
+            
+            params.getParameter("calcCompGain")->setValueNotifyingHost(false);
+            inputGainMean = 0.000001f;
+            outGainMean = 0.000001f;
+            counter = 0;
+        }
+        else
+        {
+            inputGainMean += (inRms[0].get() + inRms[1].get()) / 2.0f;
+            outGainMean += (outRms[0].get() + outRms[1].get()) / 2.0f / (currentOverallGain + 0.000001f);
+            counter++;
+        }
     }
     
-    jassert(buffer.getRMSLevel(0, 0, numSamples) <= 1.0f);
-    jassert(buffer.getRMSLevel(1, 0, numSamples) <= 1.0f);
+    currentOverallGain = Decibels::decibelsToGain(params.getRawParameterValue("compensationGain"+String(stereoModeIdx->load()))->load());
+    applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 0, numSamples);
+    applyGainWithRamp(previousOverallGain, currentOverallGain, &buffer, 1, numSamples);
+    previousOverallGain = currentOverallGain;
+    
+    outRms[0] = buffer.getRMSLevel(0, 0, numSamples);
+    outRms[1] = buffer.getRMSLevel(1, 0, numSamples);
+    
+    jassert(buffer.getRMSLevel(0, 0, numSamples) <= 1.1f);
+    jassert(buffer.getRMSLevel(1, 0, numSamples) <= 1.1f);
     
 }
 
@@ -526,6 +552,10 @@ void StereoCreatorAudioProcessor::parameterChanged(const String &parameterID, fl
     else if (parameterID == "blumleinRot")
     {
         getBlumleinRotationGains(params.getRawParameterValue("blumleinRot")->load());
+    }
+    else if (parameterID == "stereoMode")
+    {
+        currentOverallGain = Decibels::decibelsToGain(params.getRawParameterValue("compensationGain"+String(stereoModeIdx->load()))->load());
     }
 }
 
