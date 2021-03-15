@@ -39,8 +39,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
 //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
 //    title.showAlertSymbol(false);
     
-    
-    
     addAndMakeVisible(&footer);
     tooltipWindow.setLookAndFeel(&globalLaF);
     tooltipWindow.setMillisecondsBeforeTipAppears(500);
@@ -48,9 +46,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     // loading image data
     arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
     arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
-    
-//    arrayImage4Ch = arrayImage4Ch.rescaled(arrayImage4Ch.getWidth() * 4, arrayImage4Ch.getHeight() * 4);
-//    arrayImage2Ch = arrayImage2Ch.rescaled(arrayImage2Ch.getWidth() * 4, arrayImage2Ch.getHeight() * 4);
     
     bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
     cardPath.loadPathFromData (cardData, sizeof (cardData));
@@ -77,11 +72,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     cbStereoMode.addItem("blumlein", eStereoMode::blumleinIdx);
     cbStereoMode.setEditableText(false);
     cbStereoMode.setJustificationType(Justification::centred);
-    cbStereoMode.setSelectedId(processor.getStereoModeIdx());
-    cbStereoMode.addListener(this);
     cbStereoMode.setSelectedId( processor.getStereoModeIdx() );
+//    cbStereoMode.setSelectedId(processor.getNumInpCh() == 2 ? eStereoMode::pseudoMsIdx : eStereoMode::trueMsIdx);
+    cbStereoMode.addListener(this);
     
-//            zeroDelayModeActive() ? oldProxDistance = 0 : oldProxDistance = oldProxDistanceB;
+    // help tooltip
+    addAndMakeVisible(&helpToolTip);
+    helpToolTip.setText("help", NotificationType::dontSendNotification);
+    helpToolTip.setTextColour(Colours::white.withAlpha(0.5f));
     
     // rotary sliders
     addAndMakeVisible(&slMidGain[0]);
@@ -121,10 +119,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     setDirVisAlphaFromSliderValues(&slSideGain[1], 1);
     
     addAndMakeVisible(&slPseudoStPattern);
-    slAttPseudoStPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "lrWidth", slPseudoStPattern));
-//    slPseudoStPattern.setSliderStyle(Slider::Rotary);
-//    slPseudoStPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
-//    slPseudoStPattern.setTextValueSuffix(" %");
+    slAttPseudoStPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "pseudoStPattern", slPseudoStPattern));
     slPseudoStPattern.setTooltipEditable(true);
     slPseudoStPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slPseudoStPattern.addListener(this);
@@ -133,8 +128,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&slMidPattern);
     slAttMidPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "msMidPattern", slMidPattern));
-//    slMidPattern.setSliderStyle(Slider::Rotary);
-//    slMidPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slMidPattern.setTooltipEditable(true);
     slMidPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slMidPattern.addListener(this);
@@ -143,9 +136,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible(&slXyPattern);
     slAttXyPattern.reset(new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyPattern", slXyPattern));
-    //slXyPattern.setSliderStyle(Slider::Rotary);
     slXyPattern.setTooltipEditable (true);
-    //slXyPattern.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slXyPattern.setColour(Slider::rotarySliderOutlineColourId, colours[2]);
     slXyPattern.addListener(this);
     slXyPattern.dirStripTop.setPatternPathsAndFactors(cardPath, sCardPath, cardFact, sCardFact);
@@ -300,14 +291,18 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     
     if (processor.getNumInpCh() == 2) // two channel input
     {
-        title.setLineBounds(true, 0, 0, 0); // deafult line
-        
+        title.setLineBounds(true, 0, 0, 0); // default line
         g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
+        helpToolTip.setTooltip(helpText2Ch);
     }
     else // four channel input
     {
-        title.setLineBounds(false, 0, 28, 102);
-        g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
+        title.setLineBounds(false, 0, 33, 101);
+//        g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
+//        g.drawImageAt(arrayImage4Ch, 4, 8);
+        g.drawImageWithin(arrayImage4Ch, 4, 8, arrayImage4Ch.getWidth() / 2, arrayImage4Ch.getHeight() / 2, RectanglePlacement::onlyReduceInSize);
+        helpToolTip.setTooltip(helpText4Ch);
+        
     }
     
     // background logo
@@ -351,6 +346,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     
     // header and footer
     Rectangle<int> footerArea (area.removeFromBottom (footerHeight));
+    helpToolTip.setBounds(5, getHeight() - 30, 40, 25);
     footer.setBounds (footerArea);
     
     area.removeFromLeft (leftRightMargin);
@@ -369,6 +365,9 @@ void StereoCreatorAudioProcessorEditor::resized()
     arrayImageArea = area.removeFromLeft(arrayWidth).toFloat();
 //    arrayImageArea.removeFromTop(headerArea.getHeight());
 //    arrayImageArea.removeFromLeft(leftRightMargin);
+    
+    
+    
     
     //--------------- SIDE AREA ----------------
     Rectangle<int> sideArea (area.removeFromLeft(sideAreaWidth));
@@ -436,12 +435,12 @@ void StereoCreatorAudioProcessorEditor::resized()
     // slider
     twoRotSlArea.removeFromTop(vSpace);
     threeRotSlArea.removeFromTop(vSpace);
-    // reference sliders/labels for placing two sliders in the plugin
+    // used as reference sliders/labels for placing two sliders in the plugin
     slMidGain[0].setBounds(twoRotSlArea.removeFromLeft(rotarySliderWidth));
     twoRotSlArea.removeFromLeft(hSpace);
     slSideGain[0].setBounds(twoRotSlArea.removeFromLeft(rotarySliderWidth));
     
-    // reference sliders for placing one or three sliders in the plugin
+    // used as reference sliders for placing one or three sliders in the plugin
     slMidGain[1].setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
     threeRotSlArea.removeFromLeft(hSpace);
     slSideGain[1].setBounds(threeRotSlArea.removeFromLeft(rotarySliderWidth));
@@ -464,7 +463,6 @@ void StereoCreatorAudioProcessorEditor::resized()
     Rectangle<int> bottomLabelArea (bottomArea.removeFromTop(grpHeight));
     grpXyAngle.setBounds(bottomLabelArea);
     slXyAngle.setBounds(bottomArea);
-    
     
     slRotation.setBounds(slXyAngle.getBounds());
     grpRotation.setBounds(grpXyAngle.getBounds());
@@ -531,7 +529,7 @@ void StereoCreatorAudioProcessorEditor::comboBoxChanged(ComboBox *cb)
                 dirVis[1].setPatternAlpha(1.0f);
                 break;
             default:
-                cbStereoMode.setSelectedId(eStereoMode::trueMsIdx);
+//                cbStereoMode.setSelectedId(eStereoMode::trueMsIdx);
                 break;
         }
     }

@@ -83,6 +83,10 @@ private:
     
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
     
+    SimpleLabel helpToolTip;
+    
+    TextEditor bla;
+    
     
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation, slAttCompensationGain[5];
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
@@ -108,6 +112,10 @@ private:
     
     const juce::String inMeterLabelText[4] = { "L", "R", "F", "B" };
     const juce::String outMeterLabelText[4] = { "L", "R"};
+    
+    const juce::String deg = CharPointer_UTF8 (R"(°)");
+    const juce::String helpText2Ch = {"left/right are seen from the recording side. the side edge of the mic should point towards the source."};
+    const juce::String helpText4Ch = {"left/right are seen from the recording side. front of upper mic should point towards the source."};
     
     const float omniFact = 0.0f;
     const float eightFact = 1.0f;

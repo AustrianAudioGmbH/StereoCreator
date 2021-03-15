@@ -86,7 +86,7 @@ public:
     //==============================================================================
     void parameterChanged (const String &parameterID, float newValue) override;
 
-    int getStereoModeIdx() { return static_cast<int> (stereoModeIdx->load()); }
+    int getStereoModeIdx() { return  (stereoModeIdx->load()); }
     int getNumInpCh() { return numInputs; }
     void getXyAngleRelatedGains(float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
@@ -132,15 +132,6 @@ private:
     AudioBuffer<float> rotatedEightLeftRightBuffer;
     AudioBuffer<float> xyLeftRightBuffer;
     AudioBuffer<float> blumleinLeftRightBuffer;
-
-    // pan law
-//    const static int panTableSize = 10000;
-////    const static int xyAnglePanTableSize = 4996;
-//    float panLawExp = 4.5f / 3.01f;
-//    float panTableLeft[panTableSize];
-//    float panTableRight[panTableSize];
-//    float xyAnglePanTableFront[xyAnglePanTableSize];
-//    float xyAnglePanTableLeft[xyAnglePanTableSize];
     
     float currentXyEightRotationGainFront;
     float currentXyEightRotationGainLeft;
@@ -158,12 +149,6 @@ private:
     int blocksToAverage;
     float inputGainMean = 0.000001f;
     float outGainMean = 0.000001f;
-    
-//    float hyperCardioidLimit = 0.75;
-//    float wideCardioidLimit = 0.37;
-    
-//    bool midGainChanged = false;
-//    bool sideGainChanged = false;
     
     float previousMidGain;
     float previousSideGain;
