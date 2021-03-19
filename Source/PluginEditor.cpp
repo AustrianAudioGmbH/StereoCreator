@@ -292,14 +292,14 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     if (processor.getNumInpCh() == 2) // two channel input
     {
         title.setLineBounds(true, 0, 0, 0); // default line
-        g.drawImage(arrayImage2Ch, 8, 72, arrayImageArea.getWidth() + 15, currHeight - 90, 0, 0, arrayImage2Ch.getWidth(), arrayImage2Ch.getHeight());
+        g.drawImageWithin(arrayImage2Ch, 0, 0, arrayImage2Ch.getWidth() / 2, arrayImage2Ch.getHeight() / 2, RectanglePlacement::onlyReduceInSize);
+        
+        
         helpToolTip.setTooltip(helpText2Ch);
     }
     else // four channel input
     {
         title.setLineBounds(false, 0, 33, 101);
-//        g.drawImage(arrayImage4Ch, 24, 2, arrayImageArea.getWidth() - 8, currHeight + 35, 0, 0, arrayImage4Ch.getWidth(), arrayImage4Ch.getHeight());
-//        g.drawImageAt(arrayImage4Ch, 4, 8);
         g.drawImageWithin(arrayImage4Ch, 4, 8, arrayImage4Ch.getWidth() / 2, arrayImage4Ch.getHeight() / 2, RectanglePlacement::onlyReduceInSize);
         helpToolTip.setTooltip(helpText4Ch);
         
