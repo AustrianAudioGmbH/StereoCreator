@@ -6,7 +6,7 @@
               pluginFormats="buildAAX,buildAU,buildVST3" pluginCharacteristicsValue="pluginAAXDisableMultiMono"
               pluginManufacturerCode="-AA-" pluginCode="AASC" pluginVST3Category="Fx"
               bundleIdentifier="at.aa.stereocreator" aaxIdentifier="at.aa.stereocreator"
-              version="1.0.0f">
+              version="1.0.0">
   <MAINGROUP id="SV2Who" name="StereoCreator">
     <GROUP id="{77860FC0-81C3-846F-AB1F-CA7D5644D620}" name="resources">
       <GROUP id="{E3FA03A6-8BC5-BE7A-F0AA-0FAE1F6E97D3}" name="customComponents">

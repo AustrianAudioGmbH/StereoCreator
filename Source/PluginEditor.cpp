@@ -61,7 +61,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     colours[1] = Colour(0xFDBA4949);
     colours[2] = Colour(0xFDBAAF49);
     
-    
     // combo box
     addAndMakeVisible(cbStereoMode);
     cbAttStereoMode.reset(new ComboBoxAttachment (valueTreeState, "stereoMode", cbStereoMode));
@@ -159,7 +158,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slXyAngle.setSliderStyle(Slider::LinearHorizontal);
     slXyAngle.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slXyAngle.setColour(Slider::thumbColourId, globalLaF.AARed);
-//    slXyAngle.setColour(Slider::rotarySliderOutlineColourId, Colours::black);
     slXyAngle.setTextValueSuffix(CharPointer_UTF8 (R"(°)"));
     slXyAngle.addListener(this);
     
@@ -168,7 +166,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     slRotation.setSliderStyle(Slider::LinearHorizontal);
     slRotation.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
     slRotation.setColour(Slider::thumbColourId, globalLaF.AARed);
-//    slRotation.setColour (Slider::rotarySliderOutlineColourId, Colours::black);
     slRotation.setTextValueSuffix(CharPointer_UTF8 (R"(°)"));
     slRotation.addListener(this);
     
@@ -747,6 +744,16 @@ int StereoCreatorAudioProcessorEditor::getControlParameterIndex (Component& cont
         return 9;
     else if (&control == &tbChSwitch)
         return 10;
+    else if (&control == &slCompensationGain[0])
+        return 11;
+    else if (&control == &slCompensationGain[1])
+        return 12;
+    else if (&control == &slCompensationGain[2])
+        return 13;
+    else if (&control == &slCompensationGain[3])
+        return 14;
+    else if (&control == &slCompensationGain[4])
+        return 15;
     
     return -1;
 }
