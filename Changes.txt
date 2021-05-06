@@ -1,0 +1,6 @@
+=== Major changes, features and updates ===
+
+This file lists the notable changes, new features and updates of the different plug-in versions. For more detailed information, see the git log.
+
+Version 1.0.0
+  - First release
