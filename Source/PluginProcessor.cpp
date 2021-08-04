@@ -493,9 +493,13 @@ void StereoCreatorAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     {
         layerA = params.copyState();
     }
-    if (abLayerState == eCurrentActiveLayer::layerB)
+    else if (abLayerState == eCurrentActiveLayer::layerB)
     {
         layerB = params.copyState();
+    }
+    else
+    {
+        layerA = params.copyState();
     }
 
     ValueTree vtsState = params.copyState();
@@ -521,7 +525,7 @@ void StereoCreatorAudioProcessor::setStateInformation (const void* data, int siz
         if (xmlState->hasTagName (allValueTreeStates.getType()))
         {
             allValueTreeStates = ValueTree::fromXml (*xmlState);
-            params.replaceState(allValueTreeStates.getChild(1));
+            params.replaceState(allValueTreeStates.getChild(0));
             layerB = allValueTreeStates.getChild(2).createCopy();
         }
     }
