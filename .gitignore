@@ -7,3 +7,5 @@
 .DS_Store
 .ttf
 .p12
+.idea/**
+cmake-build-debug/**
