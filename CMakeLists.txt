@@ -81,7 +81,7 @@ juce_add_plugin("${PROJECT_NAME}"
     # This is how it's listed in the DAW
     # This can be different from PROJECT_NAME and can have spaces!
     # You might want to use v${MAJOR_VERSION} here once you go to v2...
-    PRODUCT_NAME "${PRODUCT_NAME} v${MAJOR_VERSION}")
+    PRODUCT_NAME "${PRODUCT_NAME}${MAJOR_VERSION}")
 
 
 
