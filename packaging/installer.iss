@@ -1,5 +1,5 @@
 #define Version Trim(FileRead(FileOpen("..\VERSION")))
-#define ProductName 'StereoCreator2'
+#define ProductName 'StereoCreator3'
 #define Publisher 'AustrianAudio'
 #define Year GetDateTimeString("yyyy","","")
 #define SC_BUILD_DIR GetEnv('SC_BUILD_DIR')
