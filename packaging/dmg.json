@@ -1,5 +1,5 @@
 {
-  "title": "StereoCreator3",
+  "title": "StereoCreator2",
   "icon": "austrianaudio_logo.icns",
   "background": "background.jpg",
   "window": {
@@ -14,8 +14,8 @@
   },
   "format": "UDZO",
   "contents": [
-    { "x": 220, "y": 200, "type": "file", "path": "dmg/StereoCreator3.component" },
-    { "x": 220, "y": 310, "type": "file", "path": "dmg/StereoCreator3.vst3" },
+    { "x": 220, "y": 200, "type": "file", "path": "dmg/StereoCreator2.component" },
+    { "x": 220, "y": 310, "type": "file", "path": "dmg/StereoCreator2.vst3" },
     { "x": 480, "y": 200, "type": "file", "path": "dmg/Your Mac's Component Folder" },
     { "x": 480, "y": 310, "type": "file", "path": "dmg/Your Mac's VST3 Folder" }
   ]
