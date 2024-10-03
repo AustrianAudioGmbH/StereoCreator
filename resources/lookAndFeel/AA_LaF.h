@@ -118,7 +118,7 @@ public:
     }
     Font getLabelFont (Label& label) override
     {
-        //return label.getFont();
+        (void)label;
         Font font(aaRegular);
         font.setHeight(18.0f);
         return font;
@@ -133,6 +133,8 @@ public:
 
     Font getTextButtonFont (TextButton& button, int height) override
     {
+        (void)button;
+        (void)height;
         Font font(aaRegular);
         font.setHeight(18.0f);
         return font;
@@ -673,12 +675,6 @@ public:
             
             g.fillRoundedRectangle(buttonArea, 2.0f);
         }
-        else if (button.getButtonText() == "calculate")
-        {
-            g.setColour(backgroundColour.withMultipliedAlpha(button.getToggleState() ? 1.0f : 0.4f));
-            
-            g.fillRoundedRectangle(buttonArea, 2.0f);
-        }
         else
         {
             g.setColour(backgroundColour.withMultipliedAlpha(isButtonDown ? 1.0f : isMouseOverButton ? 0.6f : 0.9f));
@@ -781,7 +777,6 @@ public:
                       bool isMouseOverButton,
                       bool isButtonDown) override
     {
-        const float boxSize = w * 0.8f;
 
         Rectangle<float> buttonArea(x, y, w, h);
 
@@ -817,6 +812,8 @@ public:
                                     const String& text, const Justification& position,
                                     GroupComponent& group) override
     {
+        (void)height;
+        (void)group;
         Rectangle<int> r(6,0,width-6,15);
         g.setColour(ClText);
         g.setFont(aaRegular);
@@ -841,6 +838,9 @@ public:
                        int buttonX, int buttonY, int buttonW, int buttonH,
                        ComboBox& box) override
     {
+        (void)width;
+        (void)height;
+        (void)isButtonDown;
         //const auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
         //        const Rectangle<int> boxBounds (0, 0, width, height);
         //

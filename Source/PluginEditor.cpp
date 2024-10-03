@@ -35,12 +35,12 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     
     addAndMakeVisible (&title);
     title.setTitle (String("AustrianAudio"),String("StereoCreator"));
-    title.setFont (globalLaF.aaMedium,globalLaF.aaRegular);
+    title.setFont (mainLaF.normalFont, mainLaF.normalFont);
 //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
 //    title.showAlertSymbol(false);
     
     addAndMakeVisible(&footer);
-    tooltipWindow.setLookAndFeel(&globalLaF);
+    tooltipWindow.setLookAndFeel(&mainLaF);
     tooltipWindow.setMillisecondsBeforeTipAppears(500);
     
     // loading image data
@@ -146,7 +146,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
         addAndMakeVisible(&slCompensationGain[i]);
         slAttCompensationGain[i].reset(new ReverseSlider::SliderAttachment (valueTreeState, "compensationGain"+String(i+1), slCompensationGain[i]));
         slCompensationGain[i].setSliderStyle(Slider::Rotary);
-        slCompensationGain[i].setColour(Slider::rotarySliderOutlineColourId, globalLaF.AARed);
+        slCompensationGain[i].setColour(Slider::rotarySliderOutlineColourId, mainLaF.polarVisualizerRed);
         slCompensationGain[i].addListener(this);
         slCompensationGain[i].setTextValueSuffix(" dB");
         slCompensationGain[i].setTextBoxStyle(Slider::TextBoxBelow, false, 60, 15);
@@ -284,7 +284,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     const int currHeight = getHeight();
     const int currWidth = getWidth();
     
-    g.fillAll (globalLaF.ClBackground);
+    g.fillAll (mainLaF.mainBackground);
     
     if (processor.getNumInpCh() == 2) // two channel input
     {
@@ -292,13 +292,13 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
         g.drawImageWithin(arrayImage2Ch, 0, 0, arrayImage2Ch.getWidth() / 2, arrayImage2Ch.getHeight() / 2, RectanglePlacement::onlyReduceInSize);
         
         
-        helpToolTip.setTooltip(helpText2Ch);
+//        helpToolTip.setTooltip(helpText2Ch);
     }
     else // four channel input
     {
         title.setLineBounds(false, 0, 33, 101);
         g.drawImageWithin(arrayImage4Ch, 4, 8, arrayImage4Ch.getWidth() / 2, arrayImage4Ch.getHeight() / 2, RectanglePlacement::onlyReduceInSize);
-        helpToolTip.setTooltip(helpText4Ch);
+//        helpToolTip.setTooltip(helpText4Ch);
         
     }
     

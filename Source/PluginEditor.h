@@ -26,6 +26,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "../resources/lookAndFeel/AA_LaF.h"
+#include "../resources/lookAndFeel/MainLookAndFeel.h"
 #include "../resources/customComponents/TitleBar.h"
 #include "../resources/customComponents/SimpleLabel.h"
 #include "../resources/customComponents/ReverseSlider.h"
@@ -73,7 +74,10 @@ private:
     
     TitleBar<AALogo, NoIOWidget> title;
     Footer footer;
+
     LaF globalLaF;
+    MainLookAndFeel mainLaF;
+
     TooltipWindow tooltipWindow;
     
     Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation, slCompensationGain[5];//slWidth, slXyPattern, slMidPattern,

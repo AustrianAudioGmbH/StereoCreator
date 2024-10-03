@@ -40,6 +40,18 @@ enum eCurrentActiveLayer
     layerB = 2
 };
 
+static inline bool doublesEquivalent(double a, double b)
+{
+    return fabs(a - b) < DBL_EPSILON;
+}
+
+static inline bool floatsEquivalent(double a, double b)
+{
+    return fabs(a - b) < FLT_EPSILON;
+}
+
+
+
 //==============================================================================
 /**
 */
