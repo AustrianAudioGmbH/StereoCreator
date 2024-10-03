@@ -301,13 +301,16 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 //        helpToolTip.setTooltip(helpText4Ch);
         
     }
-    
+
+#ifdef AA_SHOW_LOGO
     // background logo
     aaLogoBgPath.applyTransform (aaLogoBgPath.getTransformToScaleToFit (0.50f * currWidth, 0.25f * currHeight,
                                                                         0.58f * currWidth, 0.58f * currWidth, true, Justification::centred));
     g.setColour (Colours::white.withAlpha(0.1f));
     g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
     g.fillPath (aaLogoBgPath);
+#endif
+
 }
 
 void StereoCreatorAudioProcessorEditor::resized()
