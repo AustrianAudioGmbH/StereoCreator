@@ -29,6 +29,8 @@
 #include <memory> // for unique_ptr
 #include <math.h>
 
+#include <cfloat>
+
 enum eStereoMode
 {
     pseudoMsIdx = 1,
