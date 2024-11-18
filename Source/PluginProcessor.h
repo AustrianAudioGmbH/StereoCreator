@@ -25,6 +25,10 @@
 
 #include <JuceHeader.h>
 
+#include <vector>
+#include <memory> // for unique_ptr
+#include <math.h>
+
 enum eStereoMode
 {
     pseudoMsIdx = 1,
