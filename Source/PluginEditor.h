@@ -68,7 +68,9 @@ public:
 private:
     static const int EDITOR_WIDTH = 640;
     static const int EDITOR_HEIGHT = 400;
-    
+
+    MainLookAndFeel mainLaF;
+
     StereoCreatorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
     
@@ -76,10 +78,9 @@ private:
     Footer footer;
 
     LaF globalLaF;
-    MainLookAndFeel mainLaF;
 
-    TooltipWindow tooltipWindow;
-    
+    TooltipWindow sharedTooltipWindow;
+
     Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation, slCompensationGain[5];//slWidth, slXyPattern, slMidPattern,
     ComboBox cbStereoMode;
     ToggleButton tbChSwitch;
@@ -103,8 +104,11 @@ private:
     
     FirstOrderDirectivityVisualizer dirVis[2];
     Colour colours[3];
-    
+
+#ifdef AA_SHOW_LOGO
     Path aaLogoBgPath;
+#endif
+
     Image arrayImage2Ch;
     Image arrayImage4Ch;
     Rectangle<float> arrayImageArea;

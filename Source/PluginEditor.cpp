@@ -32,16 +32,20 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     setSize (EDITOR_WIDTH, EDITOR_HEIGHT);
     
     setLookAndFeel(&globalLaF);
-    
+
+    addAndMakeVisible(sharedTooltipWindow);
+
     addAndMakeVisible (&title);
     title.setTitle (String("AustrianAudio"),String("StereoCreator"));
     title.setFont (mainLaF.normalFont, mainLaF.normalFont);
-//    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
+
+    //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
 //    title.showAlertSymbol(false);
     
     addAndMakeVisible(&footer);
-    tooltipWindow.setLookAndFeel(&mainLaF);
-    tooltipWindow.setMillisecondsBeforeTipAppears(500);
+
+    sharedTooltipWindow.setLookAndFeel(&mainLaF);
+    sharedTooltipWindow.setMillisecondsBeforeTipAppears(500);
     
     // loading image data
     arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
@@ -53,9 +57,11 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     hCardPath.loadPathFromData (hCardData, sizeof (hCardData));
     eightPath.loadPathFromData (eightData, sizeof (eightData));
     omniPath.loadPathFromData (omniData, sizeof (omniData));
-    
+
+#ifdef AA_SHOW_LOGO
     aaLogoBgPath.loadPathFromData (aaLogoData, sizeof (aaLogoData));
-    
+#endif
+
     // colours
     colours[0] = Colour(0xFD49BA64);
     colours[1] = Colour(0xFDBA4949);

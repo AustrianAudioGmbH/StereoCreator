@@ -75,6 +75,7 @@ public:
         Rectangle<float> buttonArea(0.0f, 0.0f, button.getWidth() * 1.0f, button.getHeight() * 1.0f);
 
         static auto austrianAudioLogoImg = juce::Drawable::createFromImageData(BinaryData::austrianAudioLogo_svg, BinaryData::austrianAudioLogo_svgSize);
+
         static auto loadArrowImg = juce::Drawable::createFromImageData(BinaryData::loadArrow_svg, BinaryData::loadArrow_svgSize);
         static auto freeFieldImg = juce::Drawable::createFromImageData(BinaryData::freeField_svg, BinaryData::freeField_svgSize);
         static auto diffuseFieldImg = juce::Drawable::createFromImageData(BinaryData::diffuseField_svg, BinaryData::diffuseField_svgSize);
@@ -92,6 +93,8 @@ public:
         {
             auto austrianAudioLogoImgArea = buttonArea;
             austrianAudioLogoImg->drawWithin(g, austrianAudioLogoImgArea, juce::RectanglePlacement::xLeft, 1.f);
+            button.setTooltip(String(BUILD_TAG) + String("-") + String(BUILD_COMMIT_HASH) + String::formatted(" (%p)", this) );
+
         }
         else if (button.getButtonText() == "Zero latency")
         {
