@@ -40,7 +40,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     title.setFont (mainLaF.normalFont, mainLaF.normalFont);
 
     //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
-//    title.showAlertSymbol(false);
+    //    title.showAlertSymbol(false);
     
     addAndMakeVisible(&footer);
 
