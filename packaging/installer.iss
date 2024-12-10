@@ -10,7 +10,7 @@
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
 AppName={#ProductName}
-OutputBaseFilename="{#ProductName}_{#GetEnv('SC_BUILD_MARK')}_Installer"
+OutputBaseFilename="{#GetEnv('SC_BUILD_MARK')}_{#ProductName}_Installer"
 AppCopyright=Copyright (C) {#Year} {#Publisher}
 AppPublisher={#Publisher}
 AppVersion={#Version}
