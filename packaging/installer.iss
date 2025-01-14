@@ -2,7 +2,7 @@
 #define ProductName 'StereoCreator2'
 #define Publisher 'AustrianAudio'
 #define Year GetDateTimeString("yyyy","","")
-#define SC_BUILD_DIR GetEnv('SC_BUILD_DIR')
+#define SC_BUILD_DIR GetEnv('SC_SHARED_BUILD_DIR')
 #define SC_BUILD_ARCHIVE GetEnv('SC_BUILD_ARCHIVE')
 #define SC_BUILD_TYPE GetEnv('SC_BUILD_TYPE')
 
