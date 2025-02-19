@@ -55,7 +55,8 @@ public:
     void comboBoxChanged (ComboBox* cb) override;
     void sliderValueChanged (Slider* slider) override;
     void buttonClicked (Button* button) override;
-    
+    void mouseUp(const juce::MouseEvent& event) override;
+
     void setComboBoxItemsEnabled(bool twoChannelInput);
     void setSliderVisibility(bool msTwoCh, bool msFourCh, bool width, bool pattern, bool rotation, bool xyPattern, bool xyAngle);
     
@@ -64,7 +65,8 @@ public:
     void setAbButtonAlphaFromLayerState(int layerState);
     
     void setDirVisAlphaFromSliderValues (Slider* slider, int dirVisIdx);
-    
+
+
 private:
     static const int EDITOR_WIDTH = 640;
     static const int EDITOR_HEIGHT = 400;

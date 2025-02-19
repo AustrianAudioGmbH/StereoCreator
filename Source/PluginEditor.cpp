@@ -25,6 +25,8 @@
 #include "PluginEditor.h"
 #include "../resources/customComponents/ImgPaths.h"
 
+#define AA_SUPPORT_URL "https://austrian.audio/support-downloads/"
+
 //==============================================================================
 StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCreatorAudioProcessor& p, AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), processor (p), valueTreeState(vts)
@@ -85,6 +87,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     addAndMakeVisible(&helpToolTip);
     helpToolTip.setText("help", NotificationType::dontSendNotification);
     helpToolTip.setTextColour(Colours::white.withAlpha(0.5f));
+    helpToolTip.setInterceptsMouseClicks(true, false); // Enable mouse clicks
+    helpToolTip.addMouseListener(this, false); // Listen for clicks
     
     // rotary sliders
     addAndMakeVisible(&slMidGain[0]);
@@ -279,10 +283,25 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (StereoCrea
     startTimer(80);
 }
 
+
 StereoCreatorAudioProcessorEditor::~StereoCreatorAudioProcessorEditor()
 {
     setLookAndFeel (nullptr);
 }
+
+
+
+void StereoCreatorAudioProcessorEditor::mouseUp(const juce::MouseEvent& event)
+{
+    if (event.eventComponent == &helpToolTip)
+    {
+        if (!juce::URL(AA_SUPPORT_URL).launchInDefaultBrowser())
+        {
+            DBG("Failed to open URL!");
+        }
+    }
+}
+
 
 //==============================================================================
 void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
