@@ -27,147 +27,182 @@
 /* We use versionHint of ParameterID from now on - rigorously! */
 #define SC_PARAMETER_V1 1
 
+static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
+{
+    using namespace juce;
+
+    using APF = AudioParameterFloat;
+    using APB = AudioParameterBool;
+    using API = AudioParameterInt;
+
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    layout.add (std::make_unique<AudioParameterInt> (
+        ParameterID { "stereoMode", SC_PARAMETER_V1 },
+        "Stereo Mode",
+        1,
+        5,
+        1,
+        "",
+        [] (int value, int maximumStringLength) { return String (value + 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "msMidGain", SC_PARAMETER_V1 },
+        "MS Mid Gain",
+        NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
+        -6.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr)
+
+    );
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "msSideGain", SC_PARAMETER_V1 },
+        "MS Side Gain",
+        NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
+        -6.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "pseudoStPattern", SC_PARAMETER_V1 },
+        "Pseudo-Stereo Pattern",
+        NormalisableRange<float> (0.0f, 0.75f, 0.01f),
+        0.5f,
+        "",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 2); },
+        nullptr)
+
+    );
+
+    layout.add (
+
+        std::make_unique<AudioParameterBool> (
+            ParameterID { "channelSwitch", SC_PARAMETER_V1 },
+            "Channel Swap",
+            false,
+            "",
+            [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
+            nullptr)
+
+    );
+
+    layout.add (std::make_unique<AudioParameterBool> (
+        ParameterID { "calcCompGain", SC_PARAMETER_V1 },
+        "Calculate Compensation Gain",
+        false,
+        "",
+        [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "msMidPattern", SC_PARAMETER_V1 },
+        "MS Mid Pattern",
+        NormalisableRange<float> (0.0f, 0.75f, 0.01f),
+        0.5f,
+        "",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 2); },
+        nullptr)
+
+    );
+
+    layout.add (
+
+        std::make_unique<AudioParameterFloat> (
+            ParameterID { "trueStXyPattern", SC_PARAMETER_V1 },
+            "True-Stereo Pattern",
+            NormalisableRange<float> (0.37f, 0.75f, 0.01f),
+            0.5f,
+            "",
+            AudioProcessorParameter::genericParameter,
+            [] (float value, int maximumStringLength) { return String (value, 2); },
+            nullptr));
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "trueStXyAngle", SC_PARAMETER_V1 },
+        "True-Stereo XY Angle",
+        NormalisableRange<float> (30.0f, 150.0f, 0.5f),
+        90.0f,
+        "",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "blumleinRot", SC_PARAMETER_V1 },
+        "Blumlein Rotation",
+        NormalisableRange<float> (-30.0f, 30.0f, 0.5f),
+        0.0f,
+        "",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "compensationGain1", SC_PARAMETER_V1 },
+        "Compensation Gain - Pseudo-MS",
+        NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
+        0.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "compensationGain2", SC_PARAMETER_V1 },
+        "Compensation Gain - Pseudo-Stereo",
+        NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
+        0.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "compensationGain3", SC_PARAMETER_V1 },
+        "Compensation Gain - True-MS",
+        NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
+        0.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "compensationGain4", SC_PARAMETER_V1 },
+        "Compensation Gain - True-Stereo",
+        NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
+        0.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { "compensationGain5", SC_PARAMETER_V1 },
+        "Compensation Gain - Blumlein",
+        NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
+        0.0f,
+        "dB",
+        AudioProcessorParameter::genericParameter,
+        [] (float value, int maximumStringLength) { return String (value, 1); },
+        nullptr));
+
+    return layout;
+}
+
 //==============================================================================
 StereoCreatorAudioProcessor::StereoCreatorAudioProcessor() :
     AudioProcessor (BusesProperties()
                         .withInput ("Input", juce::AudioChannelSet::stereo(), true)
                         .withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
-    params (*this,
-            nullptr,
-            "StereoCreator",
-            { std::make_unique<AudioParameterInt> (
-                  ParameterID { "stereoMode", SC_PARAMETER_V1 },
-                  "Stereo Mode",
-                  1,
-                  5,
-                  1,
-                  "",
-                  [] (int value, int maximumStringLength) { return String (value + 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "msMidGain", SC_PARAMETER_V1 },
-                  "MS Mid Gain",
-                  NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
-                  -6.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "msSideGain", SC_PARAMETER_V1 },
-                  "MS Side Gain",
-                  NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
-                  -6.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "pseudoStPattern", SC_PARAMETER_V1 },
-                  "Pseudo-Stereo Pattern",
-                  NormalisableRange<float> (0.0f, 0.75f, 0.01f),
-                  0.5f,
-                  "",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 2); },
-                  nullptr),
-              std::make_unique<AudioParameterBool> (
-                  ParameterID { "channelSwitch", SC_PARAMETER_V1 },
-                  "Channel Swap",
-                  false,
-                  "",
-                  [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
-                  nullptr),
-              std::make_unique<AudioParameterBool> (
-                  ParameterID { "calcCompGain", SC_PARAMETER_V1 },
-                  "Calculate Compensation Gain",
-                  false,
-                  "",
-                  [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "msMidPattern", SC_PARAMETER_V1 },
-                  "MS Mid Pattern",
-                  NormalisableRange<float> (0.0f, 0.75f, 0.01f),
-                  0.5f,
-                  "",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 2); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "trueStXyPattern", SC_PARAMETER_V1 },
-                  "True-Stereo Pattern",
-                  NormalisableRange<float> (0.37f, 0.75f, 0.01f),
-                  0.5f,
-                  "",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 2); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "trueStXyAngle", SC_PARAMETER_V1 },
-                  "True-Stereo XY Angle",
-                  NormalisableRange<float> (30.0f, 150.0f, 0.5f),
-                  90.0f,
-                  "",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "blumleinRot", SC_PARAMETER_V1 },
-                  "Blumlein Rotation",
-                  NormalisableRange<float> (-30.0f, 30.0f, 0.5f),
-                  0.0f,
-                  "",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "compensationGain1", SC_PARAMETER_V1 },
-                  "Compensation Gain - Pseudo-MS",
-                  NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
-                  0.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "compensationGain2", SC_PARAMETER_V1 },
-                  "Compensation Gain - Pseudo-Stereo",
-                  NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
-                  0.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "compensationGain3", SC_PARAMETER_V1 },
-                  "Compensation Gain - True-MS",
-                  NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
-                  0.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "compensationGain4", SC_PARAMETER_V1 },
-                  "Compensation Gain - True-Stereo",
-                  NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
-                  0.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr),
-              std::make_unique<AudioParameterFloat> (
-                  ParameterID { "compensationGain5", SC_PARAMETER_V1 },
-                  "Compensation Gain - Blumlein",
-                  NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
-                  0.0f,
-                  "dB",
-                  AudioProcessorParameter::genericParameter,
-                  [] (float value, int maximumStringLength) { return String (value, 1); },
-                  nullptr)
-
-            }),
+    params (*this, nullptr, "StereoCreator", createParameterLayout()),
     layerA (nodeA),
     layerB (nodeB),
     allValueTreeStates (allStates)
@@ -184,7 +219,7 @@ StereoCreatorAudioProcessor::StereoCreatorAudioProcessor() :
 
     for (int i = 0; i < 5; i++)
     {
-        params.addParameterListener ("compensationGain" + String (i + 1), this);
+        params.addParameterListener ("compensationGain" + juce::String (i + 1), this);
     }
 
     stereoModeIdx = params.getRawParameterValue ("stereoMode");
@@ -311,9 +346,10 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     previousBlumleinEightRotationGainFront = currentBlumleinEightRotationGainFront;
     previousBlumleinEightRotationGainLeft = currentBlumleinEightRotationGainLeft;
 
-    previousMidGain = Decibels::decibelsToGain (params.getRawParameterValue ("msMidGain")->load());
+    previousMidGain =
+        juce::Decibels::decibelsToGain (params.getRawParameterValue ("msMidGain")->load());
     previousSideGain =
-        Decibels::decibelsToGain (params.getRawParameterValue ("msSideGain")->load());
+        juce::Decibels::decibelsToGain (params.getRawParameterValue ("msSideGain")->load());
     previousPseudoStereoPattern = params.getRawParameterValue ("pseudoStPattern")->load();
     previousMsMidPattern = params.getRawParameterValue ("msMidPattern")->load();
     previousTrueStereoPattern = params.getRawParameterValue ("trueStXyPattern")->load();
@@ -329,6 +365,8 @@ void StereoCreatorAudioProcessor::releaseResources()
 
 bool StereoCreatorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
+    using namespace juce;
+
     if ((layouts.getMainOutputChannelSet() != AudioChannelSet::stereo()
          && layouts.getMainOutputChannelSet() != AudioChannelSet::quadraphonic())
         || (layouts.getMainInputChannelSet() != AudioChannelSet::stereo()
@@ -347,6 +385,8 @@ bool StereoCreatorAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                                 juce::MidiBuffer& midiMessages)
 {
+    using namespace juce;
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
     //    auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -731,16 +771,16 @@ void StereoCreatorAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
         layerA = params.copyState();
     }
 
-    ValueTree vtsState = params.copyState();
-    ValueTree AState = layerA.createCopy();
-    ValueTree BState = layerB.createCopy();
+    juce::ValueTree vtsState = params.copyState();
+    juce::ValueTree AState = layerA.createCopy();
+    juce::ValueTree BState = layerB.createCopy();
 
     allValueTreeStates.removeAllChildren (nullptr);
     allValueTreeStates.addChild (vtsState, 0, nullptr);
     allValueTreeStates.addChild (AState, 1, nullptr);
     allValueTreeStates.addChild (BState, 2, nullptr);
 
-    std::unique_ptr<XmlElement> xml (allValueTreeStates.createXml());
+    std::unique_ptr<juce::XmlElement> xml (allValueTreeStates.createXml());
     copyXmlToBinary (*xml, destData);
 }
 
@@ -748,20 +788,22 @@ void StereoCreatorAudioProcessor::setStateInformation (const void* data, int siz
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState != nullptr)
     {
         if (xmlState->hasTagName (allValueTreeStates.getType()))
         {
-            allValueTreeStates = ValueTree::fromXml (*xmlState);
+            allValueTreeStates = juce::ValueTree::fromXml (*xmlState);
             params.replaceState (allValueTreeStates.getChild (0));
             layerB = allValueTreeStates.getChild (2).createCopy();
         }
     }
 }
 
-void StereoCreatorAudioProcessor::parameterChanged (const String& parameterID, float newValue)
+void StereoCreatorAudioProcessor::parameterChanged (const juce::String& parameterID, float newValue)
 {
+    using namespace juce;
+
     if (parameterID == "trueStXyAngle")
     {
         getXyAngleRelatedGains (params.getRawParameterValue ("trueStXyAngle")->load());
@@ -781,6 +823,8 @@ void StereoCreatorAudioProcessor::parameterChanged (const String& parameterID, f
 
 void StereoCreatorAudioProcessor::getXyAngleRelatedGains (float currentAngle)
 {
+    using namespace juce;
+
     float angle = currentAngle / 2.0f;
 
     currentXyEightRotationGainFront = cos (angle * MathConstants<float>::pi / 180.0f);
@@ -789,6 +833,8 @@ void StereoCreatorAudioProcessor::getXyAngleRelatedGains (float currentAngle)
 
 void StereoCreatorAudioProcessor::getBlumleinRotationGains (float currentRotation)
 {
+    using namespace juce;
+
     float angle = currentRotation + 45.0f;
 
     currentBlumleinEightRotationGainFront = cos (angle * MathConstants<float>::pi / 180.0f);
@@ -831,7 +877,7 @@ void StereoCreatorAudioProcessor::changeAbLayerState()
 
 void StereoCreatorAudioProcessor::applyGainWithRamp (float previousGain,
                                                      float currentGain,
-                                                     AudioBuffer<float>* buff,
+                                                     juce::AudioBuffer<float>* buff,
                                                      int bufferChannel,
                                                      int numSamples)
 {

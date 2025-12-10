@@ -32,32 +32,34 @@
 #include "../resources/lookAndFeel/AA_LaF.h"
 #include "../resources/lookAndFeel/MainLookAndFeel.h"
 #include "PluginProcessor.h"
-#include <JuceHeader.h>
 
-typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
-typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
+#include <juce_audio_processors/juce_audio_processors.h>
+
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 
 //==============================================================================
 /**
 */
 class StereoCreatorAudioProcessorEditor : public juce::AudioProcessorEditor,
-                                          private ComboBox::Listener,
-                                          private Slider::Listener,
-                                          private Button::Listener,
-                                          private Timer
+                                          private juce::ComboBox::Listener,
+                                          private juce::Slider::Listener,
+                                          private juce::Button::Listener,
+                                          private juce::Timer
 {
 public:
-    StereoCreatorAudioProcessorEditor (StereoCreatorAudioProcessor&, AudioProcessorValueTreeState&);
+    StereoCreatorAudioProcessorEditor (StereoCreatorAudioProcessor&,
+                                       juce::AudioProcessorValueTreeState&);
     ~StereoCreatorAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void comboBoxChanged (ComboBox* cb) override;
-    void sliderValueChanged (Slider* slider) override;
-    void buttonClicked (Button* button) override;
+    void comboBoxChanged (juce::ComboBox* cb) override;
+    void sliderValueChanged (juce::Slider* slider) override;
+    void buttonClicked (juce::Button* button) override;
     void mouseUp (const juce::MouseEvent& event) override;
 
     void setComboBoxItemsEnabled (bool twoChannelInput);
@@ -73,7 +75,7 @@ public:
 
     void setAbButtonAlphaFromLayerState (int layerState);
 
-    void setDirVisAlphaFromSliderValues (Slider* slider, int dirVisIdx);
+    void setDirVisAlphaFromSliderValues (juce::Slider* slider, int dirVisIdx);
 
 private:
     static const int EDITOR_WIDTH = 640;
@@ -82,26 +84,26 @@ private:
     MainLookAndFeel mainLaF;
 
     StereoCreatorAudioProcessor& processor;
-    AudioProcessorValueTreeState& valueTreeState;
+    juce::AudioProcessorValueTreeState& valueTreeState;
 
     TitleBar<AALogo, NoIOWidget> title;
     Footer footer;
 
     LaF globalLaF;
 
-    TooltipWindow sharedTooltipWindow;
+    juce::TooltipWindow sharedTooltipWindow;
 
-    Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation,
+    juce::Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation,
         slCompensationGain[5]; //slWidth, slXyPattern, slMidPattern,
-    ComboBox cbStereoMode;
-    ToggleButton tbChSwitch;
-    TextButton tbAbLayer[2], tbCalcCompGain;
+    juce::ComboBox cbStereoMode;
+    juce::ToggleButton tbChSwitch;
+    juce::TextButton tbAbLayer[2], tbCalcCompGain;
 
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
 
     SimpleLabel helpToolTip;
 
-    TextEditor bla;
+    juce::TextEditor bla;
 
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2],
         slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation,
@@ -109,24 +111,24 @@ private:
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
     std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttCalcCompGain;
 
-    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern, grpMidPattern,
-        grpXyPattern, grpXyAngle, grpRotation, grpInputMeters, grpCompensationGain;
+    juce::GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern,
+        grpMidPattern, grpXyPattern, grpXyAngle, grpRotation, grpInputMeters, grpCompensationGain;
 
     //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
     //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
 
     FirstOrderDirectivityVisualizer dirVis[2];
-    Colour colours[3];
+    juce::Colour colours[3];
 
 #ifdef AA_SHOW_LOGO
     Path aaLogoBgPath;
 #endif
 
-    Image arrayImage2Ch;
-    Image arrayImage4Ch;
-    Rectangle<float> arrayImageArea;
+    juce::Image arrayImage2Ch;
+    juce::Image arrayImage4Ch;
+    juce::Rectangle<float> arrayImageArea;
 
-    Image arrayImage;
+    juce::Image arrayImage;
 
     LevelMeter inputMeter[4];
     LevelMeter outputMeter[2];
@@ -134,7 +136,7 @@ private:
     const juce::String inMeterLabelText[4] = { "L", "R", "F", "B" };
     const juce::String outMeterLabelText[4] = { "L", "R" };
 
-    const juce::String deg = CharPointer_UTF8 (R"(°)");
+    const juce::String deg = juce::CharPointer_UTF8 (R"(°)");
     const juce::String helpText2Ch = {
         "left/right are seen from the recording side. the side edge of the mic should point towards the source."
     };
@@ -149,12 +151,12 @@ private:
     const float sCardFact = 0.634f;
     const float hCardFact = 0.75f;
 
-    Path bCardPath;
-    Path cardPath;
-    Path sCardPath;
-    Path hCardPath;
-    Path eightPath;
-    Path omniPath;
+    juce::Path bCardPath;
+    juce::Path cardPath;
+    juce::Path sCardPath;
+    juce::Path hCardPath;
+    juce::Path eightPath;
+    juce::Path omniPath;
 
     void timerCallback() override;
 

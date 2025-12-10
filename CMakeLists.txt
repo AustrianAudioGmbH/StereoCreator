@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.24.1)
 
-set (CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
-
 set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -29,7 +27,7 @@ include (PamplejuceVersion)
 
 set (PROJECT_NAME "StereoCreator")
 
-set (PRODUCT_NAME "StereoCreator")
+set (PRODUCT_NAME "StereoCreator${MAJOR_VERSION}")
 
 set (COMPANY_NAME "Austrian Audio")
 
@@ -52,12 +50,18 @@ endif ()
 
 if (APPLE)
     message (STATUS "Building on MacOS")
-    set (FORMATS $FORMATS AU AUv3 AAX)
+
+    set (FORMATS ${FORMATS} AU AUv3 AAX)
+
+    set_directory_properties (
+        PROPERTIES JUCE_AAX_COPY_DIR "$ENV{HOME}/Library/Application Support/Avid/Audio/Plug-Ins"
+    )
+
 elseif (UNIX)
     message (STATUS "Building on Linux")
 elseif (WIN32)
     message (STATUS "Building on Windows")
-    set (FORMATS $FORMATS AAX)
+    set (FORMATS ${FORMATS} AAX)
 else ()
     message (FATAL_ERROR "Unsupported platform")
 endif ()
@@ -79,7 +83,7 @@ juce_add_plugin (
     FORMATS
     "${FORMATS}"
     PRODUCT_NAME
-    "${PRODUCT_NAME}${MAJOR_VERSION}"
+    "${PRODUCT_NAME}"
 )
 
 add_library (SharedCode INTERFACE)
@@ -97,8 +101,6 @@ file (GLOB_RECURSE SourceLookAndFeelFiles
       CONFIGURE_DEPENDS" ${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.h"
       "${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.cpp"
 )
-
-juce_generate_juce_header (${PROJECT_NAME})
 
 target_sources (SharedCode INTERFACE ${SourceFiles} ${SourceLookAndFeelFiles})
 

@@ -53,8 +53,10 @@
 #pragma once
 #include "ImgPaths.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
+
 #define RS_FLT_EPSILON 1.19209290E-07F
-class DirSlider : public Slider
+class DirSlider : public juce::Slider
 {
 public:
     DirSlider() :
@@ -99,8 +101,10 @@ public:
 
         ~DirPatternStrip() {}
 
-        void paint (Graphics& g) override
+        void paint (juce::Graphics& g) override
         {
+            using namespace juce;
+
             Rectangle<int> bounds = getLocalBounds();
             int lrMargin = 7;
             int topMargin = 1;
@@ -130,7 +134,10 @@ public:
                           PathStrokeType (activePatternPath == patternFactorR ? 2.0f : 1.0f));
         }
 
-        void setPatternPathsAndFactors (Path pathL, Path pathR, float factorL, float factorR)
+        void setPatternPathsAndFactors (juce::Path pathL,
+                                        juce::Path pathR,
+                                        float factorL,
+                                        float factorR)
         {
             leftPath = pathL;
             rightPath = pathR;
@@ -139,8 +146,10 @@ public:
             patternFactorR = factorR;
         }
 
-        void mouseMove (const MouseEvent& e) override
+        void mouseMove (const juce::MouseEvent& e) override
         {
+            using namespace juce;
+
             if (! slider->isEnabled())
                 return;
 
@@ -160,8 +169,10 @@ public:
                 repaint();
         }
 
-        void mouseUp (const MouseEvent& e) override
+        void mouseUp (const juce::MouseEvent& e) override
         {
+            using namespace juce;
+
             if (! slider->isEnabled())
                 return;
 
@@ -171,7 +182,7 @@ public:
             }
         }
 
-        void mouseExit (const MouseEvent& e) override
+        void mouseExit (const juce::MouseEvent& e) override
         {
             activePatternPath = -1;
             repaint();
@@ -193,23 +204,23 @@ public:
         //        float patternFactorBottomL;
         //        float patternFactorBottomR;
 
-        Path bCardPath;
-        Path cardPath;
-        Path sCardPath;
-        Path hCardPath;
-        Path eightPath;
-        Path omniPath;
-        //        Path revCardPath;
+        juce::Path bCardPath;
+        juce::Path cardPath;
+        juce::Path sCardPath;
+        juce::Path hCardPath;
+        juce::Path eightPath;
+        juce::Path omniPath;
+        //        juce::Path revCardPath;
 
-        Path leftPath;
-        Path rightPath;
+        juce::Path leftPath;
+        juce::Path rightPath;
         //        Path bottomLPath;
         //        Path bottomRPath;
 
         DirSlider* slider;
     };
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
         auto& lf = getLookAndFeel();
 
@@ -238,10 +249,12 @@ public:
 
     void valueChanged() override
     {
+        using namespace juce;
+
         tooltipValueBox->setText (String (getValue(), 2), NotificationType::dontSendNotification);
     }
 
-    void mouseDown (const MouseEvent& e) override
+    void mouseDown (const juce::MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return; // mouseEvent started from tooltipValueBox
@@ -249,7 +262,7 @@ public:
         lastDistanceFromDragStart = 0;
         Slider::mouseDown (e);
     }
-    void mouseDrag (const MouseEvent& e) override
+    void mouseDrag (const juce::MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return;
@@ -257,7 +270,7 @@ public:
         Slider::mouseDrag (e);
     }
 
-    void mouseExit (const MouseEvent& e) override
+    void mouseExit (const juce::MouseEvent& e) override
     {
         tooltipActive = false;
 
@@ -266,7 +279,7 @@ public:
             tooltipValueBox->setVisible (false);
     }
 
-    void mouseEnter (const MouseEvent& e) override
+    void mouseEnter (const juce::MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return;
@@ -296,6 +309,8 @@ public:
 
     void initValueBox()
     {
+        using namespace juce;
+
         auto& lf = getLookAndFeel();
 
         tooltipValueBox.reset (lf.createSliderTextBox (*this));
@@ -319,6 +334,8 @@ public:
 
     void tooltipTextChanged()
     {
+        using namespace juce;
+
         if (getValueFromText (tooltipValueBox->getText()) == getValue())
             return;
 
@@ -357,14 +374,14 @@ private:
     bool isDual;
     bool scrollWheelEnabled;
     bool tooltipActive;
-    Rectangle<int> sliderRect;
-    Rectangle<int> dirPatternTopBounds;
-    Rectangle<int> dirPatternBottomBounds;
+    juce::Rectangle<int> sliderRect;
+    juce::Rectangle<int> dirPatternTopBounds;
+    juce::Rectangle<int> dirPatternBottomBounds;
 
     int tooltipWidth;
     int tooltipHeight;
     float activePolarPatternPath;
     float patternStripSize;
 
-    std::unique_ptr<Label> tooltipValueBox;
+    std::unique_ptr<juce::Label> tooltipValueBox;
 };

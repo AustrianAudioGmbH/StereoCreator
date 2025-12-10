@@ -49,13 +49,15 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../lookAndFeel/MainLookAndFeel.h"
+
+#include <juce_gui_basics/juce_gui_basics.h>
 
 //==============================================================================
 /*
 */
 //using namespace dsp;
-class FirstOrderDirectivityVisualizer : public Component
+class FirstOrderDirectivityVisualizer : public juce::Component
 {
     const float deg2rad = M_PI / 180.0f;
     const int degStep = 4;
@@ -64,6 +66,8 @@ class FirstOrderDirectivityVisualizer : public Component
 public:
     FirstOrderDirectivityVisualizer()
     {
+        using namespace juce;
+
         isActive = true;
         //        soloButton = nullptr;
         //        muteButton = nullptr;
@@ -99,8 +103,10 @@ public:
 
     ~FirstOrderDirectivityVisualizer() {}
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         Path path;
         path = grid;
         path.applyTransform (transform);
@@ -145,6 +151,8 @@ public:
 
     void resized() override
     {
+        using namespace juce;
+
         Rectangle<int> bounds = getLocalBounds();
         Point<int> centre = bounds.getCentre();
 
@@ -210,25 +218,25 @@ public:
     //        soloActive = set;
     //    }
     //
-    void setColour (Colour newColour) { colour = newColour; }
+    void setColour (juce::Colour newColour) { colour = newColour; }
 
     void setPatternRotation (float degrees) { rotation = degrees * deg2rad; }
 
 private:
-    Path grid;
-    Path subGrid;
-    AffineTransform transform;
-    Rectangle<int> plotArea;
+    juce::Path grid;
+    juce::Path subGrid;
+    juce::AffineTransform transform;
+    juce::Rectangle<int> plotArea;
     float dirWeight;
     float patternAlpha;
     bool isActive;
     //    MuteSoloButton* soloButton;
     //    MuteSoloButton* muteButton;
     bool soloActive;
-    Colour colour;
+    juce::Colour colour;
 
     float rotation;
 
-    Array<Point<float>> pointsOnCircle;
+    juce::Array<juce::Point<float>> pointsOnCircle;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FirstOrderDirectivityVisualizer)
 };

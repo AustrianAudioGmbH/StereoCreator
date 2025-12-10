@@ -10,48 +10,55 @@
 
 #pragma once
 
-#include <JuceHeader.h>
+#include "BinaryFonts.h"
+#include "juce_core/juce_core.h"
 
-using namespace juce;
+#include <BinaryData.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
-class MainLookAndFeel : public LookAndFeel_V4
+class MainLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    const Colour mainBackground = Colour (17, 18, 19);
-    const Colour mainTextColor = Colour (255, 255, 255);
-    const Colour mainTextDisabledColor = mainTextColor.withAlpha (0.4f);
-    const Colour mainTextInactiveColor = mainTextColor.withAlpha (0.7f);
-    const Colour textButtonFrameColor = Colour (52, 54, 57);
-    const Colour labelBackgroundColor = Colour (39, 39, 44);
-    const Colour multiTextButtonBackgroundColor = Colour (31, 32, 38);
-    const Colour groupComponentBackgroundColor = Colour (24, 25, 28);
-    const Colour textButtonDefaultBackgroundColor = Colour (24, 25, 27);
-    const Colour textButtonActiveFrameColor = Colour (255, 255, 255);
-    const Colour textButtonActiveRedFrameColor = Colour (182, 22, 22);
-    const Colour textButtonActiveBlue1FrameColor = Colour (0, 49, 222);
-    const Colour textButtonActiveBlue2FrameColor = Colour (0, 127, 255);
-    const Colour textButtonActiveBlue3FrameColor = Colour (0, 87, 255);
-    const Colour textButtonActiveBlue4FrameColor = Colour (108, 180, 238);
-    const Colour sliderHoverFrameColor = Colour (93, 94, 95);
-    const Colour polarVisualizerRed = Colour (182, 22, 22);
-    const Colour polarVisualizerOrange = Colour (255, 107, 0);
-    const Colour polarVisualizerYellow = Colour (214, 193, 9);
-    const Colour polarVisualizerGreen = Colour (96, 154, 0);
-    const Colour polarVisualizerGreenDark = Colour (0, 157, 25);
-    const Colour polarVisualizerGrid = Colour (52, 54, 57);
-    const Colour trimSliderMainColor = Colour (92, 92, 92);
-    const Colour textButtonHoverBackgroundColor = textButtonActiveFrameColor.withAlpha (0.3f);
-    const Colour textButtonHoverRedBackgroundColor = textButtonActiveRedFrameColor.withAlpha (0.3f);
-    const Colour textButtonPressedBackgroundColor = textButtonActiveFrameColor.withAlpha (0.1f);
-    const Colour textButtonPressedRedBackgroundColor =
+    const juce::Colour mainBackground = juce::Colour (17, 18, 19);
+    const juce::Colour mainTextColor = juce::Colour (255, 255, 255);
+    const juce::Colour mainTextDisabledColor = mainTextColor.withAlpha (0.4f);
+    const juce::Colour mainTextInactiveColor = mainTextColor.withAlpha (0.7f);
+    const juce::Colour textButtonFrameColor = juce::Colour (52, 54, 57);
+    const juce::Colour labelBackgroundColor = juce::Colour (39, 39, 44);
+    const juce::Colour multiTextButtonBackgroundColor = juce::Colour (31, 32, 38);
+    const juce::Colour groupComponentBackgroundColor = juce::Colour (24, 25, 28);
+    const juce::Colour textButtonDefaultBackgroundColor = juce::Colour (24, 25, 27);
+    const juce::Colour textButtonActiveFrameColor = juce::Colour (255, 255, 255);
+    const juce::Colour textButtonActiveRedFrameColor = juce::Colour (182, 22, 22);
+    const juce::Colour textButtonActiveBlue1FrameColor = juce::Colour (0, 49, 222);
+    const juce::Colour textButtonActiveBlue2FrameColor = juce::Colour (0, 127, 255);
+    const juce::Colour textButtonActiveBlue3FrameColor = juce::Colour (0, 87, 255);
+    const juce::Colour textButtonActiveBlue4FrameColor = juce::Colour (108, 180, 238);
+    const juce::Colour sliderHoverFrameColor = juce::Colour (93, 94, 95);
+    const juce::Colour polarVisualizerRed = juce::Colour (182, 22, 22);
+    const juce::Colour polarVisualizerOrange = juce::Colour (255, 107, 0);
+    const juce::Colour polarVisualizerYellow = juce::Colour (214, 193, 9);
+    const juce::Colour polarVisualizerGreen = juce::Colour (96, 154, 0);
+    const juce::Colour polarVisualizerGreenDark = juce::Colour (0, 157, 25);
+    const juce::Colour polarVisualizerGrid = juce::Colour (52, 54, 57);
+    const juce::Colour trimSliderMainColor = juce::Colour (92, 92, 92);
+    const juce::Colour textButtonHoverBackgroundColor = textButtonActiveFrameColor.withAlpha (0.3f);
+    const juce::Colour textButtonHoverRedBackgroundColor =
+        textButtonActiveRedFrameColor.withAlpha (0.3f);
+    const juce::Colour textButtonPressedBackgroundColor =
+        textButtonActiveFrameColor.withAlpha (0.1f);
+    const juce::Colour textButtonPressedRedBackgroundColor =
         textButtonActiveRedFrameColor.withAlpha (0.1f);
-    const Colour toggleButtonActiveRedBackgroundColor = Colour (182, 22, 22).withAlpha (0.7f);
+    const juce::Colour toggleButtonActiveRedBackgroundColor =
+        juce::Colour (182, 22, 22).withAlpha (0.7f);
 
-    Typeface::Ptr normalFont;
-    Typeface::Ptr terminatorRegularFont, terminatorBoldFont;
+    juce::Typeface::Ptr normalFont;
+    juce::Typeface::Ptr terminatorRegularFont, terminatorBoldFont;
 
     MainLookAndFeel()
     {
+        using namespace juce;
+
         normalFont = Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansSemiBold_ttf,
                                                         BinaryFonts::NunitoSansSemiBold_ttfSize);
         terminatorRegularFont =
@@ -65,7 +72,7 @@ public:
 
     ~MainLookAndFeel() override {}
 
-    Typeface::Ptr getTypefaceForFont (const Font& f) override
+    juce::Typeface::Ptr getTypefaceForFont (const juce::Font& f) override
     {
         switch (f.getStyleFlags())
         {
@@ -76,13 +83,16 @@ public:
         }
     }
 
-    void drawButtonBackground (Graphics& g,
-                               Button& button,
-                               const Colour& backgroundColour,
+    void drawButtonBackground (juce::Graphics& g,
+                               juce::Button& button,
+                               const juce::Colour& backgroundColour,
                                bool isMouseOverButton,
                                bool isButtonDown) override
     {
-        (void) backgroundColour;
+        using namespace juce;
+
+        ignoreUnused (backgroundColour);
+
         Rectangle<float> buttonArea (0.0f,
                                      0.0f,
                                      button.getWidth() * 1.0f,
@@ -808,11 +818,13 @@ public:
         }
     }
 
-    void drawButtonText (Graphics& g,
-                         TextButton& button,
+    void drawButtonText (juce::Graphics& g,
+                         juce::TextButton& button,
                          bool /*isMouseOverButton*/,
                          bool /*isButtonDown*/) override
     {
+        using namespace juce;
+
         Rectangle<int> buttonArea (0, 0, button.getWidth(), button.getHeight());
 
         g.setColour (button.isEnabled() ? mainTextColor : mainTextDisabledColor);
@@ -931,16 +943,17 @@ public:
         g.drawFittedText (text, x, y, w, h, justification, 1);
     }
 
-    void drawGroupComponentOutline (Graphics& g,
+    void drawGroupComponentOutline (juce::Graphics& g,
                                     int width,
                                     int height,
-                                    const String& text,
-                                    const Justification& position,
-                                    GroupComponent& group) override
+                                    const juce::String& text,
+                                    const juce::Justification& position,
+                                    juce::GroupComponent& group) override
     {
-        (void) width;
-        (void) height;
-        (void) position;
+        using namespace juce;
+
+        ignoreUnused (width, height, position);
+
         Rectangle<float> groupArea (0, 0, group.getWidth() * 1.0f, group.getHeight() * 1.0f);
         g.setColour (groupComponentBackgroundColor);
 
@@ -975,8 +988,10 @@ public:
         g.drawFittedText (text, x, y, w, h, Justification::left, 1);
     }
 
-    Slider::SliderLayout getSliderLayout (Slider& slider) override
+    juce::Slider::SliderLayout getSliderLayout (juce::Slider& slider) override
     {
+        using namespace juce;
+
         Rectangle<int> localBounds (0, 0, slider.getWidth(), slider.getHeight());
         Slider::SliderLayout layout;
 
@@ -1018,7 +1033,7 @@ public:
         return layout;
     }
 
-    void drawLinearSlider (Graphics& g,
+    void drawLinearSlider (juce::Graphics& g,
                            int x,
                            int y,
                            int width,
@@ -1026,8 +1041,8 @@ public:
                            float sliderPos,
                            float minSliderPos,
                            float maxSliderPos,
-                           const Slider::SliderStyle style,
-                           Slider& slider) override
+                           const juce::Slider::SliderStyle style,
+                           juce::Slider& slider) override
     {
         drawLinearSliderBackground (g,
                                     x,
@@ -1051,7 +1066,7 @@ public:
                                slider);
     }
 
-    void drawLinearSliderBackground (Graphics& g,
+    void drawLinearSliderBackground (juce::Graphics& g,
                                      int x,
                                      int y,
                                      int width,
@@ -1059,11 +1074,13 @@ public:
                                      float sliderPos,
                                      float minSliderPos,
                                      float maxSliderPos,
-                                     const Slider::SliderStyle style,
-                                     Slider& slider) override
+                                     const juce::Slider::SliderStyle style,
+                                     juce::Slider& slider) override
     {
-        (void) minSliderPos;
-        (void) maxSliderPos;
+        using namespace juce;
+
+        ignoreUnused (minSliderPos, maxSliderPos);
+
         const float h = slider.getTopLevelComponent()->getHeight() * 0.005f;
         const float newDiameter = slider.getTopLevelComponent()->getHeight() * 0.024f;
 
@@ -1112,7 +1129,7 @@ public:
         g.fillPath (pathFrg);
     }
 
-    void drawLinearSliderThumb (Graphics& g,
+    void drawLinearSliderThumb (juce::Graphics& g,
                                 int x,
                                 int y,
                                 int width,
@@ -1120,11 +1137,13 @@ public:
                                 float sliderPos,
                                 float minSliderPos,
                                 float maxSliderPos,
-                                const Slider::SliderStyle style,
-                                Slider& slider) override
+                                const juce::Slider::SliderStyle style,
+                                juce::Slider& slider) override
     {
-        (void) minSliderPos;
-        (void) maxSliderPos;
+        using namespace juce;
+
+        ignoreUnused (minSliderPos, maxSliderPos);
+
         const float newDiameter = slider.getTopLevelComponent()->getHeight() * 0.024f;
         //        const float h = slider.getTopLevelComponent()->getHeight() * 0.005f;
 
@@ -1160,8 +1179,10 @@ public:
         }
     }
 
-    void drawLabel (Graphics& g, Label& label) override
+    void drawLabel (juce::Graphics& g, juce::Label& label) override
     {
+        using namespace juce;
+
         Rectangle<float> labelArea (0.0f, 0.0f, label.getWidth() * 1.0f, label.getHeight() * 1.0f);
 
         g.setColour (labelBackgroundColor);
@@ -1188,13 +1209,15 @@ public:
         }
     }
 
-    void fillTextEditorBackground (Graphics& g,
+    void fillTextEditorBackground (juce::Graphics& g,
                                    int width,
                                    int height,
-                                   TextEditor& textEditor) override
+                                   juce::TextEditor& textEditor) override
     {
-        (void) width;
-        (void) height;
+        using namespace juce;
+
+        ignoreUnused (width, height);
+
         Rectangle<float> textEditorArea (0.0f,
                                          0.0f,
                                          textEditor.getWidth() * 1.0f,
@@ -1203,10 +1226,15 @@ public:
         g.fillRect (textEditorArea);
     }
 
-    void drawTextEditorOutline (Graphics& g, int width, int height, TextEditor& textEditor) override
+    void drawTextEditorOutline (juce::Graphics& g,
+                                int width,
+                                int height,
+                                juce::TextEditor& textEditor) override
     {
-        (void) width;
-        (void) height;
+        using namespace juce;
+
+        ignoreUnused (width, height);
+
         Rectangle<float> textEditorArea (0.0f,
                                          0.0f,
                                          textEditor.getWidth() * 1.0f,
@@ -1218,11 +1246,13 @@ public:
         }
     }
 
-    void drawToggleButton (Graphics& g,
-                           ToggleButton& button,
+    void drawToggleButton (juce::Graphics& g,
+                           juce::ToggleButton& button,
                            bool isMouseOverButton,
                            bool isButtonDown) override
     {
+        using namespace juce;
+
         Rectangle<float> toggleButtonBounds (0.0f,
                                              0.0f,
                                              button.getWidth() * 1.0f,
@@ -1347,8 +1377,8 @@ public:
         }
     }
 
-    void drawTickBox (Graphics& g,
-                      Component& component,
+    void drawTickBox (juce::Graphics& g,
+                      juce::Component& component,
                       float x,
                       float y,
                       float w,
@@ -1358,11 +1388,9 @@ public:
                       bool isMouseOverButton,
                       bool isButtonDown) override
     {
-        (void) x;
-        (void) y;
-        (void) isEnabled;
-        (void) isMouseOverButton;
-        (void) isButtonDown;
+        using namespace juce;
+
+        ignoreUnused (x, y, isEnabled, isMouseOverButton, isButtonDown);
 
         const float newDiameter = h * 0.34f;
 
@@ -1384,8 +1412,8 @@ public:
         g.fillPath (p);
     }
 
-    void drawScrollbar (Graphics& g,
-                        ScrollBar& scrollbar,
+    void drawScrollbar (juce::Graphics& g,
+                        juce::ScrollBar& scrollbar,
                         int x,
                         int y,
                         int width,
@@ -1396,10 +1424,9 @@ public:
                         bool isMouseOver,
                         bool isMouseDown) override
     {
-        (void) scrollbar;
-        (void) isScrollbarVertical;
-        (void) isMouseOver;
-        (void) isMouseDown;
+        using namespace juce;
+
+        ignoreUnused (scrollbar, isScrollbarVertical, isMouseOver, isMouseDown);
 
         Path pathBgr;
         pathBgr.addRoundedRectangle (x * 1.0f,
@@ -1420,15 +1447,17 @@ public:
     }
 
 private:
-    void drawPatternImage (Graphics& g,
-                           std::unique_ptr<Drawable> image,
-                           Rectangle<float>& buttonArea,
+    void drawPatternImage (juce::Graphics& g,
+                           std::unique_ptr<juce::Drawable> image,
+                           juce::Rectangle<float>& buttonArea,
                            int reduceX,
                            int reduceY,
                            int corner,
                            bool mouseOver,
                            bool mouseDown)
     {
+        using namespace juce;
+
         g.setColour (labelBackgroundColor);
 
         int deltaX = 0;
