@@ -52,7 +52,6 @@ endif ()
 
 if (APPLE)
     message (STATUS "Building on MacOS")
-    target_link_options (SharedCode INTERFACE -Wl)
     set (FORMATS $FORMATS AU AUv3 AAX)
 elseif (UNIX)
     message (STATUS "Building on Linux")
@@ -86,6 +85,10 @@ juce_add_plugin (
 add_library (SharedCode INTERFACE)
 
 target_compile_features (SharedCode INTERFACE cxx_std_20)
+
+if (APPLE)
+    target_link_options (SharedCode INTERFACE -Wl)
+endif ()
 
 set (SourceFiles source/PluginEditor.h source/PluginProcessor.h source/PluginEditor.cpp
                  source/PluginProcessor.cpp
