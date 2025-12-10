@@ -22,21 +22,29 @@
 
 #pragma once
 
+#include "../lookAndFeel/MainLookAndFeel.h"
+
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+
 //==============================================================================
 /*
 */
-class LevelMeter : public Component
+class LevelMeter : public juce::Component
 {
 public:
     LevelMeter()
     {
+        using namespace juce;
+
         colour = Colours::black;
         setLookAndFeel (&mainLaF);
     }
     ~LevelMeter() { setLookAndFeel (nullptr); }
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
         auto bounds = getLocalBounds();
         float labelWidth = bounds.getWidth();
         float labelHeight = labelWidth;
@@ -63,12 +71,14 @@ public:
 
     void setLevel (float newLevel)
     {
-        float levelDb = Decibels::gainToDecibels (newLevel, minDb);
+        using namespace juce;
+
+        float levelDb = juce::Decibels::gainToDecibels (newLevel, minDb);
         normalizedMeterHeight = (minDb - levelDb) / minDb;
         repaint();
     }
 
-    void setColour (Colour newColour) { colour = newColour; }
+    void setColour (juce::Colour newColour) { colour = newColour; }
 
     void setLabelText (juce::String newText)
     {
@@ -78,7 +88,7 @@ public:
 
 private:
     float normalizedMeterHeight = 0.0f;
-    Colour colour;
+    juce::Colour colour;
     juce::String labelText = "";
     const float minDb = -60.0f;
     MainLookAndFeel mainLaF;

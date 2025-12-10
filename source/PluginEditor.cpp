@@ -25,14 +25,18 @@
 #include "../resources/customComponents/ImgPaths.h"
 #include "PluginProcessor.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
+
 #define AA_SUPPORT_URL "https://austrian.audio/support-downloads/"
 
 //==============================================================================
 StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     StereoCreatorAudioProcessor& p,
-    AudioProcessorValueTreeState& vts) :
-    AudioProcessorEditor (&p), processor (p), valueTreeState (vts)
+    juce::AudioProcessorValueTreeState& vts) :
+    juce::AudioProcessorEditor (&p), processor (p), valueTreeState (vts)
 {
+    using namespace juce;
+
     setSize (EDITOR_WIDTH, EDITOR_HEIGHT);
 
     setLookAndFeel (&globalLaF);
@@ -40,7 +44,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (sharedTooltipWindow);
 
     addAndMakeVisible (&title);
-    title.setTitle (String ("AustrianAudio"), String ("StereoCreator"));
+    title.setTitle (juce::String ("AustrianAudio"), juce::String ("StereoCreator"));
     title.setFont (mainLaF.normalFont, mainLaF.normalFont);
 
     //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
@@ -52,8 +56,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     sharedTooltipWindow.setMillisecondsBeforeTipAppears (500);
 
     // loading image data
-    arrayImage4Ch = ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
-    arrayImage2Ch = ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
+    arrayImage4Ch = juce::ImageCache::getFromMemory (arrayPng4Ch, arrayPng4ChSize);
+    arrayImage2Ch = juce::ImageCache::getFromMemory (arrayPng2Ch, arrayPng2ChSize);
 
     bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
     cardPath.loadPathFromData (cardData, sizeof (cardData));
@@ -67,9 +71,9 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 #endif
 
     // colours
-    colours[0] = Colour (0xFD49BA64);
-    colours[1] = Colour (0xFDBA4949);
-    colours[2] = Colour (0xFDBAAF49);
+    colours[0] = juce::Colour (0xFD49BA64);
+    colours[1] = juce::Colour (0xFDBA4949);
+    colours[2] = juce::Colour (0xFDBAAF49);
 
     // combo box
     addAndMakeVisible (cbStereoMode);
@@ -80,15 +84,15 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     cbStereoMode.addItem ("true-stereo", eStereoMode::trueStereoIdx);
     cbStereoMode.addItem ("blumlein", eStereoMode::blumleinIdx);
     cbStereoMode.setEditableText (false);
-    cbStereoMode.setJustificationType (Justification::centred);
+    cbStereoMode.setJustificationType (juce::Justification::centred);
     cbStereoMode.setSelectedId (processor.getStereoModeIdx());
     //    cbStereoMode.setSelectedId(processor.getNumInpCh() == 2 ? eStereoMode::pseudoMsIdx : eStereoMode::trueMsIdx);
     cbStereoMode.addListener (this);
 
     // help tooltip
     addAndMakeVisible (&helpToolTip);
-    helpToolTip.setText ("help", NotificationType::dontSendNotification);
-    helpToolTip.setTextColour (Colours::white.withAlpha (0.5f));
+    helpToolTip.setText ("help", juce::NotificationType::dontSendNotification);
+    helpToolTip.setTextColour (juce::Colours::white.withAlpha (0.5f));
     helpToolTip.setInterceptsMouseClicks (true, false); // Enable mouse clicks
     helpToolTip.addMouseListener (this, false); // Listen for clicks
 
@@ -96,7 +100,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&slMidGain[0]);
     slAttMidGain[0].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[0]));
-    slMidGain[0].setSliderStyle (Slider::Rotary);
+    slMidGain[0].setSliderStyle (juce::Slider::Rotary);
     slMidGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[0].setTextValueSuffix (" dB");
     slMidGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
@@ -329,6 +333,8 @@ void StereoCreatorAudioProcessorEditor::mouseUp (const juce::MouseEvent& event)
 //==============================================================================
 void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 {
+    using namespace juce;
+
     const int currHeight = getHeight();
     const int currWidth = getWidth();
 
@@ -374,6 +380,8 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 
 void StereoCreatorAudioProcessorEditor::resized()
 {
+    using namespace juce;
+
     const int leftRightMargin = 30;
     const int headerHeight = 60;
     const int footerHeight = 15;
@@ -524,7 +532,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     grpRotation.setBounds (grpXyAngle.getBounds());
 }
 
-void StereoCreatorAudioProcessorEditor::comboBoxChanged (ComboBox* cb)
+void StereoCreatorAudioProcessorEditor::comboBoxChanged (juce::ComboBox* cb)
 {
     if (cb == &cbStereoMode)
     {
@@ -592,7 +600,7 @@ void StereoCreatorAudioProcessorEditor::comboBoxChanged (ComboBox* cb)
     repaint();
 }
 
-void StereoCreatorAudioProcessorEditor::sliderValueChanged (Slider* slider)
+void StereoCreatorAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
     if (slider == &slMidGain[0] && cbStereoMode.getSelectedId() == pseudoMsIdx)
     {
@@ -637,8 +645,10 @@ void StereoCreatorAudioProcessorEditor::sliderValueChanged (Slider* slider)
     repaint();
 }
 
-void StereoCreatorAudioProcessorEditor::buttonClicked (Button* button)
+void StereoCreatorAudioProcessorEditor::buttonClicked (juce::Button* button)
 {
+    using namespace juce;
+
     if (button == &tbAbLayer[0])
     {
         bool isToggled = button->getToggleState();
@@ -680,7 +690,7 @@ void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState (int laye
     }
 }
 
-void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (Slider* slider,
+void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (juce::Slider* slider,
                                                                         int dirVisIdx)
 {
     float sliderRange = slider->getMaximum() + std::abs (slider->getMinimum());
@@ -717,7 +727,7 @@ void StereoCreatorAudioProcessorEditor::timerCallback()
     }
 
     tbCalcCompGain.setToggleState (processor.compensationGainCalcOver(),
-                                   NotificationType::dontSendNotification);
+                                   juce::NotificationType::dontSendNotification);
 }
 
 void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled (bool twoChannelInput)

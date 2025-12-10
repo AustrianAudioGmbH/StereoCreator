@@ -52,11 +52,13 @@
 #include "ImgPaths.h"
 #include "TitleBarPaths.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
+
 #ifdef JUCE_OSC_H_INCLUDED
     #include "OSCStatus.h"
 #endif
 
-class AlertSymbol : public Component, public SettableTooltipClient
+class AlertSymbol : public juce::Component, public juce::SettableTooltipClient
 {
 public:
     AlertSymbol() : Component()
@@ -65,8 +67,10 @@ public:
         setBufferedToImage (true);
     };
     ~AlertSymbol() {};
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         warningSign.applyTransform (
             warningSign.getTransformToScaleToFit (getLocalBounds().toFloat(),
                                                   true,
@@ -76,10 +80,10 @@ public:
     };
 
 private:
-    Path warningSign;
+    juce::Path warningSign;
 };
 
-class IOWidget : public Component
+class IOWidget : public juce::Component
 {
 public:
     IOWidget() : Component()
@@ -126,8 +130,10 @@ public:
     ~BinauralIOWidget() {};
     const int getComponentSize() override { return 30; }
     void setMaxSize (int maxSize) override {};
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         BinauralPath.applyTransform (
             BinauralPath.getTransformToScaleToFit (0, 0, 30, 30, true, Justification::centred));
         g.setColour ((Colours::white).withMultipliedAlpha (0.5));
@@ -135,18 +141,22 @@ public:
     };
 
 private:
-    Path BinauralPath;
+    juce::Path BinauralPath;
 };
 
-class InvisibleButtonLookAndFeel : public LookAndFeel_V4
+class InvisibleButtonLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    void drawButtonBackground (Graphics&, Button&, const Colour&, bool, bool) override
+    void drawButtonBackground (juce::Graphics&,
+                               juce::Button&,
+                               const juce::Colour&,
+                               bool,
+                               bool) override
     {
         // Do nothing: no background, no outline
     }
 
-    void drawButtonText (Graphics&, TextButton&, bool, bool) override
+    void drawButtonText (juce::Graphics&, juce::TextButton&, bool, bool) override
     {
         // Do nothing: no text rendering
     }
@@ -166,8 +176,10 @@ public:
     const int getComponentSize() override { return 40; }
     void setMaxSize (int maxSize) override {};
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         const int size = getLocalBounds().getWidth();
         aaLogoPath.applyTransform (
             aaLogoPath.getTransformToScaleToFit (0, 0, size, size, true, Justification::centred));
@@ -196,8 +208,8 @@ public:
     };
 
 private:
-    TextButton aaLogoButton;
-    Path aaLogoPath;
+    juce::TextButton aaLogoButton;
+    juce::Path aaLogoPath;
     InvisibleButtonLookAndFeel invisibleLookAndFeel;
 };
 
@@ -207,6 +219,8 @@ class AudioChannelsIOWidget : public IOWidget
 public:
     AudioChannelsIOWidget() : IOWidget()
     {
+        using namespace juce;
+
         WaveformPath.loadPathFromData (WaveformPathData, sizeof (WaveformPathData));
         setBufferedToImage (true);
 
@@ -221,13 +235,16 @@ public:
                 cbChannels->addItem (String (i), i + 1);
             cbChannels->setBounds (35, 8, 70, 15);
         }
-    };
-    ~AudioChannelsIOWidget() {};
+    }
+
+    ~AudioChannelsIOWidget() {}
 
     const int getComponentSize() override { return selectable ? 110 : 75; }
 
     void setMaxSize (int maxPossibleNumberOfChannels) override
     {
+        using namespace juce;
+
         if (selectable)
         {
             if (maxPossibleNumberOfChannels > 0)
@@ -282,15 +299,17 @@ public:
         }
     }
 
-    ComboBox* getChannelsCbPointer()
+    juce::ComboBox* getChannelsCbPointer()
     {
         if (selectable)
             return cbChannels;
         return nullptr;
     }
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         WaveformPath.applyTransform (
             WaveformPath.getTransformToScaleToFit (0, 0, 30, 30, true, Justification::centred));
         g.setColour ((Colours::white).withMultipliedAlpha (0.5));
@@ -299,7 +318,7 @@ public:
         if (! selectable)
         {
             g.setColour ((Colours::white).withMultipliedAlpha (0.5));
-            g.setFont (getLookAndFeel().getTypefaceForFont (Font (12.0f, 1)));
+            g.setFont (getLookAndFeel().getTypefaceForFont (juce::Font (12.0f, 1)));
             g.setFont (15.0f);
             g.drawFittedText (displayTextIfNotSelectable,
                               35,
@@ -312,11 +331,11 @@ public:
     };
 
 private:
-    ScopedPointer<ComboBox> cbChannels;
-    Path WaveformPath;
+    juce::ScopedPointer<juce::ComboBox> cbChannels;
+    juce::Path WaveformPath;
     int availableChannels { 64 };
     int channelSizeIfNotSelectable = maxChannels;
-    String displayTextIfNotSelectable = String (maxChannels);
+    juce::String displayTextIfNotSelectable = juce::String (maxChannels);
 };
 
 class DirectivityIOWidget : public IOWidget
@@ -324,6 +343,8 @@ class DirectivityIOWidget : public IOWidget
 public:
     DirectivityIOWidget() : IOWidget()
     {
+        using namespace juce;
+
         DirectivityPath.loadPathFromData (DirectivityPathData, sizeof (DirectivityPathData));
         setBufferedToImage (true);
         orderStrings[0] = String ("0th");
@@ -386,11 +407,13 @@ public:
             setBusTooSmall (false);
     }
 
-    ComboBox* getNormCbPointer() { return &cbNormalization; }
-    ComboBox* getOrderCbPointer() { return &cbOrder; }
+    juce::ComboBox* getNormCbPointer() { return &cbNormalization; }
+    juce::ComboBox* getOrderCbPointer() { return &cbOrder; }
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         DirectivityPath.applyTransform (
             DirectivityPath.getTransformToScaleToFit (0, 0, 30, 30, true, Justification::centred));
         g.setColour ((Colours::white).withMultipliedAlpha (0.5));
@@ -398,9 +421,9 @@ public:
     };
 
 private:
-    String orderStrings[8];
-    ComboBox cbNormalization, cbOrder;
-    Path DirectivityPath;
+    juce::String orderStrings[8];
+    juce::ComboBox cbNormalization, cbOrder;
+    juce::Path DirectivityPath;
 };
 
 class ChannelOrderIOWidget : public IOWidget
@@ -408,6 +431,8 @@ class ChannelOrderIOWidget : public IOWidget
 public:
     ChannelOrderIOWidget() : IOWidget()
     {
+        using namespace juce;
+
         addAndMakeVisible (&cbOutChOrder);
         cbOutChOrder.setJustificationType (Justification::centred);
         cbOutChOrder.addSectionHeading ("Output Config");
@@ -421,23 +446,23 @@ public:
 
     void setMaxSize (int maxPossibleOrder) override {};
 
-    ComboBox* getCbOutChOrder() { return &cbOutChOrder; };
+    juce::ComboBox* getCbOutChOrder() { return &cbOutChOrder; };
 
-    void paint (Graphics& g) override {};
+    void paint (juce::Graphics& g) override {};
 
     void resized() override
     {
         auto bounds = getLocalBounds();
         cbOutChOrder.setBounds (0, 0, bounds.getWidth(), bounds.getHeight());
-    };
+    }
 
 private:
-    ComboBox cbOutChOrder;
+    juce::ComboBox cbOutChOrder;
 };
 
 // ======================================================== TITLEBAR =========================
 template <class Tin, class Tout>
-class TitleBar : public Component
+class TitleBar : public juce::Component
 {
 public:
     TitleBar() : Component(), useTitlePath (true), centreSetExternally (false)
@@ -447,19 +472,20 @@ public:
         addChildComponent (&alertSymbol);
 
         titlePath.loadPathFromData (aaFontData, sizeof (aaFontData));
-    };
-    ~TitleBar() {};
+    }
+
+    ~TitleBar() {}
 
     Tin* getInputWidgetPtr() { return &inputWidget; }
     Tout* getOutputWidgetPtr() { return &outputWidget; }
 
-    void setTitle (String newBoldText, String newRegularText)
+    void setTitle (juce::String newBoldText, juce::String newRegularText)
     {
         boldText = newBoldText;
         regularText = newRegularText;
     }
 
-    void setFont (Typeface::Ptr newBoldFont, Typeface::Ptr newRegularFont)
+    void setFont (juce::Typeface::Ptr newBoldFont, juce::Typeface::Ptr newRegularFont)
     {
         boldFont = newBoldFont;
         regularFont = newRegularFont;
@@ -467,6 +493,8 @@ public:
 
     void resized() override
     {
+        using namespace juce;
+
         Rectangle<int> bounds = getLocalBounds();
         const int currentWidth = bounds.getWidth();
         const int currentHeight = bounds.getHeight();
@@ -505,7 +533,7 @@ public:
         repaint();
     }
 
-    void setAlertMessage (String shortMessage, String longMessage)
+    void setAlertMessage (juce::String shortMessage, juce::String longMessage)
     {
         shortAlertMessage = shortMessage;
         longAlertMessage = longMessage;
@@ -514,8 +542,10 @@ public:
 
     bool isAlerting() { return alert; }
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         Rectangle<int> bounds = getLocalBounds();
         const int currentWidth = bounds.getWidth();
         const int currentHeight = bounds.getHeight();
@@ -528,7 +558,7 @@ public:
         const float alertTextWidth = currentWidth * 0.15f;
 
         g.setColour (Colours::yellow);
-        g.setFont (getLookAndFeel().getTypefaceForFont (Font (12.0f, 0)));
+        g.setFont (getLookAndFeel().getTypefaceForFont (juce::Font (12.0f, 0)));
         g.setFont (alertTextHeight);
 
         if (alert)
@@ -635,11 +665,11 @@ public:
 private:
     Tin inputWidget;
     Tout outputWidget;
-    Font boldFont = Font (25.f);
-    Font regularFont = Font (25.f);
+    juce::Font boldFont = juce::Font (25.f);
+    juce::Font regularFont = juce::Font (25.f);
     juce::String boldText = "Bold";
     juce::String regularText = "Regular";
-    Path titlePath;
+    juce::Path titlePath;
     AlertSymbol alertSymbol;
     juce::String shortAlertMessage = "";
     juce::String longAlertMessage = "";
@@ -657,7 +687,7 @@ private:
     int x2End = 0;
 };
 
-class IEMLogo : public Component
+class IEMLogo : public juce::Component
 {
 public:
     IEMLogo() : Component()
@@ -667,8 +697,10 @@ public:
     }
     ~IEMLogo() {};
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         Rectangle<int> bounds = getLocalBounds();
         bounds.removeFromBottom (3);
         bounds.removeFromLeft (1);
@@ -705,21 +737,23 @@ public:
     //    }
 
 private:
-    Path IEMPath;
+    juce::Path IEMPath;
     //    URL url;
 };
 
-class Footer : public Component
+class Footer : public juce::Component
 {
 public:
     Footer() : Component() {};
     ~Footer() {};
 
-    void paint (Graphics& g) override
+    void paint (juce::Graphics& g) override
     {
+        using namespace juce;
+
         Rectangle<int> bounds = getLocalBounds();
         g.setColour (Colours::white.withAlpha (0.5f));
-        g.setFont (getLookAndFeel().getTypefaceForFont (Font (12.0f, 0)));
+        g.setFont (getLookAndFeel().getTypefaceForFont (juce::Font (12.0f, 0)));
         g.setFont (14.0f);
         String versionString = "v";
 

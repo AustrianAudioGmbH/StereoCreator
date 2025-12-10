@@ -23,13 +23,9 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-
-#include <math.h>
-#include <memory> // for unique_ptr
-#include <vector>
-
 #include <cfloat>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <math.h>
 
 enum eStereoMode
 {
@@ -59,8 +55,8 @@ static inline bool floatsEquivalent (double a, double b)
 //==============================================================================
 /**
 */
-class StereoCreatorAudioProcessor : public juce::AudioProcessor,
-                                    public AudioProcessorValueTreeState::Listener
+class StereoCreatorAudioProcessor final : public juce::AudioProcessor,
+                                          public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -101,7 +97,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void parameterChanged (const String& parameterID, float newValue) override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     int getStereoModeIdx() { return (stereoModeIdx->load()); }
     int getNumInpCh() { return numInputs; }
@@ -112,26 +108,26 @@ public:
 
     void applyGainWithRamp (float previousGain,
                             float currentGain,
-                            AudioBuffer<float>* buff,
+                            juce::AudioBuffer<float>* buff,
                             int bufferChannel,
                             int numSamples);
     bool compensationGainCalcOver() { return autoLevelsOn->load() > 0.5f; }
 
     //    Atomic<bool> wrongBusConfiguration = false;
 
-    Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    Atomic<float> outRms[2] = { 0.0f, 0.0f };
+    juce::Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    juce::Atomic<float> outRms[2] = { 0.0f, 0.0f };
 
 private:
-    AudioProcessorValueTreeState params;
+    juce::AudioProcessorValueTreeState params;
 
     // AB layer handling
-    Identifier nodeA = "layerA";
-    Identifier nodeB = "layerB";
-    Identifier allStates = "savedLayers";
-    ValueTree layerA;
-    ValueTree layerB;
-    ValueTree allValueTreeStates;
+    juce::Identifier nodeA = "layerA";
+    juce::Identifier nodeB = "layerB";
+    juce::Identifier allStates = "savedLayers";
+    juce::ValueTree layerA;
+    juce::ValueTree layerB;
+    juce::ValueTree allValueTreeStates;
 
     int abLayerState;
 
@@ -142,17 +138,17 @@ private:
     std::atomic<float>* channelSwitchOn;
     std::atomic<float>* autoLevelsOn;
 
-    Atomic<bool> isPlaying = false;
+    juce::Atomic<bool> isPlaying = false;
 
-    AudioBuffer<float> omniEightLrBuffer;
-    AudioBuffer<float> omniEightFbBuffer;
-    AudioBuffer<float> msMidBuffer;
-    AudioBuffer<float> msLeftRightBuffer;
-    AudioBuffer<float> chSwitchBuffer;
-    AudioBuffer<float> passThroughLeftRightBuffer;
-    AudioBuffer<float> rotatedEightLeftRightBuffer;
-    AudioBuffer<float> xyLeftRightBuffer;
-    AudioBuffer<float> blumleinLeftRightBuffer;
+    juce::AudioBuffer<float> omniEightLrBuffer;
+    juce::AudioBuffer<float> omniEightFbBuffer;
+    juce::AudioBuffer<float> msMidBuffer;
+    juce::AudioBuffer<float> msLeftRightBuffer;
+    juce::AudioBuffer<float> chSwitchBuffer;
+    juce::AudioBuffer<float> passThroughLeftRightBuffer;
+    juce::AudioBuffer<float> rotatedEightLeftRightBuffer;
+    juce::AudioBuffer<float> xyLeftRightBuffer;
+    juce::AudioBuffer<float> blumleinLeftRightBuffer;
 
     float currentXyEightRotationGainFront;
     float currentXyEightRotationGainLeft;
