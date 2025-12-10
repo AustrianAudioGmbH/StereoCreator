@@ -57,37 +57,34 @@
 class DirSlider : public Slider
 {
 public:
-    DirSlider () :
+    DirSlider() :
         Slider(),
-        dirStripTop(this),
-        dirStripBottom(this),
-        lastDistanceFromDragStart(0),
-        reversed(false),
-        isDual(false),
-        scrollWheelEnabled(true),
-        tooltipActive(false),
-        tooltipWidth(40),
-        tooltipHeight(20),
-        activePolarPatternPath(-1.0f),
-        patternStripSize(12)
+        dirStripTop (this),
+        dirStripBottom (this),
+        lastDistanceFromDragStart (0),
+        reversed (false),
+        isDual (false),
+        scrollWheelEnabled (true),
+        tooltipActive (false),
+        tooltipWidth (40),
+        tooltipHeight (20),
+        activePolarPatternPath (-1.0f),
+        patternStripSize (12)
     {
         setTextBoxStyle (Slider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
         setSliderStyle (Slider::Rotary);
-        addAndMakeVisible(&dirStripTop);
-        addAndMakeVisible(&dirStripBottom);
-//        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
+        addAndMakeVisible (&dirStripTop);
+        addAndMakeVisible (&dirStripBottom);
+        //        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
     }
 
-    ~DirSlider () {}
-    
+    ~DirSlider() {}
+
     class DirPatternStrip : public Component
     {
     public:
-        DirPatternStrip(DirSlider* newSlider) :
-        Component(),
-        dirImgSize(10),
-        activePatternPath(-1.0f),
-        slider(newSlider)
+        DirPatternStrip (DirSlider* newSlider) :
+            Component(), dirImgSize (10), activePatternPath (-1.0f), slider (newSlider)
         {
             bCardPath.loadPathFromData (bCardData, sizeof (bCardData));
             cardPath.loadPathFromData (cardData, sizeof (cardData));
@@ -95,13 +92,13 @@ public:
             hCardPath.loadPathFromData (hCardData, sizeof (hCardData));
             eightPath.loadPathFromData (eightData, sizeof (eightData));
             omniPath.loadPathFromData (omniData, sizeof (omniData));
-//            revCardPath.loadPathFromData (cardData, sizeof (cardData));
-//            revCardPath.applyTransform (AffineTransform::rotation(M_PI));
-//            dirStripTop.setPatternPathsAndFactors(bCardPath, hCardPath, bCardFact, hCardFact);
+            //            revCardPath.loadPathFromData (cardData, sizeof (cardData));
+            //            revCardPath.applyTransform (AffineTransform::rotation(M_PI));
+            //            dirStripTop.setPatternPathsAndFactors(bCardPath, hCardPath, bCardFact, hCardFact);
         }
-        
+
         ~DirPatternStrip() {}
-        
+
         void paint (Graphics& g) override
         {
             Rectangle<int> bounds = getLocalBounds();
@@ -109,67 +106,77 @@ public:
             int topMargin = 1;
             int boundsX = bounds.getX() + lrMargin;
             int boundsY = bounds.getY() + topMargin;
-            int width = bounds.getWidth() - 2*lrMargin;
-            
-            leftPath.applyTransform (leftPath.getTransformToScaleToFit(boundsX,
-                                                                             boundsY, dirImgSize, dirImgSize,
-                                                                             true, Justification::centred));
-            (slider->isEnabled()) ? g.setColour (Colours::white) : g.setColour (Colours::white.withMultipliedAlpha(0.5f));
-            g.strokePath (leftPath, PathStrokeType (activePatternPath == patternFactorL ? 2.0f : 1.0f));
-            
+            int width = bounds.getWidth() - 2 * lrMargin;
 
+            leftPath.applyTransform (leftPath.getTransformToScaleToFit (boundsX,
+                                                                        boundsY,
+                                                                        dirImgSize,
+                                                                        dirImgSize,
+                                                                        true,
+                                                                        Justification::centred));
+            (slider->isEnabled()) ? g.setColour (Colours::white)
+                                  : g.setColour (Colours::white.withMultipliedAlpha (0.5f));
+            g.strokePath (leftPath,
+                          PathStrokeType (activePatternPath == patternFactorL ? 2.0f : 1.0f));
 
-            rightPath.applyTransform (rightPath.getTransformToScaleToFit(boundsX + width - dirImgSize,
-                                                                         boundsY, dirImgSize, dirImgSize,
-                                                                         true, Justification::centred));
-            g.strokePath (rightPath, PathStrokeType (activePatternPath == patternFactorR ? 2.0f : 1.0f));
+            rightPath.applyTransform (
+                rightPath.getTransformToScaleToFit (boundsX + width - dirImgSize,
+                                                    boundsY,
+                                                    dirImgSize,
+                                                    dirImgSize,
+                                                    true,
+                                                    Justification::centred));
+            g.strokePath (rightPath,
+                          PathStrokeType (activePatternPath == patternFactorR ? 2.0f : 1.0f));
         }
-        
+
         void setPatternPathsAndFactors (Path pathL, Path pathR, float factorL, float factorR)
         {
             leftPath = pathL;
             rightPath = pathR;
-            
+
             patternFactorL = factorL;
             patternFactorR = factorR;
         }
-        
-        void mouseMove(const MouseEvent &e) override
+
+        void mouseMove (const MouseEvent& e) override
         {
-            if (!slider->isEnabled())
+            if (! slider->isEnabled())
                 return;
-            
+
             Point<float> posf = e.getPosition().toFloat();
             float oldActivePath = activePatternPath;
             activePatternPath = -1;
-            
+
             // highlight active polar pattern path
-            if (leftPath.getBounds().contains(posf)) activePatternPath = patternFactorL;
-            else if (rightPath.getBounds().contains(posf)) activePatternPath = patternFactorR;
-//            else if (cardPath.getBounds().contains(posf)) activePatternPath = cardFact;
-//            else if (revCardPath.getBounds().contains(posf)) activePatternPath = revCardFact;
-            
+            if (leftPath.getBounds().contains (posf))
+                activePatternPath = patternFactorL;
+            else if (rightPath.getBounds().contains (posf))
+                activePatternPath = patternFactorR;
+            //            else if (cardPath.getBounds().contains(posf)) activePatternPath = cardFact;
+            //            else if (revCardPath.getBounds().contains(posf)) activePatternPath = revCardFact;
+
             if (oldActivePath != activePatternPath)
                 repaint();
         }
-        
-        void mouseUp (const MouseEvent &e) override
+
+        void mouseUp (const MouseEvent& e) override
         {
-            if (!slider->isEnabled())
+            if (! slider->isEnabled())
                 return;
-            
+
             if (activePatternPath != -1)
             {
                 slider->setValue (activePatternPath, NotificationType::sendNotification);
             }
         }
-        
+
         void mouseExit (const MouseEvent& e) override
         {
             activePatternPath = -1;
             repaint();
         }
-        
+
     private:
         int dirImgSize;
         float activePatternPath;
@@ -179,86 +186,91 @@ public:
         const float cardFact = 0.5f;
         const float sCardFact = 0.634f;
         const float hCardFact = 0.75f;
-//        const float revCardFact = -0.5f;
-        
+        //        const float revCardFact = -0.5f;
+
         float patternFactorL;
         float patternFactorR;
-//        float patternFactorBottomL;
-//        float patternFactorBottomR;
-        
+        //        float patternFactorBottomL;
+        //        float patternFactorBottomR;
+
         Path bCardPath;
         Path cardPath;
         Path sCardPath;
         Path hCardPath;
         Path eightPath;
         Path omniPath;
-//        Path revCardPath;
-        
+        //        Path revCardPath;
+
         Path leftPath;
         Path rightPath;
-//        Path bottomLPath;
-//        Path bottomRPath;
-        
+        //        Path bottomLPath;
+        //        Path bottomRPath;
+
         DirSlider* slider;
     };
-    
+
     void paint (Graphics& g) override
     {
         auto& lf = getLookAndFeel();
-        
-        
+
         float minRotaryAngle = 3.76991153f;
         float maxRotaryAngle = 8.7964592f;
-        
+
         auto maxValue = getMaximum();
         auto minValue = getMinimum();
         auto currentValue = getValue();
-        
-        currentValue = (currentValue - minValue) / (maxValue - minValue);
-        
-        
-        lf.drawRotarySlider(g, sliderRect.getX(), sliderRect.getY(), sliderRect.getWidth(), sliderRect.getHeight(), currentValue, minRotaryAngle, maxRotaryAngle, *this);
-        
-        if (tooltipActive)
-            tooltipValueBox->setVisible(true);
 
+        currentValue = (currentValue - minValue) / (maxValue - minValue);
+
+        lf.drawRotarySlider (g,
+                             sliderRect.getX(),
+                             sliderRect.getY(),
+                             sliderRect.getWidth(),
+                             sliderRect.getHeight(),
+                             currentValue,
+                             minRotaryAngle,
+                             maxRotaryAngle,
+                             *this);
+
+        if (tooltipActive)
+            tooltipValueBox->setVisible (true);
     }
-    
+
     void valueChanged() override
     {
-        tooltipValueBox->setText(String(getValue(), 2), NotificationType::dontSendNotification);
+        tooltipValueBox->setText (String (getValue(), 2), NotificationType::dontSendNotification);
     }
 
     void mouseDown (const MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return; // mouseEvent started from tooltipValueBox
-        
+
         lastDistanceFromDragStart = 0;
-        Slider::mouseDown(e);
+        Slider::mouseDown (e);
     }
     void mouseDrag (const MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return;
-        
-        Slider::mouseDrag(e);
+
+        Slider::mouseDrag (e);
     }
-    
+
     void mouseExit (const MouseEvent& e) override
     {
         tooltipActive = false;
 
-        if (tooltipValueBox != nullptr && !tooltipValueBox->isMouseOver() && !tooltipValueBox->isBeingEdited())
-            tooltipValueBox->setVisible(false);
-
+        if (tooltipValueBox != nullptr && ! tooltipValueBox->isMouseOver()
+            && ! tooltipValueBox->isBeingEdited())
+            tooltipValueBox->setVisible (false);
     }
-    
+
     void mouseEnter (const MouseEvent& e) override
     {
         if (e.eventComponent != this)
             return;
-        
+
         if (tooltipValueBox != nullptr && isEnabled())
             tooltipActive = true;
     }
@@ -268,73 +280,77 @@ public:
         Slider::resized();
         auto& lf = getLookAndFeel();
         auto layout = lf.getSliderLayout (*this);
-        
+
         sliderRect = layout.sliderBounds;
-        sliderRect.removeFromTop(patternStripSize);
-        sliderRect.removeFromBottom(patternStripSize);
-        
-        dirPatternTopBounds = getLocalBounds().removeFromTop(patternStripSize);
-        dirStripTop.setBounds(dirPatternTopBounds);
-        
-        dirPatternBottomBounds = getLocalBounds().removeFromBottom(patternStripSize);
-        dirStripBottom.setBounds(dirPatternBottomBounds);
-        
+        sliderRect.removeFromTop (patternStripSize);
+        sliderRect.removeFromBottom (patternStripSize);
+
+        dirPatternTopBounds = getLocalBounds().removeFromTop (patternStripSize);
+        dirStripTop.setBounds (dirPatternTopBounds);
+
+        dirPatternBottomBounds = getLocalBounds().removeFromBottom (patternStripSize);
+        dirStripBottom.setBounds (dirPatternBottomBounds);
+
         initValueBox();
     }
-    
+
     void initValueBox()
     {
         auto& lf = getLookAndFeel();
-        
+
         tooltipValueBox.reset (lf.createSliderTextBox (*this));
-        tooltipValueBox->addMouseListener(this, false);
+        tooltipValueBox->addMouseListener (this, false);
         auto* parent = getParentComponent();
         if (parent != nullptr)
             parent->addChildComponent (tooltipValueBox.get());
-        
+
         Rectangle<int> bounds = getBounds();
-        
+
         tooltipValueBox->setBounds (bounds.getRight(), bounds.getY(), tooltipWidth, tooltipHeight);
-        tooltipValueBox->setText (String (getValue(),2), NotificationType::dontSendNotification);
+        tooltipValueBox->setText (String (getValue(), 2), NotificationType::dontSendNotification);
         tooltipValueBox->setAlwaysOnTop (true);
         tooltipValueBox->onTextChange = [this] { tooltipTextChanged(); };
-        tooltipValueBox->onEditorHide = [this] { if (!tooltipActive)
-                                                    tooltipValueBox->setVisible(false);
-                                                };
+        tooltipValueBox->onEditorHide = [this]
+        {
+            if (! tooltipActive)
+                tooltipValueBox->setVisible (false);
+        };
     }
-    
+
     void tooltipTextChanged()
     {
         if (getValueFromText (tooltipValueBox->getText()) == getValue())
             return;
-        
+
         double newValue = snapValueToRange (getValueFromText (tooltipValueBox->getText()));
-        
+
         if (newValue != static_cast<double> (getValue()))
         {
             setValue (newValue, NotificationType::sendNotification);
-            tooltipValueBox->setText (getTextFromValue (newValue), NotificationType::dontSendNotification);
+            tooltipValueBox->setText (getTextFromValue (newValue),
+                                      NotificationType::dontSendNotification);
         }
-        
-        if (!tooltipActive)
-            tooltipValueBox->setVisible(false);
+
+        if (! tooltipActive)
+            tooltipValueBox->setVisible (false);
     }
-    
-    double snapValueToRange(double attemptedValue)
+
+    double snapValueToRange (double attemptedValue)
     {
-        return attemptedValue < getMinimum() ? getMinimum() : (attemptedValue > getMaximum() ? getMaximum() : attemptedValue);
+        return attemptedValue < getMinimum()
+                   ? getMinimum()
+                   : (attemptedValue > getMaximum() ? getMaximum() : attemptedValue);
     }
-    
+
     void setTooltipEditable (bool shouldBeEditable)
     {
         if (tooltipValueBox != nullptr)
-            tooltipValueBox->setEditable(shouldBeEditable);
+            tooltipValueBox->setEditable (shouldBeEditable);
     }
 
-    
     DirPatternStrip dirStripTop;
     DirPatternStrip dirStripBottom;
-    
+
 private:
     int lastDistanceFromDragStart;
     bool reversed;
@@ -344,12 +360,11 @@ private:
     Rectangle<int> sliderRect;
     Rectangle<int> dirPatternTopBounds;
     Rectangle<int> dirPatternBottomBounds;
-    
+
     int tooltipWidth;
     int tooltipHeight;
     float activePolarPatternPath;
     float patternStripSize;
-    
-    std::unique_ptr<Label> tooltipValueBox;
 
+    std::unique_ptr<Label> tooltipValueBox;
 };

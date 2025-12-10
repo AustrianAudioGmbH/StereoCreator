@@ -23,17 +23,16 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-#include "PluginProcessor.h"
-#include "../resources/lookAndFeel/AA_LaF.h"
-#include "../resources/lookAndFeel/MainLookAndFeel.h"
-#include "../resources/customComponents/TitleBar.h"
-#include "../resources/customComponents/SimpleLabel.h"
-#include "../resources/customComponents/ReverseSlider.h"
+#include "../resources/customComponents/DirSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
 #include "../resources/customComponents/LevelMeter.h"
-#include "../resources/customComponents/DirSlider.h"
-
+#include "../resources/customComponents/ReverseSlider.h"
+#include "../resources/customComponents/SimpleLabel.h"
+#include "../resources/customComponents/TitleBar.h"
+#include "../resources/lookAndFeel/AA_LaF.h"
+#include "../resources/lookAndFeel/MainLookAndFeel.h"
+#include "PluginProcessor.h"
+#include <JuceHeader.h>
 
 typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
@@ -42,7 +41,11 @@ typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 //==============================================================================
 /**
 */
-class StereoCreatorAudioProcessorEditor  : public juce::AudioProcessorEditor, private ComboBox::Listener, private Slider::Listener, private Button::Listener, private Timer
+class StereoCreatorAudioProcessorEditor : public juce::AudioProcessorEditor,
+                                          private ComboBox::Listener,
+                                          private Slider::Listener,
+                                          private Button::Listener,
+                                          private Timer
 {
 public:
     StereoCreatorAudioProcessorEditor (StereoCreatorAudioProcessor&, AudioProcessorValueTreeState&);
@@ -51,21 +54,26 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    
+
     void comboBoxChanged (ComboBox* cb) override;
     void sliderValueChanged (Slider* slider) override;
     void buttonClicked (Button* button) override;
-    void mouseUp(const juce::MouseEvent& event) override;
+    void mouseUp (const juce::MouseEvent& event) override;
 
-    void setComboBoxItemsEnabled(bool twoChannelInput);
-    void setSliderVisibility(bool msTwoCh, bool msFourCh, bool width, bool pattern, bool rotation, bool xyPattern, bool xyAngle);
-    
+    void setComboBoxItemsEnabled (bool twoChannelInput);
+    void setSliderVisibility (bool msTwoCh,
+                              bool msFourCh,
+                              bool width,
+                              bool pattern,
+                              bool rotation,
+                              bool xyPattern,
+                              bool xyAngle);
+
     int getControlParameterIndex (Component& control) override;
-    
-    void setAbButtonAlphaFromLayerState(int layerState);
-    
-    void setDirVisAlphaFromSliderValues (Slider* slider, int dirVisIdx);
 
+    void setAbButtonAlphaFromLayerState (int layerState);
+
+    void setDirVisAlphaFromSliderValues (Slider* slider, int dirVisIdx);
 
 private:
     static const int EDITOR_WIDTH = 640;
@@ -75,7 +83,7 @@ private:
 
     StereoCreatorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
-    
+
     TitleBar<AALogo, NoIOWidget> title;
     Footer footer;
 
@@ -83,27 +91,30 @@ private:
 
     TooltipWindow sharedTooltipWindow;
 
-    Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation, slCompensationGain[5];//slWidth, slXyPattern, slMidPattern,
+    Slider slMidGain[2], slSideGain[2], slXyAngle, slRotation,
+        slCompensationGain[5]; //slWidth, slXyPattern, slMidPattern,
     ComboBox cbStereoMode;
     ToggleButton tbChSwitch;
     TextButton tbAbLayer[2], tbCalcCompGain;
-    
+
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
-    
+
     SimpleLabel helpToolTip;
-    
+
     TextEditor bla;
-    
-    
-    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2], slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation, slAttCompensationGain[5];
+
+    std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2],
+        slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation,
+        slAttCompensationGain[5];
     std::unique_ptr<ComboBoxAttachment> cbAttStereoMode;
     std::unique_ptr<ButtonAttachment> tbAttChSwitch, tbAttCalcCompGain;
- 
-    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern, grpMidPattern, grpXyPattern, grpXyAngle, grpRotation, grpInputMeters, grpCompensationGain;
-    
-//    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
-//    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
-    
+
+    GroupComponent grpStereoMode, grpMidGain[2], grpSideGain[2], grpPseudoStPattern, grpMidPattern,
+        grpXyPattern, grpXyAngle, grpRotation, grpInputMeters, grpCompensationGain;
+
+    //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
+    //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
+
     FirstOrderDirectivityVisualizer dirVis[2];
     Colour colours[3];
 
@@ -114,33 +125,37 @@ private:
     Image arrayImage2Ch;
     Image arrayImage4Ch;
     Rectangle<float> arrayImageArea;
-    
+
     Image arrayImage;
-    
+
     LevelMeter inputMeter[4];
     LevelMeter outputMeter[2];
-    
+
     const juce::String inMeterLabelText[4] = { "L", "R", "F", "B" };
-    const juce::String outMeterLabelText[4] = { "L", "R"};
-    
+    const juce::String outMeterLabelText[4] = { "L", "R" };
+
     const juce::String deg = CharPointer_UTF8 (R"(°)");
-    const juce::String helpText2Ch = {"left/right are seen from the recording side. the side edge of the mic should point towards the source."};
-    const juce::String helpText4Ch = {"left/right are seen from the recording side. front of upper mic should point towards the source."};
-    
+    const juce::String helpText2Ch = {
+        "left/right are seen from the recording side. the side edge of the mic should point towards the source."
+    };
+    const juce::String helpText4Ch = {
+        "left/right are seen from the recording side. front of upper mic should point towards the source."
+    };
+
     const float omniFact = 0.0f;
     const float eightFact = 1.0f;
     const float bCardFact = 0.37f;
     const float cardFact = 0.5f;
     const float sCardFact = 0.634f;
     const float hCardFact = 0.75f;
-    
+
     Path bCardPath;
     Path cardPath;
     Path sCardPath;
     Path hCardPath;
     Path eightPath;
     Path omniPath;
-    
+
     void timerCallback() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StereoCreatorAudioProcessorEditor)

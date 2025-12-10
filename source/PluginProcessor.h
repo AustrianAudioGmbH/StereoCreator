@@ -25,9 +25,9 @@
 
 #include <JuceHeader.h>
 
-#include <vector>
-#include <memory> // for unique_ptr
 #include <math.h>
+#include <memory> // for unique_ptr
+#include <vector>
 
 #include <cfloat>
 
@@ -46,22 +46,21 @@ enum eCurrentActiveLayer
     layerB = 2
 };
 
-static inline bool doublesEquivalent(double a, double b)
+static inline bool doublesEquivalent (double a, double b)
 {
-    return fabs(a - b) < DBL_EPSILON;
+    return fabs (a - b) < DBL_EPSILON;
 }
 
-static inline bool floatsEquivalent(double a, double b)
+static inline bool floatsEquivalent (double a, double b)
 {
-    return fabs(a - b) < FLT_EPSILON;
+    return fabs (a - b) < FLT_EPSILON;
 }
-
-
 
 //==============================================================================
 /**
 */
-class StereoCreatorAudioProcessor  : public juce::AudioProcessor, public AudioProcessorValueTreeState::Listener
+class StereoCreatorAudioProcessor : public juce::AudioProcessor,
+                                    public AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -72,9 +71,9 @@ public:
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
+#ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
@@ -100,28 +99,32 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    
-    //==============================================================================
-    void parameterChanged (const String &parameterID, float newValue) override;
 
-    int getStereoModeIdx() { return  (stereoModeIdx->load()); }
+    //==============================================================================
+    void parameterChanged (const String& parameterID, float newValue) override;
+
+    int getStereoModeIdx() { return (stereoModeIdx->load()); }
     int getNumInpCh() { return numInputs; }
-    void getXyAngleRelatedGains(float currentAngle);
+    void getXyAngleRelatedGains (float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
     void changeAbLayerState();
-    void setAbLayer(int desiredLayer);
-    
-    void applyGainWithRamp (float previousGain, float currentGain, AudioBuffer<float>* buff, int bufferChannel, int numSamples);
+    void setAbLayer (int desiredLayer);
+
+    void applyGainWithRamp (float previousGain,
+                            float currentGain,
+                            AudioBuffer<float>* buff,
+                            int bufferChannel,
+                            int numSamples);
     bool compensationGainCalcOver() { return autoLevelsOn->load() > 0.5f; }
-    
-//    Atomic<bool> wrongBusConfiguration = false;
-    
+
+    //    Atomic<bool> wrongBusConfiguration = false;
+
     Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    Atomic<float> outRms[2] = { 0.0f, 0.0f};
-    
+    Atomic<float> outRms[2] = { 0.0f, 0.0f };
+
 private:
     AudioProcessorValueTreeState params;
-    
+
     // AB layer handling
     Identifier nodeA = "layerA";
     Identifier nodeB = "layerB";
@@ -131,17 +134,17 @@ private:
     ValueTree allValueTreeStates;
 
     int abLayerState;
-    
+
     int numInputs;
-    
+
     std::atomic<float>* stereoModeIdx;
-    
+
     std::atomic<float>* channelSwitchOn;
     std::atomic<float>* autoLevelsOn;
-    
+
     Atomic<bool> isPlaying = false;
-    
-    AudioBuffer<float> omniEightLrBuffer; 
+
+    AudioBuffer<float> omniEightLrBuffer;
     AudioBuffer<float> omniEightFbBuffer;
     AudioBuffer<float> msMidBuffer;
     AudioBuffer<float> msLeftRightBuffer;
@@ -150,37 +153,36 @@ private:
     AudioBuffer<float> rotatedEightLeftRightBuffer;
     AudioBuffer<float> xyLeftRightBuffer;
     AudioBuffer<float> blumleinLeftRightBuffer;
-    
+
     float currentXyEightRotationGainFront;
     float currentXyEightRotationGainLeft;
     float previousXyEightRotationGainFront;
     float previousXyEightRotationGainLeft;
-    
+
     float currentBlumleinEightRotationGainFront;
     float currentBlumleinEightRotationGainLeft;
     float previousBlumleinEightRotationGainFront;
     float previousBlumleinEightRotationGainLeft;
-    
+
     float previousCompensationGain[5];
     int counter = 0;
     float secondsToAverage = 1.5f;
     int blocksToAverage;
     float inputGainMean = 0.000001f;
     float outGainMean = 0.000001f;
-    
+
     float previousMidGain;
     float previousSideGain;
     float previousPseudoStereoPattern;
     float previousMsMidPattern;
     float previousTrueStereoPattern;
     float previousOverallGain;
-    
+
     float currentOverallGain;
-    
+
     int currentBlockSize;
     double currentSampleRate;
-    
-    
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StereoCreatorAudioProcessor)
 };
