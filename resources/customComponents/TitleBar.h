@@ -194,7 +194,8 @@ public:
 
         // Configure button properties for interaction without visibility
         aaLogoButton.setButtonText ("");
-        aaLogoButton.setTooltip (String (BUILD_TAG) + String ("-") + String (BUILD_COMMIT_HASH)
+        aaLogoButton.setTooltip (String (AA_BUILD_TAG) + String ("-")
+                                 + String (AA_BUILD_COMMIT_HASH)
                                  + String::formatted (" (%p)", this));
         aaLogoButton.setInterceptsMouseClicks (
             true,
