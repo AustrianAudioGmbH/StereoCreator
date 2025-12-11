@@ -37,7 +37,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    layout.add (std::make_unique<AudioParameterInt> (
+    layout.add (std::make_unique<API> (
         ParameterID { "stereoMode", SC_PARAMETER_V1 },
         "Stereo Mode",
         1,
@@ -47,7 +47,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (int value, int maximumStringLength) { return String (value + 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "msMidGain", SC_PARAMETER_V1 },
         "MS Mid Gain",
         NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
@@ -59,7 +59,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     );
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "msSideGain", SC_PARAMETER_V1 },
         "MS Side Gain",
         NormalisableRange<float> (-18.0f, 3.0f, 0.1f),
@@ -69,7 +69,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "pseudoStPattern", SC_PARAMETER_V1 },
         "Pseudo-Stereo Pattern",
         NormalisableRange<float> (0.0f, 0.75f, 0.01f),
@@ -83,7 +83,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     layout.add (
 
-        std::make_unique<AudioParameterBool> (
+        std::make_unique<APB> (
             ParameterID { "channelSwitch", SC_PARAMETER_V1 },
             "Channel Swap",
             false,
@@ -93,7 +93,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     );
 
-    layout.add (std::make_unique<AudioParameterBool> (
+    layout.add (std::make_unique<APB> (
         ParameterID { "calcCompGain", SC_PARAMETER_V1 },
         "Calculate Compensation Gain",
         false,
@@ -101,7 +101,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "msMidPattern", SC_PARAMETER_V1 },
         "MS Mid Pattern",
         NormalisableRange<float> (0.0f, 0.75f, 0.01f),
@@ -115,7 +115,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
 
     layout.add (
 
-        std::make_unique<AudioParameterFloat> (
+        std::make_unique<APF> (
             ParameterID { "trueStXyPattern", SC_PARAMETER_V1 },
             "True-Stereo Pattern",
             NormalisableRange<float> (0.37f, 0.75f, 0.01f),
@@ -124,7 +124,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             AudioProcessorParameter::genericParameter,
             [] (float value, int maximumStringLength) { return String (value, 2); },
             nullptr));
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "trueStXyAngle", SC_PARAMETER_V1 },
         "True-Stereo XY Angle",
         NormalisableRange<float> (30.0f, 150.0f, 0.5f),
@@ -134,7 +134,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "blumleinRot", SC_PARAMETER_V1 },
         "Blumlein Rotation",
         NormalisableRange<float> (-30.0f, 30.0f, 0.5f),
@@ -144,7 +144,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "compensationGain1", SC_PARAMETER_V1 },
         "Compensation Gain - Pseudo-MS",
         NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
@@ -154,7 +154,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "compensationGain2", SC_PARAMETER_V1 },
         "Compensation Gain - Pseudo-Stereo",
         NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
@@ -164,7 +164,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "compensationGain3", SC_PARAMETER_V1 },
         "Compensation Gain - True-MS",
         NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
@@ -174,7 +174,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "compensationGain4", SC_PARAMETER_V1 },
         "Compensation Gain - True-Stereo",
         NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
@@ -184,7 +184,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         [] (float value, int maximumStringLength) { return String (value, 1); },
         nullptr));
 
-    layout.add (std::make_unique<AudioParameterFloat> (
+    layout.add (std::make_unique<APF> (
         ParameterID { "compensationGain5", SC_PARAMETER_V1 },
         "Compensation Gain - Blumlein",
         NormalisableRange<float> (-9.0f, 9.0f, 0.1f),
