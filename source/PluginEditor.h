@@ -82,16 +82,14 @@ private:
     static const int EDITOR_HEIGHT = 400;
 
     MainLookAndFeel mainLaF;
-    LaF legacyLaF;
-
-    juce::TextButton tbLogoAA;
 
     StereoCreatorAudioProcessor& processor;
     juce::AudioProcessorValueTreeState& valueTreeState;
 
-    TitleBarTextLabel titleCompare;
-
+    TitleBar<AALogo, NoIOWidget> title;
     Footer footer;
+
+    LaF globalLaF;
 
     juce::TooltipWindow sharedTooltipWindow;
 
