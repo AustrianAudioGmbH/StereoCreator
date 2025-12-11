@@ -39,16 +39,26 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
     setSize (EDITOR_WIDTH, EDITOR_HEIGHT);
 
-    setLookAndFeel (&globalLaF);
+    setLookAndFeel (&mainLaF);
 
     addAndMakeVisible (sharedTooltipWindow);
 
-    addAndMakeVisible (&title);
-    title.setTitle (juce::String ("AustrianAudio"), juce::String ("StereoCreator"));
-    title.setFont (mainLaF.normalFont, mainLaF.normalFont);
+    addAndMakeVisible (&tbLogoAA);
+    tbLogoAA.setButtonText ("Austrian Audio Logo");
+    tbLogoAA.setTooltip (String (AA_BUILD_TAG) + String ("-") + String (AA_BUILD_COMMIT_HASH)
+                         + String::formatted (" (JUCE:%s)", AA_BUILD_JUCE_VERSION)
+                         + String::formatted (" (%p)", this));
+
+    // title.setTitle (juce::String ("AustrianAudio"), juce::String ("StereoCreator"));
+    // title.setFont (mainLaF.normalFont, mainLaF.normalFont);
 
     //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
     //    title.showAlertSymbol(false);
+    //
+
+    addAndMakeVisible (&titleCompare);
+    titleCompare.setTitle (String ("Compare"));
+    titleCompare.setFont (mainLaF.normalFont);
 
     addAndMakeVisible (&footer);
 
@@ -197,7 +207,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
         new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyAngle", slXyAngle));
     slXyAngle.setSliderStyle (Slider::LinearHorizontal);
     slXyAngle.setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
-    slXyAngle.setColour (Slider::thumbColourId, globalLaF.AARed);
+    slXyAngle.setColour (Slider::thumbColourId, legacyLaF.AARed);
     slXyAngle.setTextValueSuffix (CharPointer_UTF8 (R"(°)"));
     slXyAngle.addListener (this);
 
@@ -206,7 +216,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
         new ReverseSlider::SliderAttachment (valueTreeState, "blumleinRot", slRotation));
     slRotation.setSliderStyle (Slider::LinearHorizontal);
     slRotation.setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
-    slRotation.setColour (Slider::thumbColourId, globalLaF.AARed);
+    slRotation.setColour (Slider::thumbColourId, legacyLaF.AARed);
     slRotation.setTextValueSuffix (CharPointer_UTF8 (R"(°)"));
     slRotation.addListener (this);
 
@@ -299,14 +309,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     for (int i = 0; i < 4; ++i)
     {
         addAndMakeVisible (&inputMeter[i]);
-        inputMeter[i].setColour (globalLaF.AARed);
+        inputMeter[i].setColour (legacyLaF.AARed);
         inputMeter[i].setLabelText (inMeterLabelText[i]);
     }
     addAndMakeVisible (&outputMeter[0]);
-    outputMeter[0].setColour (globalLaF.AARed);
+    outputMeter[0].setColour (legacyLaF.AARed);
     outputMeter[0].setLabelText (outMeterLabelText[0]);
     addAndMakeVisible (&outputMeter[1]);
-    outputMeter[1].setColour (globalLaF.AARed);
+    outputMeter[1].setColour (legacyLaF.AARed);
     outputMeter[1].setLabelText (outMeterLabelText[1]);
 
     setSliderVisibility (false, false, false, false, false, false, false);
@@ -342,7 +352,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 
     if (processor.getNumInpCh() == 2) // two channel input
     {
-        title.setLineBounds (true, 0, 0, 0); // default line
+        // title.setLineBounds (true, 0, 0, 0); // default line
         g.drawImageWithin (arrayImage2Ch,
                            0,
                            0,
@@ -354,7 +364,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     }
     else // four channel input
     {
-        title.setLineBounds (false, 0, 33, 101);
+        // title.setLineBounds (false, 0, 33, 101);
         g.drawImageWithin (arrayImage4Ch,
                            4,
                            8,
@@ -419,7 +429,7 @@ void StereoCreatorAudioProcessorEditor::resized()
     area.removeFromLeft (leftRightMargin);
     area.removeFromRight (leftRightMargin);
     Rectangle<int> headerArea = area.removeFromTop (headerHeight);
-    title.setBounds (headerArea);
+    // title.setBounds (headerArea);
     Rectangle<int> abButtonArea = headerArea.removeFromRight (3 * abLayerButtonHeight);
     abButtonArea.removeFromTop ((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
     abButtonArea.removeFromBottom ((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
