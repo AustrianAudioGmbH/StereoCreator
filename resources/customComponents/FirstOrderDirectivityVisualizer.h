@@ -52,6 +52,7 @@
 #include "../lookAndFeel/MainLookAndFeel.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <numbers>
 
 //==============================================================================
 /*
@@ -59,7 +60,7 @@
 //using namespace dsp;
 class FirstOrderDirectivityVisualizer : public juce::Component
 {
-    const float deg2rad = M_PI / 180.0f;
+    const float deg2rad = std::numbers::pi_v<float> / 180.0f;
     const int degStep = 4;
     const int nLookUpSamples = 360;
 
@@ -96,9 +97,9 @@ public:
             subGrid.addPath (circle, AffineTransform().scaled (i / 4.0f));
 
         subGrid.addPath (line);
-        subGrid.addPath (line, AffineTransform().rotation (0.25f * M_PI));
-        subGrid.addPath (line, AffineTransform().rotation (0.5f * M_PI));
-        subGrid.addPath (line, AffineTransform().rotation (0.75f * M_PI));
+        subGrid.addPath (line, AffineTransform().rotation (0.25f * std::numbers::pi_v<float>));
+        subGrid.addPath (line, AffineTransform().rotation (0.5f * std::numbers::pi_v<float>));
+        subGrid.addPath (line, AffineTransform().rotation (0.75f * std::numbers::pi_v<float>));
     }
 
     ~FirstOrderDirectivityVisualizer() {}
