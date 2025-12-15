@@ -34,7 +34,7 @@ include (PamplejuceVersion)
 
 set (PROJECT_NAME "StereoCreator")
 
-set (PRODUCT_NAME "StereoCreator${MAJOR_VERSION}")
+set (PRODUCT_NAME "${PROJECT_NAME}${MAJOR_VERSION}")
 
 set (COMPANY_NAME "Austrian Audio")
 
@@ -158,5 +158,7 @@ add_custom_target (
 )
 
 target_link_libraries ("${PROJECT_NAME}" PRIVATE SharedCode)
+
+include (Tests)
 
 include (GitHubENV)
