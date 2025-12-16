@@ -101,7 +101,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&slMidGain[0]);
     slAttMidGain[0].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[0]));
-    slMidGain[0].setSliderStyle (juce::Slider::Rotary);
+    slMidGain[0].setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
     slMidGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[0].setTextValueSuffix (" dB");
     slMidGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
@@ -111,7 +111,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&slMidGain[1]);
     slAttMidGain[1].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[1]));
-    slMidGain[1].setSliderStyle (Slider::Rotary);
+    slMidGain[1].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     slMidGain[1].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[1].setTextValueSuffix (" dB");
     slMidGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
@@ -121,7 +121,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&slSideGain[0]);
     slAttSideGain[0].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[0]));
-    slSideGain[0].setSliderStyle (Slider::Rotary);
+    slSideGain[0].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     slSideGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slSideGain[0].setTextValueSuffix (" dB");
     slSideGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
@@ -131,7 +131,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&slSideGain[1]);
     slAttSideGain[1].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[1]));
-    slSideGain[1].setSliderStyle (Slider::Rotary);
+    slSideGain[1].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     slSideGain[1].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slSideGain[1].setTextValueSuffix (" dB");
     slSideGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
@@ -184,7 +184,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
             new ReverseSlider::SliderAttachment (valueTreeState,
                                                  "compensationGain" + String (i + 1),
                                                  slCompensationGain[i]));
-        slCompensationGain[i].setSliderStyle (Slider::Rotary);
+        slCompensationGain[i].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
         slCompensationGain[i].setColour (Slider::rotarySliderOutlineColourId,
                                          mainLaF.polarVisualizerRed);
         slCompensationGain[i].addListener (this);
