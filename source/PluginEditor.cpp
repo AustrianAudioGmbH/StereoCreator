@@ -703,11 +703,10 @@ void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (juce::Sl
 void StereoCreatorAudioProcessorEditor::timerCallback()
 {
     for (int i = 0; i < 4; ++i)
-    {
-        inputMeter[i].setLevel (processor.inRms[i].get());
-    }
-    outputMeter[0].setLevel (processor.outRms[0].get());
-    outputMeter[1].setLevel (processor.outRms[1].get());
+        inputMeter[i].setLevel (processor.inRms[i].load (std::memory_order_relaxed));
+
+    outputMeter[0].setLevel (processor.outRms[0].load (std::memory_order_relaxed));
+    outputMeter[1].setLevel (processor.outRms[1].load (std::memory_order_relaxed));
 
     if (processor.getNumInpCh() == 2) // two channel input
     {

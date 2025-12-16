@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cfloat>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <math.h>
@@ -115,8 +116,8 @@ public:
 
     //    Atomic<bool> wrongBusConfiguration = false;
 
-    juce::Atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    juce::Atomic<float> outRms[2] = { 0.0f, 0.0f };
+    std::atomic<float> inRms[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    std::atomic<float> outRms[2] = { 0.0f, 0.0f };
 
 private:
     juce::AudioProcessorValueTreeState params;
@@ -138,7 +139,7 @@ private:
     std::atomic<float>* channelSwitchOn;
     std::atomic<float>* autoLevelsOn;
 
-    juce::Atomic<bool> isPlaying = false;
+    std::atomic<bool> isPlaying = false;
 
     juce::AudioBuffer<float> omniEightLrBuffer;
     juce::AudioBuffer<float> omniEightFbBuffer;
@@ -162,7 +163,7 @@ private:
 
     float previousCompensationGain[5];
     int counter = 0;
-    float secondsToAverage = 1.5f;
+    double secondsToAverage = 1.5;
     int blocksToAverage;
     float inputGainMean = 0.000001f;
     float outGainMean = 0.000001f;

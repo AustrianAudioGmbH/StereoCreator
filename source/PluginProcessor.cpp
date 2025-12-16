@@ -44,7 +44,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         5,
         1,
         "",
-        [] (int value, int maximumStringLength) { return String (value + 1); },
+        [] (int value, [[maybe_unused]] int maximumStringLength) { return String (value + 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -54,7 +54,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         -6.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr)
 
     );
@@ -66,7 +66,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         -6.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -76,7 +76,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.5f,
         "",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 2); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 2); },
         nullptr)
 
     );
@@ -88,7 +88,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             "Channel Swap",
             false,
             "",
-            [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
+            [] (bool value, [[maybe_unused]] int maximumStringLength)
+            { return (value) ? "on" : "off"; },
             nullptr)
 
     );
@@ -98,7 +99,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         "Calculate Compensation Gain",
         false,
         "",
-        [] (bool value, int maximumStringLength) { return (value) ? "on" : "off"; },
+        [] (bool value, [[maybe_unused]] int maximumStringLength)
+        { return (value) ? "on" : "off"; },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -108,7 +110,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.5f,
         "",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 2); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 2); },
         nullptr)
 
     );
@@ -122,7 +124,8 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
             0.5f,
             "",
             AudioProcessorParameter::genericParameter,
-            [] (float value, int maximumStringLength) { return String (value, 2); },
+            [] (float value, [[maybe_unused]] int maximumStringLength)
+            { return String (value, 2); },
             nullptr));
     layout.add (std::make_unique<APF> (
         ParameterID { "trueStXyAngle", SC_PARAMETER_V1 },
@@ -131,7 +134,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         90.0f,
         "",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -141,7 +144,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -151,7 +154,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -161,7 +164,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -171,7 +174,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -181,7 +184,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     layout.add (std::make_unique<APF> (
@@ -191,7 +194,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         0.0f,
         "dB",
         AudioProcessorParameter::genericParameter,
-        [] (float value, int maximumStringLength) { return String (value, 1); },
+        [] (float value, [[maybe_unused]] int maximumStringLength) { return String (value, 1); },
         nullptr));
 
     return layout;
@@ -282,32 +285,39 @@ int StereoCreatorAudioProcessor::getCurrentProgram()
 
 void StereoCreatorAudioProcessor::setCurrentProgram (int index)
 {
+    juce::ignoreUnused (index);
 }
 
 const juce::String StereoCreatorAudioProcessor::getProgramName (int index)
 {
+    juce::ignoreUnused (index);
+
     return {};
 }
 
 void StereoCreatorAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    juce::ignoreUnused (index, newName);
 }
 
 //==============================================================================
 void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    using namespace juce;
+
     currentSampleRate = sampleRate;
     currentBlockSize = samplesPerBlock;
 
     numInputs = getTotalNumInputChannels();
 
-    if (numInputs == 4 && stereoModeIdx->load() < eStereoMode::trueMsIdx)
+    if (numInputs == 4 && static_cast<int> (stereoModeIdx->load()) < eStereoMode::trueMsIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (
                 params.getParameter ("stereoMode")->convertTo0to1 ((float) eStereoMode::trueMsIdx));
     }
-    else if (numInputs == 2 && stereoModeIdx->load() > eStereoMode::pseudoStereoIdx)
+    else if (numInputs == 2
+             && static_cast<int> (stereoModeIdx->load()) > eStereoMode::pseudoStereoIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (params.getParameter ("stereoMode")
@@ -354,7 +364,8 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     previousMsMidPattern = params.getRawParameterValue ("msMidPattern")->load();
     previousTrueStereoPattern = params.getRawParameterValue ("trueStXyPattern")->load();
 
-    blocksToAverage = secondsToAverage * currentSampleRate / currentBlockSize;
+    blocksToAverage =
+        static_cast<int> (std::ceil (secondsToAverage * currentSampleRate / currentBlockSize));
 }
 
 void StereoCreatorAudioProcessor::releaseResources()
@@ -387,6 +398,8 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 {
     using namespace juce;
 
+    ignoreUnused (midiMessages);
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
     //    auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -394,9 +407,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     int numSamples = buffer.getNumSamples();
 
     for (int i = 0; i < buffer.getNumChannels(); ++i)
-    {
-        inRms[i] = buffer.getRMSLevel (i, 0, numSamples);
-    }
+        inRms[i].store (buffer.getRMSLevel (i, 0, numSamples), std::memory_order_relaxed);
 
     const float* readPointerLeft = buffer.getReadPointer (0);
     const float* readPointerRight = buffer.getReadPointer (1);
@@ -521,10 +532,11 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         FloatVectorOperations::copy (writePointerEightFB, readPointerFront, numSamples);
         FloatVectorOperations::subtract (writePointerEightFB, readPointerBack, numSamples);
 
-        auto currentMsMidPattern = params.getRawParameterValue ("msMidPattern")->load();
-        auto currentTrueStereoPattern = params.getRawParameterValue ("trueStXyPattern")->load();
+        const auto currentMsMidPattern = params.getRawParameterValue ("msMidPattern")->load();
+        const auto currentTrueStereoPattern =
+            params.getRawParameterValue ("trueStXyPattern")->load();
 
-        switch ((int) stereoModeIdx->load())
+        switch (static_cast<int> (stereoModeIdx->load()))
         {
             case eStereoMode::trueMsIdx:
                 FloatVectorOperations::copy (writePointerMsMid, writePointerEightFB, numSamples);
@@ -694,7 +706,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         return;
     }
 
-    if (channelSwitchOn->load() >= 0.5f)
+    if (channelSwitchOn->load (std::memory_order_relaxed) >= 0.5f)
     {
         chSwitchBuffer.copyFrom (0, 0, buffer, 1, 0, numSamples);
         chSwitchBuffer.copyFrom (1, 0, buffer, 0, 0, numSamples);
@@ -702,7 +714,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         buffer.copyFrom (1, 0, chSwitchBuffer, 1, 0, numSamples);
     }
 
-    if (autoLevelsOn->load() >= 0.5f)
+    if (autoLevelsOn->load (std::memory_order_relaxed) >= 0.5f)
     {
         if (counter == blocksToAverage)
         {
@@ -721,9 +733,12 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         }
         else
         {
-            inputGainMean += (inRms[0].get() + inRms[1].get()) / 2.0f;
-            outGainMean +=
-                (outRms[0].get() + outRms[1].get()) / 2.0f / (currentOverallGain + 0.000001f);
+            inputGainMean += (inRms[0].load (std::memory_order_relaxed)
+                              + inRms[1].load (std::memory_order_relaxed))
+                             / 2.0f;
+            outGainMean += (outRms[0].load (std::memory_order_relaxed)
+                            + outRms[1].load (std::memory_order_relaxed))
+                           / 2.0f / (currentOverallGain + 0.000001f);
             counter++;
         }
     }
@@ -803,6 +818,7 @@ void StereoCreatorAudioProcessor::setStateInformation (const void* data, int siz
 void StereoCreatorAudioProcessor::parameterChanged (const juce::String& parameterID, float newValue)
 {
     using namespace juce;
+    ignoreUnused (newValue);
 
     if (parameterID == "trueStXyAngle")
     {
@@ -881,14 +897,10 @@ void StereoCreatorAudioProcessor::applyGainWithRamp (float previousGain,
                                                      int bufferChannel,
                                                      int numSamples)
 {
-    if (previousGain == currentGain)
-    {
+    if (juce::exactlyEqual (previousGain, currentGain))
         buff->applyGain (bufferChannel, 0, numSamples, currentGain);
-    }
     else
-    {
         buff->applyGainRamp (bufferChannel, 0, numSamples, previousGain, currentGain);
-    }
 }
 
 //==============================================================================
