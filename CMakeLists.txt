@@ -152,11 +152,6 @@ target_link_libraries (
               juce::juce_recommended_warning_flags
 )
 
-add_custom_target (
-    host_header
-    DEPENDS $<TARGET_PROPERTY:${PROJECT_NAME},JUCE_GENERATED_SOURCES_DIRECTORY>/JuceHeader.h
-)
-
 target_link_libraries ("${PROJECT_NAME}" PRIVATE SharedCode)
 
 include (Tests)
