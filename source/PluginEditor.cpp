@@ -26,6 +26,7 @@
 #include "PluginProcessor.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <memory>
 
 #define AA_SUPPORT_URL "https://austrian.audio/support-downloads/"
 
@@ -216,10 +217,11 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     tbChSwitch.setButtonText ("L/R channel swap");
 
     addAndMakeVisible (&tbCalcCompGain);
-    tbAttCalcCompGain.reset (new ButtonAttachment (valueTreeState, "calcCompGain", tbCalcCompGain));
     tbCalcCompGain.setButtonText ("calculate");
     tbCalcCompGain.addListener (this);
     tbCalcCompGain.setToggleState (false, NotificationType::dontSendNotification);
+    tbAttCalcCompGain =
+        std::make_unique<ButtonAttachment> (valueTreeState, "calcCompGain", tbCalcCompGain);
 
     addAndMakeVisible (&tbAbLayer[0]);
     tbAbLayer[0].setButtonText ("A");
