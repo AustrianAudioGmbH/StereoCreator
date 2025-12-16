@@ -74,7 +74,7 @@ public:
         patternStripSize (12)
     {
         setTextBoxStyle (Slider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
-        setSliderStyle (Slider::Rotary);
+        setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
         addAndMakeVisible (&dirStripTop);
         addAndMakeVisible (&dirStripBottom);
         //        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
