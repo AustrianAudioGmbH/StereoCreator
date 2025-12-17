@@ -119,6 +119,7 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
                                        NormalisableRange<float> (0.0f, 0.75f, 0.01f),
                                        0.5f,
                                        floatAttributes));
+
     floatAttributes =
         AudioParameterFloatAttributes()
             .withStringFromValueFunction ([] (float value, [[maybe_unused]] int maximumStringLength)
