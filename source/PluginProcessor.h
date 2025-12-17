@@ -100,7 +100,7 @@ public:
     //==============================================================================
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
-    int getStereoModeIdx() { return (stereoModeIdx->load()); }
+    int getStereoModeIdx() { return (static_cast<int> (stereoModeIdx->load())); }
     int getNumInpCh() { return numInputs; }
     void getXyAngleRelatedGains (float currentAngle);
     void getBlumleinRotationGains (float currentRotation);
@@ -113,6 +113,8 @@ public:
                             int bufferChannel,
                             int numSamples);
     bool compensationGainCalcOver() { return autoLevelsOn->load() > 0.5f; }
+
+    int getAbLayerState() { return abLayerState.load (std::memory_order_relaxed); }
 
     //    Atomic<bool> wrongBusConfiguration = false;
 
@@ -130,7 +132,7 @@ private:
     juce::ValueTree layerB;
     juce::ValueTree allValueTreeStates;
 
-    int abLayerState;
+    std::atomic<int> abLayerState = eCurrentActiveLayer::layerA;
 
     int numInputs;
 

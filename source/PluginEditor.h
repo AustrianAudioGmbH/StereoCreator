@@ -103,8 +103,6 @@ private:
 
     SimpleLabel helpToolTip;
 
-    juce::TextEditor bla;
-
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2],
         slAttPseudoStPattern, slAttMidPattern, slAttXyPattern, slAttXyAngle, slAttRotation,
         slAttCompensationGain[5];

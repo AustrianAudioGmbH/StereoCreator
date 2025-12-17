@@ -223,21 +223,25 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     tbAttCalcCompGain =
         std::make_unique<ButtonAttachment> (valueTreeState, "calcCompGain", tbCalcCompGain);
 
+    const int layerState = processor.getAbLayerState();
+
     addAndMakeVisible (&tbAbLayer[0]);
     tbAbLayer[0].setButtonText ("A");
     tbAbLayer[0].addListener (this);
     tbAbLayer[0].setClickingTogglesState (true);
     tbAbLayer[0].setRadioGroupId (1);
-    tbAbLayer[0].setToggleState (true, NotificationType::dontSendNotification);
+    tbAbLayer[0].setToggleState (layerState == eCurrentActiveLayer::layerA,
+                                 NotificationType::dontSendNotification);
 
     addAndMakeVisible (&tbAbLayer[1]);
     tbAbLayer[1].setButtonText ("B");
     tbAbLayer[1].addListener (this);
     tbAbLayer[1].setClickingTogglesState (true);
     tbAbLayer[1].setRadioGroupId (1);
-    tbAbLayer[1].setToggleState (false, NotificationType::dontSendNotification);
+    tbAbLayer[1].setToggleState (layerState == eCurrentActiveLayer::layerB,
+                                 NotificationType::dontSendNotification);
 
-    setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerA);
+    setAbButtonAlphaFromLayerState (layerState);
 
     // group components and labels
     addAndMakeVisible (&grpStereoMode);
@@ -654,20 +658,20 @@ void StereoCreatorAudioProcessorEditor::buttonClicked (juce::Button* button)
     if (button == &tbAbLayer[0])
     {
         bool isToggled = button->getToggleState();
-        if (isToggled < 0.5f)
+        if (isToggled)
         {
-            processor.setAbLayer (eCurrentActiveLayer::layerB);
-            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerB);
+            processor.setAbLayer (eCurrentActiveLayer::layerA);
+            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerA);
         }
         comboBoxChanged (&cbStereoMode);
     }
     else if (button == &tbAbLayer[1])
     {
         bool isToggled = button->getToggleState();
-        if (isToggled < 0.5f)
+        if (isToggled)
         {
-            processor.setAbLayer (eCurrentActiveLayer::layerA);
-            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerA);
+            processor.setAbLayer (eCurrentActiveLayer::layerB);
+            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerB);
         }
         comboBoxChanged (&cbStereoMode);
     }
@@ -685,7 +689,7 @@ void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState (int laye
         tbAbLayer[0].setAlpha (1.0f);
         tbAbLayer[1].setAlpha (0.3f);
     }
-    else
+    else if (layerState == eCurrentActiveLayer::layerB)
     {
         tbAbLayer[0].setAlpha (0.3f);
         tbAbLayer[1].setAlpha (1.0f);
