@@ -728,27 +728,25 @@ void StereoCreatorAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    if (abLayerState == eCurrentActiveLayer::layerA)
-    {
-        layerA = params.copyState();
-    }
-    else if (abLayerState == eCurrentActiveLayer::layerB)
-    {
-        layerB = params.copyState();
-    }
-    else
-    {
-        layerA = params.copyState();
-    }
 
-    juce::ValueTree vtsState = params.copyState();
-    juce::ValueTree AState = layerA.createCopy();
-    juce::ValueTree BState = layerB.createCopy();
+    const auto currentLayerState = getAbLayerState();
+
+    if (currentLayerState == eCurrentActiveLayer::layerA)
+        layerA = params.copyState();
+
+    else if (currentLayerState == eCurrentActiveLayer::layerB)
+        layerB = params.copyState();
+
+    auto vtsState = params.copyState();
+    auto AState = layerA.createCopy();
+    auto BState = layerB.createCopy();
 
     allValueTreeStates.removeAllChildren (nullptr);
+    allValueTreeStates.removeAllProperties (nullptr);
     allValueTreeStates.addChild (vtsState, 0, nullptr);
     allValueTreeStates.addChild (AState, 1, nullptr);
     allValueTreeStates.addChild (BState, 2, nullptr);
+    allValueTreeStates.setProperty ("abLayerState", currentLayerState, nullptr);
 
     std::unique_ptr<juce::XmlElement> xml (allValueTreeStates.createXml());
     copyXmlToBinary (*xml, destData);
@@ -764,8 +762,17 @@ void StereoCreatorAudioProcessor::setStateInformation (const void* data, int siz
         if (xmlState->hasTagName (allValueTreeStates.getType()))
         {
             allValueTreeStates = juce::ValueTree::fromXml (*xmlState);
-            params.replaceState (allValueTreeStates.getChild (0));
+            layerA = allValueTreeStates.getChild (1).createCopy();
             layerB = allValueTreeStates.getChild (2).createCopy();
+            const int lastLayerState =
+                allValueTreeStates.getProperty ("abLayerState", eCurrentActiveLayer::layerA);
+
+            if (lastLayerState == eCurrentActiveLayer::layerB)
+                params.replaceState (layerB.createCopy());
+            else
+                params.replaceState (layerA.createCopy());
+
+            abLayerState.store (lastLayerState, std::memory_order_relaxed);
         }
     }
 }
@@ -814,21 +821,23 @@ void StereoCreatorAudioProcessor::getBlumleinRotationGains (float currentRotatio
 
 void StereoCreatorAudioProcessor::setAbLayer (int desiredLayer)
 {
-    abLayerState = desiredLayer;
+    abLayerState.store (desiredLayer, std::memory_order_relaxed);
     changeAbLayerState();
 }
 
 void StereoCreatorAudioProcessor::changeAbLayerState()
 {
-    if (abLayerState == eCurrentActiveLayer::layerB)
-    {
-        layerA = params.copyState();
-        params.state = layerB.createCopy();
-    }
-    else
+    const auto currentLayerState = getAbLayerState();
+
+    if (currentLayerState == eCurrentActiveLayer::layerA)
     {
         layerB = params.copyState();
-        params.state = layerA.createCopy();
+        params.replaceState (layerA.createCopy());
+    }
+    else if (currentLayerState == eCurrentActiveLayer::layerB)
+    {
+        layerA = params.copyState();
+        params.replaceState (layerB.createCopy());
     }
 
     // in case the number of input channels changed
