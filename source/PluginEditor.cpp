@@ -40,20 +40,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
     setSize (EDITOR_WIDTH, EDITOR_HEIGHT);
 
-    setLookAndFeel (&globalLaF);
-
     addAndMakeVisible (sharedTooltipWindow);
 
-    addAndMakeVisible (&title);
-    title.setTitle (juce::String ("AustrianAudio"), juce::String ("StereoCreator"));
-    title.setFont (mainLaF.normalFont, mainLaF.normalFont);
+    addAndMakeVisible (logo);
 
-    //    title.setAlertMessage(wrongBusConfigMessageShort, wrongBusConfigMessageLong);
-    //    title.showAlertSymbol(false);
+    addAndMakeVisible (abButton);
 
     addAndMakeVisible (&footer);
 
-    sharedTooltipWindow.setLookAndFeel (&mainLaF);
     sharedTooltipWindow.setMillisecondsBeforeTipAppears (500);
 
     // loading image data
@@ -186,7 +180,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
                                                  slCompensationGain[i]));
         slCompensationGain[i].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
         slCompensationGain[i].setColour (Slider::rotarySliderOutlineColourId,
-                                         mainLaF.polarVisualizerRed);
+                                         AAGuiComponents::Colours::polarVisualizerRed);
         slCompensationGain[i].addListener (this);
         slCompensationGain[i].setTextValueSuffix (" dB");
         slCompensationGain[i].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 15);
@@ -198,7 +192,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
         new ReverseSlider::SliderAttachment (valueTreeState, "trueStXyAngle", slXyAngle));
     slXyAngle.setSliderStyle (Slider::LinearHorizontal);
     slXyAngle.setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
-    slXyAngle.setColour (Slider::thumbColourId, globalLaF.AARed);
+    slXyAngle.setColour (Slider::thumbColourId, AAGuiComponents::Colours::polarVisualizerRed);
     slXyAngle.setTextValueSuffix (CharPointer_UTF8 (R"(°)"));
     slXyAngle.addListener (this);
 
@@ -207,7 +201,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
         new ReverseSlider::SliderAttachment (valueTreeState, "blumleinRot", slRotation));
     slRotation.setSliderStyle (Slider::LinearHorizontal);
     slRotation.setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
-    slRotation.setColour (Slider::thumbColourId, globalLaF.AARed);
+    slRotation.setColour (Slider::thumbColourId, AAGuiComponents::Colours::polarVisualizerRed);
     slRotation.setTextValueSuffix (CharPointer_UTF8 (R"(°)"));
     slRotation.addListener (this);
 
@@ -225,23 +219,13 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
     const int layerState = processor.getAbLayerState();
 
-    addAndMakeVisible (&tbAbLayer[0]);
-    tbAbLayer[0].setButtonText ("A");
-    tbAbLayer[0].addListener (this);
-    tbAbLayer[0].setClickingTogglesState (true);
-    tbAbLayer[0].setRadioGroupId (1);
-    tbAbLayer[0].setToggleState (layerState == eCurrentActiveLayer::layerA,
-                                 NotificationType::dontSendNotification);
+    abButton[0].addListener (this);
+    abButton[0].setToggleState (layerState == eCurrentActiveLayer::layerA,
+                                NotificationType::dontSendNotification);
 
-    addAndMakeVisible (&tbAbLayer[1]);
-    tbAbLayer[1].setButtonText ("B");
-    tbAbLayer[1].addListener (this);
-    tbAbLayer[1].setClickingTogglesState (true);
-    tbAbLayer[1].setRadioGroupId (1);
-    tbAbLayer[1].setToggleState (layerState == eCurrentActiveLayer::layerB,
-                                 NotificationType::dontSendNotification);
-
-    setAbButtonAlphaFromLayerState (layerState);
+    abButton[1].addListener (this);
+    abButton[1].setToggleState (layerState == eCurrentActiveLayer::layerB,
+                                NotificationType::dontSendNotification);
 
     // group components and labels
     addAndMakeVisible (&grpStereoMode);
@@ -305,14 +289,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     for (int i = 0; i < 4; ++i)
     {
         addAndMakeVisible (&inputMeter[i]);
-        inputMeter[i].setColour (globalLaF.AARed);
+        inputMeter[i].setColour (AAGuiComponents::Colours::polarVisualizerRed);
         inputMeter[i].setLabelText (inMeterLabelText[i]);
     }
     addAndMakeVisible (&outputMeter[0]);
-    outputMeter[0].setColour (globalLaF.AARed);
+    outputMeter[0].setColour (AAGuiComponents::Colours::polarVisualizerRed);
     outputMeter[0].setLabelText (outMeterLabelText[0]);
     addAndMakeVisible (&outputMeter[1]);
-    outputMeter[1].setColour (globalLaF.AARed);
+    outputMeter[1].setColour (AAGuiComponents::Colours::polarVisualizerRed);
     outputMeter[1].setLabelText (outMeterLabelText[1]);
 
     setSliderVisibility (false, false, false, false, false, false, false);
@@ -344,11 +328,11 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     const int currHeight = getHeight();
     const int currWidth = getWidth();
 
-    g.fillAll (mainLaF.mainBackground);
+    g.fillAll (AAGuiComponents::Colours::mainBackground);
 
     if (processor.getNumInpCh() == 2) // two channel input
     {
-        title.setLineBounds (true, 0, 0, 0); // default line
+        // title.setLineBounds (true, 0, 0, 0); // default line
         g.drawImageWithin (arrayImage2Ch,
                            0,
                            0,
@@ -360,7 +344,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     }
     else // four channel input
     {
-        title.setLineBounds (false, 0, 33, 101);
+        // title.setLineBounds (false, 0, 33, 101);
         g.drawImageWithin (arrayImage4Ch,
                            4,
                            8,
@@ -388,8 +372,8 @@ void StereoCreatorAudioProcessorEditor::resized()
 {
     using namespace juce;
 
-    const int leftRightMargin = 30;
-    const int headerHeight = 60;
+    const int leftRightMargin = 20;
+    const int headerHeight = 50;
     const int footerHeight = 15;
     const int topMargin = 10;
     const int rotarySliderHeight = 70;
@@ -405,7 +389,6 @@ void StereoCreatorAudioProcessorEditor::resized()
     const float meterWidth = 12;
     const float meterHeight = 150;
     const float meterSpacing = 2;
-    const float abLayerButtonHeight = 28;
     const float compGainHeight = 60;
     const float compGainWidth = 60;
 
@@ -416,24 +399,22 @@ void StereoCreatorAudioProcessorEditor::resized()
     const int twoSlWidth = 2 * rotarySliderWidth + hSpace;
 
     Rectangle<int> area (getLocalBounds());
+    area.removeFromTop (topMargin);
+    area.removeFromLeft (leftRightMargin);
+    area.removeFromRight (leftRightMargin);
 
     // header and footer
     Rectangle<int> footerArea (area.removeFromBottom (footerHeight));
     helpToolTip.setBounds (5, getHeight() - 30, 40, 25);
     footer.setBounds (footerArea);
 
-    area.removeFromLeft (leftRightMargin);
-    area.removeFromRight (leftRightMargin);
     Rectangle<int> headerArea = area.removeFromTop (headerHeight);
-    title.setBounds (headerArea);
-    Rectangle<int> abButtonArea = headerArea.removeFromRight (3 * abLayerButtonHeight);
-    abButtonArea.removeFromTop ((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
-    abButtonArea.removeFromBottom ((headerArea.getHeight() / 2) - (abLayerButtonHeight / 2));
-    tbAbLayer[0].setBounds (abButtonArea.removeFromLeft (abLayerButtonHeight));
-    abButtonArea.removeFromLeft (abLayerButtonHeight / 2);
-    tbAbLayer[1].setBounds (abButtonArea.removeFromLeft (abLayerButtonHeight));
 
-    area.removeFromTop (topMargin);
+    logo.setBounds (headerArea.removeFromLeft (140));
+    headerArea.removeFromLeft (100);
+
+    abButton.setBounds (headerArea.removeFromLeft (160));
+
     arrayImageArea = area.removeFromLeft (arrayWidth).toFloat();
     //    arrayImageArea.removeFromTop(headerArea.getHeight());
     //    arrayImageArea.removeFromLeft(leftRightMargin);
@@ -655,45 +636,22 @@ void StereoCreatorAudioProcessorEditor::buttonClicked (juce::Button* button)
 {
     using namespace juce;
 
-    if (button == &tbAbLayer[0])
+    if (button == &abButton[0])
     {
-        bool isToggled = button->getToggleState();
-        if (isToggled)
-        {
-            processor.setAbLayer (eCurrentActiveLayer::layerA);
-            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerA);
-        }
-        comboBoxChanged (&cbStereoMode);
-    }
-    else if (button == &tbAbLayer[1])
-    {
-        bool isToggled = button->getToggleState();
-        if (isToggled)
-        {
+        if (! button->getToggleState())
             processor.setAbLayer (eCurrentActiveLayer::layerB);
-            setAbButtonAlphaFromLayerState (eCurrentActiveLayer::layerB);
-        }
+
         comboBoxChanged (&cbStereoMode);
     }
-    else if (button == &tbCalcCompGain)
+    else if (button == &abButton[1])
     {
-        bool isToggled = button->getToggleState();
-        button->setToggleState (! isToggled, NotificationType::dontSendNotification);
-    }
-}
+        if (! button->getToggleState())
+            processor.setAbLayer (eCurrentActiveLayer::layerA);
 
-void StereoCreatorAudioProcessorEditor::setAbButtonAlphaFromLayerState (int layerState)
-{
-    if (layerState == eCurrentActiveLayer::layerA)
-    {
-        tbAbLayer[0].setAlpha (1.0f);
-        tbAbLayer[1].setAlpha (0.3f);
+        comboBoxChanged (&cbStereoMode);
     }
-    else if (layerState == eCurrentActiveLayer::layerB)
-    {
-        tbAbLayer[0].setAlpha (0.3f);
-        tbAbLayer[1].setAlpha (1.0f);
-    }
+    if (button == &tbCalcCompGain)
+        button->setToggleState (! button->getToggleState(), NotificationType::dontSendNotification);
 }
 
 void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (juce::Slider* slider,

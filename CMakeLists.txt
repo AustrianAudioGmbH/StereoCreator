@@ -104,14 +104,16 @@ endif ()
 set (SourceFiles source/PluginEditor.h source/PluginProcessor.h source/PluginEditor.cpp
                  source/PluginProcessor.cpp
 )
-file (GLOB_RECURSE SourceLookAndFeelFiles
-      CONFIGURE_DEPENDS" ${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.h"
-      "${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.cpp"
+file (
+    GLOB_RECURSE
+    SourceLookAndFeelFiles
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/lookAndFeel/*.cpp"
 )
 
 target_sources (SharedCode INTERFACE ${SourceFiles} ${SourceLookAndFeelFiles})
-
-target_include_directories (${PROJECT_NAME} INTERFACE ${juce_generated_headers_directory})
 
 include (Assets)
 

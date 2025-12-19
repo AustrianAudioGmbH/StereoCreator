@@ -1,0 +1,100 @@
+/*
+ ==============================================================================
+ Author: Sebastian Grill
+ 
+ Copyright (c) 2025 - Austrian Audio GmbH
+ www.austrian.audio
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ==============================================================================
+ */
+#pragma once
+
+#include "../lookAndFeel/BinaryFonts.h"
+#include "Colours.hpp"
+
+#include <juce_gui_basics/juce_gui_basics.h>
+
+namespace AAGuiComponents
+{
+
+enum class ButtonColor
+{
+    gray,
+    red,
+};
+
+template <ButtonColor color>
+class TextButton : public juce::TextButton
+{
+public:
+    TextButton<color>()
+    {
+        setToggleable (true);
+        setClickingTogglesState (true);
+    }
+
+    void paintButton (juce::Graphics& g,
+                      bool shouldDrawButtonAsHighlighted,
+                      bool shouldDrawButtonAsDown) override
+    {
+        using namespace juce;
+
+        ignoreUnused (shouldDrawButtonAsDown);
+
+        auto backgroundColor = Colours::textButtonDefaultBackgroundColor;
+        auto frameColor = Colours::textButtonFrameColor;
+        auto hoverBackgroundColor = Colours::textButtonHoverBackgroundColor;
+
+        if constexpr (color == ButtonColor::red)
+        {
+            backgroundColor = Colours::multiTextButtonBackgroundColor;
+            frameColor = Colours::textButtonActiveRedFrameColor;
+            hoverBackgroundColor = Colours::textButtonHoverRedBackgroundColor;
+        }
+
+        const auto buttonArea = getLocalBounds();
+
+        if (shouldDrawButtonAsHighlighted)
+        {
+            g.setColour (hoverBackgroundColor);
+            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+        }
+        else
+        {
+            g.setColour (backgroundColor);
+            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+        }
+
+        const auto text = getButtonText();
+
+        g.setColour (getToggleState() ? Colours::mainTextColor : Colours::mainTextInactiveColor);
+        const auto font = Font (FontOptions (normalFont));
+        g.setFont (font);
+        g.drawFittedText (text, buttonArea, Justification::centred, 1);
+
+        if (getToggleState())
+        {
+            g.setColour (frameColor);
+            g.drawRect (buttonArea.reduced (3.0f, 3.0f), 2.0f);
+        }
+    }
+
+private:
+    juce::Typeface::Ptr normalFont =
+        juce::Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansSemiBold_ttf,
+                                                 BinaryFonts::NunitoSansSemiBold_ttfSize);
+};
+
+} // namespace AAGuiComponents
