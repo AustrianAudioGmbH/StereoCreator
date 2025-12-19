@@ -23,14 +23,15 @@
 
 #pragma once
 
+#include "../resources/customComponents/ABComponent.hpp"
+#include "../resources/customComponents/Colours.hpp"
 #include "../resources/customComponents/DirSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
 #include "../resources/customComponents/LevelMeter.h"
+#include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/SimpleLabel.h"
 #include "../resources/customComponents/TitleBar.h"
-#include "../resources/lookAndFeel/AA_LaF.h"
-#include "../resources/lookAndFeel/MainLookAndFeel.h"
 #include "PluginProcessor.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -73,7 +74,7 @@ public:
 
     int getControlParameterIndex (Component& control) override;
 
-    void setAbButtonAlphaFromLayerState (int layerState);
+    // void setAbButtonAlphaFromLayerState (int layerState);
 
     void setDirVisAlphaFromSliderValues (juce::Slider* slider, int dirVisIdx);
 
@@ -81,15 +82,14 @@ private:
     static const int EDITOR_WIDTH = 640;
     static const int EDITOR_HEIGHT = 400;
 
-    MainLookAndFeel mainLaF;
-
     StereoCreatorAudioProcessor& processor;
     juce::AudioProcessorValueTreeState& valueTreeState;
 
-    TitleBar<AALogo, NoIOWidget> title;
-    Footer footer;
+    AAGuiComponents::AALogo logo;
 
-    LaF globalLaF;
+    AAGuiComponents::ABComponent abButton;
+
+    Footer footer;
 
     juce::TooltipWindow sharedTooltipWindow;
 
@@ -97,7 +97,7 @@ private:
         slCompensationGain[5]; //slWidth, slXyPattern, slMidPattern,
     juce::ComboBox cbStereoMode;
     juce::ToggleButton tbChSwitch;
-    juce::TextButton tbAbLayer[2], tbCalcCompGain;
+    juce::TextButton tbCalcCompGain;
 
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
 
