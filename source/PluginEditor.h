@@ -27,7 +27,6 @@
 #include "../resources/customComponents/DirSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
 #include "../resources/customComponents/GroupComponent.hpp"
-#include "../resources/customComponents/LevelMeter.h"
 #include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/SimpleLabel.h"
