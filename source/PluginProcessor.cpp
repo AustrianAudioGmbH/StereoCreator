@@ -260,23 +260,25 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 {
     using namespace juce;
 
+    using StereoMode = AAGuiComponents::Setup::StereoMode;
+
     currentSampleRate = sampleRate;
     currentBlockSize = samplesPerBlock;
 
     numInputs = getTotalNumInputChannels();
 
-    if (numInputs == 4 && static_cast<int> (stereoModeIdx->load()) < eStereoMode::trueMsIdx)
+    if (numInputs == 4 && static_cast<int> (stereoModeIdx->load()) < StereoMode::trueMsIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (
-                params.getParameter ("stereoMode")->convertTo0to1 ((float) eStereoMode::trueMsIdx));
+                params.getParameter ("stereoMode")->convertTo0to1 ((float) StereoMode::trueMsIdx));
     }
     else if (numInputs == 2
-             && static_cast<int> (stereoModeIdx->load()) > eStereoMode::pseudoStereoIdx)
+             && static_cast<int> (stereoModeIdx->load()) > StereoMode::pseudoStereoIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (params.getParameter ("stereoMode")
-                                         ->convertTo0to1 ((float) eStereoMode::pseudoMsIdx));
+                                         ->convertTo0to1 ((float) StereoMode::pseudoMsIdx));
     }
 
     //    if (getTotalNumInputChannels() != 2 && getTotalNumInputChannels() != 4)
@@ -388,12 +390,14 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
         Decibels::decibelsToGain (params.getRawParameterValue ("msSideGain")->load());
     auto currentPseudoStereoPattern = params.getRawParameterValue ("pseudoStPattern")->load();
 
+    using StereoMode = AAGuiComponents::Setup::StereoMode;
+
     // one OC-818 was used, ms is calculated with left/right signals
     if (totalNumInputChannels == 2)
     {
         switch ((int) stereoModeIdx->load())
         {
-            case eStereoMode::pseudoMsIdx: // when ms is chosen
+            case StereoMode::pseudoMsIdx: // when ms is chosen
                 // applying mid gain
                 applyGainWithRamp (previousMidGain,
                                    currentMidGain,
@@ -423,7 +427,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 buffer.copyFrom (1, 0, msLeftRightBuffer, 1, 0, numSamples);
                 break;
 
-            case eStereoMode::pseudoStereoIdx: // when pseudo-stereo is chosen
+            case StereoMode::pseudoStereoIdx: // when pseudo-stereo is chosen
                 // applying pattern weights
                 applyGainWithRamp (1.0f - previousPseudoStereoPattern,
                                    1.0f - currentPseudoStereoPattern,
@@ -493,7 +497,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
         switch (static_cast<int> (stereoModeIdx->load()))
         {
-            case eStereoMode::trueMsIdx:
+            case StereoMode::trueMsIdx:
                 FloatVectorOperations::copy (writePointerMsMid, writePointerEightFB, numSamples);
 
                 // applying pattern weights
@@ -538,7 +542,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 buffer.copyFrom (1, 0, msLeftRightBuffer, 1, 0, numSamples);
                 break;
 
-            case eStereoMode::trueStereoIdx:
+            case StereoMode::trueStereoIdx:
 
                 applyGainWithRamp (previousXyEightRotationGainFront,
                                    currentXyEightRotationGainFront,
@@ -598,7 +602,7 @@ void StereoCreatorAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
                 buffer.copyFrom (1, 0, xyLeftRightBuffer, 1, 0, numSamples);
                 break;
 
-            case eStereoMode::blumleinIdx:
+            case StereoMode::blumleinIdx:
                 // preparing left blumlein channel with FB eight
                 FloatVectorOperations::copy (writePointerBlumleinLeft,
                                              writePointerEightFB,
@@ -827,6 +831,8 @@ void StereoCreatorAudioProcessor::setAbLayer (int desiredLayer)
 
 void StereoCreatorAudioProcessor::changeAbLayerState()
 {
+    using StereoMode = AAGuiComponents::Setup::StereoMode;
+
     const auto currentLayerState = getAbLayerState();
 
     if (currentLayerState == eCurrentActiveLayer::layerA)
@@ -841,17 +847,17 @@ void StereoCreatorAudioProcessor::changeAbLayerState()
     }
 
     // in case the number of input channels changed
-    if (numInputs == 4 && stereoModeIdx->load() < eStereoMode::trueMsIdx)
+    if (numInputs == 4 && stereoModeIdx->load() < StereoMode::trueMsIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (
-                params.getParameter ("stereoMode")->convertTo0to1 ((float) eStereoMode::trueMsIdx));
+                params.getParameter ("stereoMode")->convertTo0to1 ((float) StereoMode::trueMsIdx));
     }
-    else if (numInputs == 2 && stereoModeIdx->load() > eStereoMode::pseudoStereoIdx)
+    else if (numInputs == 2 && stereoModeIdx->load() > StereoMode::pseudoStereoIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (params.getParameter ("stereoMode")
-                                         ->convertTo0to1 ((float) eStereoMode::pseudoMsIdx));
+                                         ->convertTo0to1 ((float) StereoMode::pseudoMsIdx));
     }
 }
 

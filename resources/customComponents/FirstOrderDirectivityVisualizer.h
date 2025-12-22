@@ -49,7 +49,7 @@
 
 #pragma once
 
-#include "../lookAndFeel/MainLookAndFeel.h"
+#include "Colours.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <numbers>
@@ -80,7 +80,8 @@ public:
 
         for (int phi = -180; phi <= 180; phi += degStep)
         {
-            pointsOnCircle.add (Point<float> (cos (deg2rad * phi), sin (deg2rad * phi)));
+            const auto angle = static_cast<float> (phi) * deg2rad;
+            pointsOnCircle.add (Point<float> (std::cos (angle), std::sin (angle)));
         }
 
         Path circle;
@@ -94,15 +95,13 @@ public:
 
         subGrid.clear();
         for (int i = 1; i < 5; i++)
-            subGrid.addPath (circle, AffineTransform().scaled (i / 4.0f));
+            subGrid.addPath (circle, AffineTransform().scaled (static_cast<float> (i) / 4.0f));
 
         subGrid.addPath (line);
         subGrid.addPath (line, AffineTransform().rotation (0.25f * std::numbers::pi_v<float>));
         subGrid.addPath (line, AffineTransform().rotation (0.5f * std::numbers::pi_v<float>));
         subGrid.addPath (line, AffineTransform().rotation (0.75f * std::numbers::pi_v<float>));
     }
-
-    ~FirstOrderDirectivityVisualizer() {}
 
     void paint (juce::Graphics& g) override
     {
