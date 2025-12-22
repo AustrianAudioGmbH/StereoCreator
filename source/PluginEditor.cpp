@@ -266,6 +266,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     addAndMakeVisible (&dirVis[1]);
     dirVis[1].setDirWeight (-0.5f);
     dirVis[1].setColour (AAGuiComponents::Colours::polarVisualizerRed);
+    dirVis[1].shouldDrawGridLines (false);
 
     setSliderVisibility (false, false, false, false, false, false, false);
 

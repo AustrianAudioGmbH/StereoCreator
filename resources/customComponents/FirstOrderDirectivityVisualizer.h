@@ -108,17 +108,19 @@ public:
         using namespace juce;
 
         Path path;
-        path = grid;
-        path.applyTransform (transform);
-        g.setColour (Colours::skyblue.withMultipliedAlpha (0.05f));
-        g.fillPath (path);
-        //        g.setColour (Colours::white.withMultipliedAlpha(!isActive ? 0.5f : calcAlpha()));
-        g.strokePath (path, PathStrokeType (1.0f));
 
-        path = subGrid;
-        path.applyTransform (transform);
-        g.setColour (Colours::skyblue.withMultipliedAlpha (0.15f));
-        g.strokePath (path, PathStrokeType (0.5f));
+        if (shouldDrawGrid)
+        {
+            path = grid;
+            path.applyTransform (transform);
+            g.setColour (AAGuiComponents::Colours::mainBackground);
+            g.fillPath (path);
+
+            path = subGrid;
+            path.applyTransform (transform);
+            g.setColour (AAGuiComponents::Colours::polarVisualizerGrid);
+            g.strokePath (path, PathStrokeType (1.0f));
+        }
 
         // draw directivity
         g.setColour (colour.withMultipliedAlpha (! isActive ? 0.0f : patternAlpha));
@@ -129,7 +131,7 @@ public:
         {
             float phiInRad = (float) phi * deg2rad + rotation;
             float gainLin = std::abs ((1 - std::abs (dirWeight)) + dirWeight * std::cos (phiInRad));
-            int dbMin = 25;
+            const float dbMin = 25;
             float gainDb =
                 20
                 * std::log10 (
@@ -164,12 +166,12 @@ public:
             bounds.setHeight (bounds.getWidth());
         bounds.setCentre (centre);
 
-        transform = AffineTransform::fromTargetPoints ((float) centre.x,
-                                                       (float) centre.y,
-                                                       (float) centre.x,
-                                                       bounds.getY(),
-                                                       bounds.getX(),
-                                                       centre.y);
+        transform = AffineTransform::fromTargetPoints (static_cast<float> (centre.x),
+                                                       static_cast<float> (centre.y),
+                                                       static_cast<float> (centre.x),
+                                                       static_cast<float> (bounds.getY()),
+                                                       static_cast<float> (bounds.getX()),
+                                                       static_cast<float> (centre.y));
 
         plotArea = bounds;
     }
@@ -222,6 +224,8 @@ public:
 
     void setPatternRotation (float degrees) { rotation = degrees * deg2rad; }
 
+    void shouldDrawGridLines (bool draw) { shouldDrawGrid = draw; }
+
 private:
     juce::Path grid;
     juce::Path subGrid;
@@ -230,6 +234,7 @@ private:
     float dirWeight;
     float patternAlpha;
     bool isActive;
+    bool shouldDrawGrid = true;
     //    MuteSoloButton* soloButton;
     //    MuteSoloButton* muteButton;
     bool soloActive;
