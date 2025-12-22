@@ -34,7 +34,7 @@
 StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     StereoCreatorAudioProcessor& p,
     juce::AudioProcessorValueTreeState& vts) :
-    juce::AudioProcessorEditor (&p), processor (p), valueTreeState (vts)
+    juce::AudioProcessorEditor (&p), stereoCreatorProcessor (p), valueTreeState (vts)
 {
     using namespace juce;
 
@@ -71,18 +71,15 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     colours[2] = juce::Colour (0xFDBAAF49);
 
     // combo box
-    addAndMakeVisible (cbStereoMode);
-    cbAttStereoMode.reset (new ComboBoxAttachment (valueTreeState, "stereoMode", cbStereoMode));
-    cbStereoMode.addItem ("pseudo-m/s", eStereoMode::pseudoMsIdx);
-    cbStereoMode.addItem ("pseudo-stereo", eStereoMode::pseudoStereoIdx);
-    cbStereoMode.addItem ("true-m/s", eStereoMode::trueMsIdx);
-    cbStereoMode.addItem ("true-stereo", eStereoMode::trueStereoIdx);
-    cbStereoMode.addItem ("blumlein", eStereoMode::blumleinIdx);
-    cbStereoMode.setEditableText (false);
-    cbStereoMode.setJustificationType (juce::Justification::centred);
-    cbStereoMode.setSelectedId (processor.getStereoModeIdx());
-    //    cbStereoMode.setSelectedId(processor.getNumInpCh() == 2 ? eStereoMode::pseudoMsIdx : eStereoMode::trueMsIdx);
-    cbStereoMode.addListener (this);
+    addAndMakeVisible (setupComponent);
+    cbAttStereoMode = std::make_unique<ComboBoxAttachment> (valueTreeState,
+                                                            "stereoMode",
+                                                            setupComponent.stereoMode);
+    setupComponent.stereoMode.addListener (this);
+    tbAttChSwitch = std::make_unique<ButtonAttachment> (valueTreeState,
+                                                        "channelSwitch",
+                                                        setupComponent.lrSwapButton);
+    setupComponent.stereoMode.setSelectedId (stereoCreatorProcessor.getStereoModeIdx());
 
     // help tooltip
     addAndMakeVisible (&helpToolTip);
@@ -98,7 +95,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slMidGain[0].setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
     slMidGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[0].setTextValueSuffix (" dB");
-    slMidGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
+    slMidGain[0].setColour (Slider::rotarySliderOutlineColourId,
+                            AAGuiComponents::Colours::polarVisualizerGreenDark);
     slMidGain[0].addListener (this);
     setDirVisAlphaFromSliderValues (&slMidGain[0], 0);
 
@@ -118,7 +116,8 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slSideGain[0].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     slSideGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slSideGain[0].setTextValueSuffix (" dB");
-    slSideGain[0].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
+    slSideGain[0].setColour (Slider::rotarySliderOutlineColourId,
+                             AAGuiComponents::Colours::polarVisualizerRed);
     slSideGain[0].addListener (this);
     setDirVisAlphaFromSliderValues (&slSideGain[0], 1);
 
@@ -173,17 +172,13 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
     for (int i = 0; i < 5; i++)
     {
-        addAndMakeVisible (&slCompensationGain[i]);
-        slAttCompensationGain[i].reset (
-            new ReverseSlider::SliderAttachment (valueTreeState,
-                                                 "compensationGain" + String (i + 1),
-                                                 slCompensationGain[i]));
-        slCompensationGain[i].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-        slCompensationGain[i].setColour (Slider::rotarySliderOutlineColourId,
-                                         AAGuiComponents::Colours::polarVisualizerRed);
-        slCompensationGain[i].addListener (this);
-        slCompensationGain[i].setTextValueSuffix (" dB");
-        slCompensationGain[i].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 15);
+        auto& s = compensationGainComponent.sliders[i];
+        auto& sa = slAttCompensationGain[i];
+
+        sa = std::make_unique<ReverseSlider::SliderAttachment> (valueTreeState,
+                                                                "compensationGain" + String (i + 1),
+                                                                s);
+        s.addListener (this);
     }
 
     // linear sliders
@@ -206,18 +201,14 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slRotation.addListener (this);
 
     // buttons
-    addAndMakeVisible (&tbChSwitch);
-    tbAttChSwitch.reset (new ButtonAttachment (valueTreeState, "channelSwitch", tbChSwitch));
-    tbChSwitch.setButtonText ("L/R channel swap");
 
-    addAndMakeVisible (&tbCalcCompGain);
-    tbCalcCompGain.setButtonText ("calculate");
-    tbCalcCompGain.addListener (this);
-    tbCalcCompGain.setToggleState (false, NotificationType::dontSendNotification);
-    tbAttCalcCompGain =
-        std::make_unique<ButtonAttachment> (valueTreeState, "calcCompGain", tbCalcCompGain);
+    compensationGainComponent.button.addListener (this);
+    compensationGainComponent.button.setToggleState (false, NotificationType::dontSendNotification);
+    tbAttCalcCompGain = std::make_unique<ButtonAttachment> (valueTreeState,
+                                                            "calcCompGain",
+                                                            compensationGainComponent.button);
 
-    const int layerState = processor.getAbLayerState();
+    const int layerState = stereoCreatorProcessor.getAbLayerState();
 
     abButton[0].addListener (this);
     abButton[0].setToggleState (layerState == eCurrentActiveLayer::layerA,
@@ -226,11 +217,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     abButton[1].addListener (this);
     abButton[1].setToggleState (layerState == eCurrentActiveLayer::layerB,
                                 NotificationType::dontSendNotification);
-
-    // group components and labels
-    addAndMakeVisible (&grpStereoMode);
-    grpStereoMode.setText ("setup");
-    grpStereoMode.setTextLabelPosition (Justification::centredLeft);
 
     addAndMakeVisible (&grpMidGain[0]);
     grpMidGain[0].setText ("mid gain");
@@ -268,36 +254,18 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     grpRotation.setText ("rotation");
     grpRotation.setTextLabelPosition (Justification::centred);
 
-    addAndMakeVisible (&grpCompensationGain);
-    grpCompensationGain.setText ("compensation gain");
-    grpCompensationGain.setTextLabelPosition (Justification::centredLeft);
+    addAndMakeVisible (&compensationGainComponent);
 
-    addAndMakeVisible (&grpInputMeters);
-    grpInputMeters.setText ("input - output levels");
-    grpInputMeters.setTextLabelPosition (Justification::centredLeft);
+    addAndMakeVisible (&levelMeters);
 
     // directivity visualiser
     addAndMakeVisible (&dirVis[0]);
     dirVis[0].setDirWeight (0.5f);
-    dirVis[0].setColour (colours[0]);
+    dirVis[0].setColour (AAGuiComponents::Colours::polarVisualizerGreenDark);
 
     addAndMakeVisible (&dirVis[1]);
     dirVis[1].setDirWeight (-0.5f);
-    dirVis[1].setColour (colours[1]);
-
-    // meters
-    for (int i = 0; i < 4; ++i)
-    {
-        addAndMakeVisible (&inputMeter[i]);
-        inputMeter[i].setColour (AAGuiComponents::Colours::polarVisualizerRed);
-        inputMeter[i].setLabelText (inMeterLabelText[i]);
-    }
-    addAndMakeVisible (&outputMeter[0]);
-    outputMeter[0].setColour (AAGuiComponents::Colours::polarVisualizerRed);
-    outputMeter[0].setLabelText (outMeterLabelText[0]);
-    addAndMakeVisible (&outputMeter[1]);
-    outputMeter[1].setColour (AAGuiComponents::Colours::polarVisualizerRed);
-    outputMeter[1].setLabelText (outMeterLabelText[1]);
+    dirVis[1].setColour (AAGuiComponents::Colours::polarVisualizerRed);
 
     setSliderVisibility (false, false, false, false, false, false, false);
 
@@ -306,7 +274,11 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
 StereoCreatorAudioProcessorEditor::~StereoCreatorAudioProcessorEditor()
 {
-    setLookAndFeel (nullptr);
+    for (size_t i = 0; i < 5; ++i)
+    {
+        compensationGainComponent.sliders[i].removeListener (this);
+        slAttCompensationGain[i] = nullptr;
+    }
 }
 
 void StereoCreatorAudioProcessorEditor::mouseUp (const juce::MouseEvent& event)
@@ -325,12 +297,9 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 {
     using namespace juce;
 
-    const int currHeight = getHeight();
-    const int currWidth = getWidth();
-
     g.fillAll (AAGuiComponents::Colours::mainBackground);
 
-    if (processor.getNumInpCh() == 2) // two channel input
+    if (stereoCreatorProcessor.getNumInpCh() == 2) // two channel input
     {
         // title.setLineBounds (true, 0, 0, 0); // default line
         g.drawImageWithin (arrayImage2Ch,
@@ -372,31 +341,25 @@ void StereoCreatorAudioProcessorEditor::resized()
 {
     using namespace juce;
 
-    const int leftRightMargin = 20;
-    const int headerHeight = 50;
-    const int footerHeight = 15;
-    const int topMargin = 10;
-    const int rotarySliderHeight = 70;
-    const int rotarySliderWidth = 80;
-    const int grpHeight = 20;
-    const int comboBoxWidth = 140;
-    const int comboBoxHeight = 20;
-    const int toggleBtHeight = 20;
-    const int sideAreaWidth = comboBoxWidth;
-    const int arrayWidth = 160;
-    const int linearSliderHeight = 40;
-    const int dirVisHeight = 150;
-    const float meterWidth = 12;
-    const float meterHeight = 150;
-    const float meterSpacing = 2;
-    const float compGainHeight = 60;
-    const float compGainWidth = 60;
+    constexpr int leftRightMargin = 20;
+    constexpr int headerHeight = 50;
+    constexpr int footerHeight = 15;
+    constexpr int topMargin = 10;
+    constexpr int rotarySliderHeight = 70;
+    constexpr int rotarySliderWidth = 80;
+    constexpr int grpHeight = 50;
+    constexpr int comboBoxWidth = 150;
+    constexpr int sideAreaWidth = comboBoxWidth;
+    constexpr int arrayWidth = 180;
+    constexpr int linearSliderHeight = 40;
+    constexpr int dirVisHeight = 150;
+    constexpr int meterHeight = 150;
 
-    const int vSpace = 5;
-    const int hSpace = 10;
+    constexpr int vSpace = 10;
+    constexpr int hSpace = 10;
 
-    const int threeSlWidth = 3 * rotarySliderWidth + 2 * hSpace;
-    const int twoSlWidth = 2 * rotarySliderWidth + hSpace;
+    constexpr int threeSlWidth = 3 * rotarySliderWidth + 2 * hSpace;
+    constexpr int twoSlWidth = 2 * rotarySliderWidth + hSpace;
 
     Rectangle<int> area (getLocalBounds());
     area.removeFromTop (topMargin);
@@ -416,47 +379,20 @@ void StereoCreatorAudioProcessorEditor::resized()
     abButton.setBounds (headerArea.removeFromLeft (160));
 
     arrayImageArea = area.removeFromLeft (arrayWidth).toFloat();
-    //    arrayImageArea.removeFromTop(headerArea.getHeight());
-    //    arrayImageArea.removeFromLeft(leftRightMargin);
 
     //--------------- SIDE AREA ----------------
     Rectangle<int> sideArea (area.removeFromLeft (sideAreaWidth));
-    grpStereoMode.setBounds (sideArea.removeFromTop (grpHeight));
+    setupComponent.setBounds (sideArea.removeFromTop (90));
     sideArea.removeFromTop (vSpace);
-    cbStereoMode.setBounds (sideArea.removeFromTop (comboBoxHeight));
+
+    compensationGainComponent.setBounds (sideArea.removeFromTop (100));
+
     sideArea.removeFromTop (vSpace);
-    tbChSwitch.setBounds (sideArea.removeFromTop (toggleBtHeight));
-    sideArea.removeFromTop (3 * vSpace);
-
-    Rectangle<int> compGainArea (sideArea.removeFromTop (compGainHeight + grpHeight + vSpace));
-    grpCompensationGain.setBounds (compGainArea.removeFromTop (grpHeight));
-    compGainArea.removeFromTop (vSpace);
-    slCompensationGain[0].setBounds (compGainArea.removeFromLeft (compGainWidth));
-    for (int i = 1; i < 5; i++)
-    {
-        slCompensationGain[i].setBounds (slCompensationGain[0].getBounds());
-    }
-    compGainArea.removeFromLeft (hSpace);
-    compGainArea.removeFromTop (3.5f * vSpace);
-    compGainArea.removeFromBottom (3.5f * vSpace);
-
-    tbCalcCompGain.setBounds (compGainArea);
-
-    sideArea.removeFromTop (3 * vSpace);
-    grpInputMeters.setBounds (sideArea.removeFromTop (grpHeight));
+    levelMeters.setBounds (sideArea.removeFromTop (meterHeight));
     sideArea.removeFromTop (vSpace);
 
     Rectangle<int> inputMeterArea (sideArea.removeFromTop (meterHeight));
     inputMeterArea.removeFromLeft (hSpace - 1);
-    for (int i = 0; i < 4; i++)
-    {
-        inputMeter[i].setBounds (inputMeterArea.removeFromLeft (meterWidth));
-        inputMeterArea.removeFromLeft (meterSpacing);
-    }
-    inputMeterArea.removeFromLeft (4 * hSpace);
-    outputMeter[0].setBounds (inputMeterArea.removeFromLeft (meterWidth));
-    inputMeterArea.removeFromLeft (meterSpacing);
-    outputMeter[1].setBounds (inputMeterArea.removeFromLeft (meterWidth));
 
     //--------------- MAIN AREA ----------------
     Rectangle<int> mainArea (area.removeFromRight (area.getWidth() - hSpace));
@@ -521,11 +457,13 @@ void StereoCreatorAudioProcessorEditor::resized()
 
 void StereoCreatorAudioProcessorEditor::comboBoxChanged (juce::ComboBox* cb)
 {
-    if (cb == &cbStereoMode)
+    using StereoModes = AAGuiComponents::Setup::StereoMode;
+
+    if (cb == &setupComponent.stereoMode)
     {
         switch (cb->getSelectedId())
         {
-            case pseudoMsIdx:
+            case StereoModes::pseudoMsIdx:
                 setDirVisAlphaFromSliderValues (&slMidGain[0], 0);
                 setDirVisAlphaFromSliderValues (&slSideGain[0], 1);
 
@@ -537,45 +475,45 @@ void StereoCreatorAudioProcessorEditor::comboBoxChanged (juce::ComboBox* cb)
                 dirVis[1].setDirWeight (1.0f);
 
                 break;
-            case pseudoStereoIdx:
+            case StereoModes::pseudoStereoIdx:
                 setSliderVisibility (false, false, true, false, false, false, false);
 
                 dirVis[0].setPatternRotation (-90.0f);
-                dirVis[0].setDirWeight (slPseudoStPattern.getValue());
+                dirVis[0].setDirWeight (static_cast<float> (slPseudoStPattern.getValue()));
                 dirVis[1].setPatternRotation (90.0f);
-                dirVis[1].setDirWeight (slPseudoStPattern.getValue());
+                dirVis[1].setDirWeight (static_cast<float> (slPseudoStPattern.getValue()));
                 dirVis[0].setPatternAlpha (1.0f);
                 dirVis[1].setPatternAlpha (1.0f);
                 break;
-            case trueMsIdx:
+            case StereoModes::trueMsIdx:
                 setDirVisAlphaFromSliderValues (&slMidGain[1], 0);
                 setDirVisAlphaFromSliderValues (&slSideGain[1], 1);
 
                 setSliderVisibility (false, true, false, true, false, false, false);
 
                 dirVis[0].setPatternRotation (0.0f);
-                dirVis[0].setDirWeight (slMidPattern.getValue());
+                dirVis[0].setDirWeight (static_cast<float> (slMidPattern.getValue()));
                 dirVis[1].setPatternRotation (90.0f);
                 dirVis[1].setDirWeight (1.0f);
 
                 break;
-            case trueStereoIdx:
+            case StereoModes::trueStereoIdx:
                 setSliderVisibility (false, false, false, false, false, true, true);
 
-                dirVis[0].setPatternRotation (-slXyAngle.getValue() / 2.0f);
-                dirVis[0].setDirWeight (slXyPattern.getValue());
+                dirVis[0].setPatternRotation (-static_cast<float> (slXyAngle.getValue()) / 2.0f);
+                dirVis[0].setDirWeight (static_cast<float> (slXyPattern.getValue()));
                 dirVis[0].setPatternAlpha (1.0f);
-                dirVis[1].setPatternRotation (slXyAngle.getValue() / 2.0f);
-                dirVis[1].setDirWeight (slXyPattern.getValue());
+                dirVis[1].setPatternRotation (static_cast<float> (slXyAngle.getValue()) / 2.0f);
+                dirVis[1].setDirWeight (static_cast<float> (slXyPattern.getValue()));
                 dirVis[1].setPatternAlpha (1.0f);
                 break;
-            case blumleinIdx:
+            case StereoModes::blumleinIdx:
                 setSliderVisibility (false, false, false, false, true, false, false);
 
-                dirVis[0].setPatternRotation (slRotation.getValue() - 45.0f);
+                dirVis[0].setPatternRotation (static_cast<float> (slRotation.getValue()) - 45.0f);
                 dirVis[0].setDirWeight (1.0f);
                 dirVis[0].setPatternAlpha (1.0f);
-                dirVis[1].setPatternRotation (slRotation.getValue() + 45.0f);
+                dirVis[1].setPatternRotation (static_cast<float> (slRotation.getValue()) + 45.0f);
                 dirVis[1].setDirWeight (1.0f);
                 dirVis[1].setPatternAlpha (1.0f);
                 break;
@@ -589,45 +527,56 @@ void StereoCreatorAudioProcessorEditor::comboBoxChanged (juce::ComboBox* cb)
 
 void StereoCreatorAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
-    if (slider == &slMidGain[0] && cbStereoMode.getSelectedId() == pseudoMsIdx)
+    using StereoMode = AAGuiComponents::Setup::StereoMode;
+
+    if (slider == &slMidGain[0]
+        && setupComponent.stereoMode.getSelectedId() == StereoMode::pseudoMsIdx)
     {
         setDirVisAlphaFromSliderValues (slider, 0);
     }
-    else if (slider == &slMidGain[1] && cbStereoMode.getSelectedId() == trueMsIdx)
+    else if (slider == &slMidGain[1]
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::trueMsIdx)
     {
         setDirVisAlphaFromSliderValues (slider, 0);
     }
-    else if (slider == &slSideGain[0] && cbStereoMode.getSelectedId() == pseudoMsIdx)
+    else if (slider == &slSideGain[0]
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::pseudoMsIdx)
     {
         setDirVisAlphaFromSliderValues (slider, 1);
     }
-    else if (slider == &slSideGain[1] && cbStereoMode.getSelectedId() == trueMsIdx)
+    else if (slider == &slSideGain[1]
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::trueMsIdx)
     {
         setDirVisAlphaFromSliderValues (slider, 1);
     }
-    else if (slider == &slPseudoStPattern && cbStereoMode.getSelectedId() == pseudoStereoIdx)
+    else if (slider == &slPseudoStPattern
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::pseudoStereoIdx)
     {
-        dirVis[0].setDirWeight (slider->getValue());
-        dirVis[1].setDirWeight (slider->getValue());
+        dirVis[0].setDirWeight (static_cast<float> (slider->getValue()));
+        dirVis[1].setDirWeight (static_cast<float> (slider->getValue()));
     }
-    else if (slider == &slMidPattern && cbStereoMode.getSelectedId() == trueMsIdx)
+    else if (slider == &slMidPattern
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::trueMsIdx)
     {
-        dirVis[0].setDirWeight (slider->getValue());
+        dirVis[0].setDirWeight (static_cast<float> (slider->getValue()));
     }
-    else if (slider == &slXyPattern && cbStereoMode.getSelectedId() == trueStereoIdx)
+    else if (slider == &slXyPattern
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::trueStereoIdx)
     {
-        dirVis[0].setDirWeight (slider->getValue());
-        dirVis[1].setDirWeight (slider->getValue());
+        dirVis[0].setDirWeight (static_cast<float> (slider->getValue()));
+        dirVis[1].setDirWeight (static_cast<float> (slider->getValue()));
     }
-    else if (slider == &slXyAngle && cbStereoMode.getSelectedId() == trueStereoIdx)
+    else if (slider == &slXyAngle
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::trueStereoIdx)
     {
-        dirVis[0].setPatternRotation (-slXyAngle.getValue() / 2.0f);
-        dirVis[1].setPatternRotation (slXyAngle.getValue() / 2.0f);
+        dirVis[0].setPatternRotation (static_cast<float> (-slXyAngle.getValue() / 2.0f));
+        dirVis[1].setPatternRotation (static_cast<float> (slXyAngle.getValue() / 2.0f));
     }
-    else if (slider == &slRotation && cbStereoMode.getSelectedId() == blumleinIdx)
+    else if (slider == &slRotation
+             && setupComponent.stereoMode.getSelectedId() == StereoMode::blumleinIdx)
     {
-        dirVis[0].setPatternRotation (slRotation.getValue() - 45.0f);
-        dirVis[1].setPatternRotation (slRotation.getValue() + 45.0f);
+        dirVis[0].setPatternRotation (static_cast<float> (slRotation.getValue() - 45.0f));
+        dirVis[1].setPatternRotation (static_cast<float> (slRotation.getValue() + 45.0f));
     }
     repaint();
 }
@@ -639,26 +588,28 @@ void StereoCreatorAudioProcessorEditor::buttonClicked (juce::Button* button)
     if (button == &abButton[0])
     {
         if (! button->getToggleState())
-            processor.setAbLayer (eCurrentActiveLayer::layerB);
+            stereoCreatorProcessor.setAbLayer (eCurrentActiveLayer::layerB);
 
-        comboBoxChanged (&cbStereoMode);
+        comboBoxChanged (&setupComponent.stereoMode);
     }
     else if (button == &abButton[1])
     {
         if (! button->getToggleState())
-            processor.setAbLayer (eCurrentActiveLayer::layerA);
+            stereoCreatorProcessor.setAbLayer (eCurrentActiveLayer::layerA);
 
-        comboBoxChanged (&cbStereoMode);
+        comboBoxChanged (&setupComponent.stereoMode);
     }
-    if (button == &tbCalcCompGain)
+    if (button == &compensationGainComponent.button)
         button->setToggleState (! button->getToggleState(), NotificationType::dontSendNotification);
 }
 
 void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (juce::Slider* slider,
                                                                         int dirVisIdx)
 {
-    float sliderRange = slider->getMaximum() + std::abs (slider->getMinimum());
-    float newAlpha = (slider->getValue() + std::abs (slider->getMinimum())) / sliderRange * 0.75f;
+    const auto sliderRange =
+        static_cast<float> (slider->getMaximum() + std::abs (slider->getMinimum()));
+    auto newAlpha = static_cast<float> (slider->getValue() + std::abs (slider->getMinimum()))
+                    / sliderRange * 0.75f;
     newAlpha += 0.25f;
     dirVis[dirVisIdx].setPatternAlpha (newAlpha);
     repaint();
@@ -667,39 +618,38 @@ void StereoCreatorAudioProcessorEditor::setDirVisAlphaFromSliderValues (juce::Sl
 void StereoCreatorAudioProcessorEditor::timerCallback()
 {
     for (int i = 0; i < 4; ++i)
-        inputMeter[i].setLevel (processor.inRms[i].load (std::memory_order_relaxed));
+        levelMeters.inputMeter[i].setLevel (
+            stereoCreatorProcessor.inRms[i].load (std::memory_order_relaxed));
 
-    outputMeter[0].setLevel (processor.outRms[0].load (std::memory_order_relaxed));
-    outputMeter[1].setLevel (processor.outRms[1].load (std::memory_order_relaxed));
+    for (int i = 0; i < 2; ++i)
+        levelMeters.outputMeter[i].setLevel (
+            stereoCreatorProcessor.outRms[i].load (std::memory_order_relaxed));
 
-    if (processor.getNumInpCh() == 2) // two channel input
+    if (stereoCreatorProcessor.getNumInpCh() == 2) // two channel input
     {
         setComboBoxItemsEnabled (true);
-        inputMeter[0].setVisible (true);
-        inputMeter[1].setVisible (true);
-        inputMeter[2].setVisible (false);
-        inputMeter[3].setVisible (false);
+        levelMeters.setQuadChannelInputMode (false);
     }
     else // four channel input
     {
         setComboBoxItemsEnabled (false);
-        inputMeter[0].setVisible (true);
-        inputMeter[1].setVisible (true);
-        inputMeter[2].setVisible (true);
-        inputMeter[3].setVisible (true);
+        levelMeters.setQuadChannelInputMode (true);
     }
 
-    tbCalcCompGain.setToggleState (processor.compensationGainCalcOver(),
-                                   juce::NotificationType::dontSendNotification);
+    compensationGainComponent.button.setToggleState (
+        stereoCreatorProcessor.compensationGainCalcOver(),
+        juce::NotificationType::dontSendNotification);
 }
 
 void StereoCreatorAudioProcessorEditor::setComboBoxItemsEnabled (bool twoChannelInput)
 {
-    cbStereoMode.setItemEnabled (eStereoMode::pseudoMsIdx, twoChannelInput);
-    cbStereoMode.setItemEnabled (eStereoMode::pseudoStereoIdx, twoChannelInput);
-    cbStereoMode.setItemEnabled (eStereoMode::trueMsIdx, ! twoChannelInput);
-    cbStereoMode.setItemEnabled (eStereoMode::trueStereoIdx, ! twoChannelInput);
-    cbStereoMode.setItemEnabled (eStereoMode::blumleinIdx, ! twoChannelInput);
+    using StereoMode = AAGuiComponents::Setup::StereoMode;
+
+    setupComponent.stereoMode.setItemEnabled (StereoMode::pseudoMsIdx, twoChannelInput);
+    setupComponent.stereoMode.setItemEnabled (StereoMode::pseudoStereoIdx, twoChannelInput);
+    setupComponent.stereoMode.setItemEnabled (StereoMode::trueMsIdx, ! twoChannelInput);
+    setupComponent.stereoMode.setItemEnabled (StereoMode::trueStereoIdx, ! twoChannelInput);
+    setupComponent.stereoMode.setItemEnabled (StereoMode::blumleinIdx, ! twoChannelInput);
 }
 
 void StereoCreatorAudioProcessorEditor::setSliderVisibility (bool msTwoCh,
@@ -748,16 +698,16 @@ void StereoCreatorAudioProcessorEditor::setSliderVisibility (bool msTwoCh,
     grpRotation.setVisible (rotation);
     grpRotation.setEnabled (rotation);
 
-    slCompensationGain[0].setEnabled (msTwoCh);
-    slCompensationGain[0].setVisible (msTwoCh);
-    slCompensationGain[1].setEnabled (width);
-    slCompensationGain[1].setVisible (width);
-    slCompensationGain[2].setEnabled (msFourCh);
-    slCompensationGain[2].setVisible (msFourCh);
-    slCompensationGain[3].setEnabled (xyPattern);
-    slCompensationGain[3].setVisible (xyPattern);
-    slCompensationGain[4].setEnabled (rotation);
-    slCompensationGain[4].setVisible (rotation);
+    compensationGainComponent.sliders[0].setEnabled (msTwoCh);
+    compensationGainComponent.sliders[0].setVisible (msTwoCh);
+    compensationGainComponent.sliders[1].setEnabled (width);
+    compensationGainComponent.sliders[1].setVisible (width);
+    compensationGainComponent.sliders[2].setEnabled (msFourCh);
+    compensationGainComponent.sliders[2].setVisible (msFourCh);
+    compensationGainComponent.sliders[3].setEnabled (xyPattern);
+    compensationGainComponent.sliders[3].setVisible (xyPattern);
+    compensationGainComponent.sliders[4].setEnabled (rotation);
+    compensationGainComponent.sliders[4].setVisible (rotation);
 }
 
 // implement this for AAX automation shortchut
@@ -781,17 +731,17 @@ int StereoCreatorAudioProcessorEditor::getControlParameterIndex (Component& cont
         return 8;
     else if (&control == &slRotation)
         return 9;
-    else if (&control == &tbChSwitch)
+    else if (&control == &setupComponent.lrSwapButton)
         return 10;
-    else if (&control == &slCompensationGain[0])
+    else if (&control == &compensationGainComponent.sliders[0])
         return 11;
-    else if (&control == &slCompensationGain[1])
+    else if (&control == &compensationGainComponent.sliders[1])
         return 12;
-    else if (&control == &slCompensationGain[2])
+    else if (&control == &compensationGainComponent.sliders[2])
         return 13;
-    else if (&control == &slCompensationGain[3])
+    else if (&control == &compensationGainComponent.sliders[3])
         return 14;
-    else if (&control == &slCompensationGain[4])
+    else if (&control == &compensationGainComponent.sliders[4])
         return 15;
 
     return -1;

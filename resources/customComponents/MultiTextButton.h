@@ -29,7 +29,7 @@ public:
     {
         for (int i = 0; i < btnsNrs; i++)
         {
-            AddTextButton (new TextButton<color>());
+            AddTextButton (new MultiTextButtonComponent<color>());
             addAndMakeVisible (textButtonArray.getLast());
         }
     }
@@ -40,13 +40,13 @@ public:
         textButtonArray.clear();
     }
 
-    void AddTextButton (TextButton<color>* tb) { textButtonArray.add (tb); }
+    void AddTextButton (MultiTextButtonComponent<color>* tb) { textButtonArray.add (tb); }
 
     void setButtonsNumber (int btnNrs)
     {
         for (int i = 0; i < btnNrs; i++)
         {
-            AddTextButton (new TextButton<color>);
+            AddTextButton (new MultiTextButtonComponent<color>);
         }
         resized();
     }
@@ -97,9 +97,6 @@ public:
         g.setColour (Colours::multiTextButtonBackgroundColor);
         g.fillRect (getLocalBounds());
 
-        // for (auto* tb : textButtonArray)
-        //     tb->paintButton (g, tb->isMouseOver(), tb->isDown());
-
         g.setColour (Colours::textButtonFrameColor);
         g.drawRect (getLocalBounds());
     }
@@ -116,7 +113,7 @@ public:
     }
 
 private:
-    juce::OwnedArray<TextButton<color>> textButtonArray;
+    juce::OwnedArray<MultiTextButtonComponent<color>> textButtonArray;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MultiTextButton)
 };
 } // namespace AAGuiComponents
