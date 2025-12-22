@@ -38,8 +38,67 @@ enum class ButtonColor
 template <ButtonColor color>
 class TextButton : public juce::TextButton
 {
+    void paintButton (juce::Graphics& g,
+                      bool shouldDrawButtonAsHighlighted,
+                      bool shouldDrawButtonAsDown) override
+    {
+        using namespace juce;
+
+        Colour backgroundColor;
+        Colour frameColor;
+        Colour hoverBackgroundColor;
+
+        if constexpr (color == ButtonColor::gray)
+        {
+            backgroundColor = Colours::textButtonDefaultBackgroundColor;
+            frameColor = Colours::textButtonHoverBackgroundColor;
+            hoverBackgroundColor = Colours::textButtonHoverBackgroundColor;
+        }
+        else
+        {
+            backgroundColor = Colours::multiTextButtonBackgroundColor;
+            frameColor = Colours::textButtonActiveRedFrameColor;
+            hoverBackgroundColor = Colours::textButtonHoverRedBackgroundColor;
+        }
+
+        const auto buttonArea = getLocalBounds();
+
+        g.setColour (Colours::textButtonFrameColor);
+        g.drawRect (getLocalBounds());
+
+        if (shouldDrawButtonAsHighlighted)
+        {
+            g.setColour (hoverBackgroundColor);
+            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+        }
+        else
+        {
+            g.setColour (backgroundColor);
+            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+        }
+
+        const auto text = getButtonText();
+
+        g.setColour (Colours::mainTextColor);
+        const auto font = Font (FontOptions (
+            Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansSemiBold_ttf,
+                                               BinaryFonts::NunitoSansSemiBold_ttfSize)));
+        g.setFont (font);
+        g.drawFittedText (text, buttonArea, Justification::centred, 1);
+
+        if (getToggleState())
+        {
+            g.setColour (frameColor);
+            g.drawRect (buttonArea.reduced (3.0f, 3.0f), 2.0f);
+        }
+    }
+};
+
+template <ButtonColor color>
+class MultiTextButtonComponent : public juce::TextButton
+{
 public:
-    TextButton<color>()
+    MultiTextButtonComponent<color>()
     {
         setToggleable (true);
         setClickingTogglesState (true);
@@ -53,11 +112,17 @@ public:
 
         ignoreUnused (shouldDrawButtonAsDown);
 
-        auto backgroundColor = Colours::textButtonDefaultBackgroundColor;
-        auto frameColor = Colours::textButtonFrameColor;
-        auto hoverBackgroundColor = Colours::textButtonHoverBackgroundColor;
+        Colour backgroundColor;
+        Colour frameColor;
+        Colour hoverBackgroundColor;
 
-        if constexpr (color == ButtonColor::red)
+        if constexpr (color == ButtonColor::gray)
+        {
+            backgroundColor = Colours::textButtonDefaultBackgroundColor;
+            frameColor = Colours::textButtonHoverBackgroundColor;
+            hoverBackgroundColor = Colours::textButtonHoverBackgroundColor;
+        }
+        else
         {
             backgroundColor = Colours::multiTextButtonBackgroundColor;
             frameColor = Colours::textButtonActiveRedFrameColor;

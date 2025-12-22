@@ -28,15 +28,6 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <math.h>
 
-enum eStereoMode
-{
-    pseudoMsIdx = 1,
-    pseudoStereoIdx = 2,
-    trueMsIdx = 3,
-    trueStereoIdx = 4,
-    blumleinIdx = 5
-};
-
 enum eCurrentActiveLayer
 {
     layerA = 1,
