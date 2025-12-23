@@ -91,7 +91,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slAttMidGain[0].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[0]));
     slMidGain[0].setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
-    slMidGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[0].setTextValueSuffix (" dB");
     slMidGain[0].setColour (Slider::rotarySliderOutlineColourId,
                             AAGuiComponents::Colours::polarVisualizerGreenDark);
@@ -102,7 +101,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slAttMidGain[1].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msMidGain", slMidGain[1]));
     slMidGain[1].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    slMidGain[1].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slMidGain[1].setTextValueSuffix (" dB");
     slMidGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[0]);
     slMidGain[1].addListener (this);
@@ -112,7 +110,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slAttSideGain[0].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[0]));
     slSideGain[0].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    slSideGain[0].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slSideGain[0].setTextValueSuffix (" dB");
     slSideGain[0].setColour (Slider::rotarySliderOutlineColourId,
                              AAGuiComponents::Colours::polarVisualizerRed);
@@ -123,7 +120,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     slAttSideGain[1].reset (
         new ReverseSlider::SliderAttachment (valueTreeState, "msSideGain", slSideGain[1]));
     slSideGain[1].setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
-    slSideGain[1].setTextBoxStyle (Slider::TextBoxBelow, false, 60, 20);
     slSideGain[1].setTextValueSuffix (" dB");
     slSideGain[1].setColour (Slider::rotarySliderOutlineColourId, colours[1]);
     slSideGain[1].addListener (this);

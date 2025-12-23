@@ -25,6 +25,7 @@
 
 #include "../../resources/customComponents/Colours.hpp"
 #include "../../resources/customComponents/GroupComponent.hpp"
+#include "../../resources/customComponents/RotarySlider.hpp"
 #include "../../resources/customComponents/TextButton.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -42,10 +43,8 @@ struct CompensationGain : public GroupComponent
         for (auto& s : sliders)
         {
             addAndMakeVisible (s);
-            s.setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
             s.setColour (Slider::rotarySliderOutlineColourId, Colours::polarVisualizerRed);
             s.setTextValueSuffix (" dB");
-            s.setTextBoxStyle (Slider::TextBoxBelow, false, 60, 15);
         }
         addAndMakeVisible (button);
         button.setButtonText ("Calculate");
@@ -67,15 +66,14 @@ struct CompensationGain : public GroupComponent
     {
         auto area = getLocalBounds().reduced (10);
         area.removeFromTop (textMarginTop);
-        auto sliderArea = area.removeFromLeft (60);
+        auto sliderArea = area.removeFromLeft (area.getWidth() / 2);
         for (auto& s : sliders)
             s.setBounds (sliderArea);
 
-        area.reduce (0, 15);
-        button.setBounds (area.removeFromRight (area.getWidth() - 10));
+        button.setBounds (area.removeFromRight (area.getWidth()).reduced (0, area.getHeight() / 4));
     }
 
-    juce::Slider sliders[5];
+    RotarySlider sliders[5];
     TextButton<ButtonColor::gray> button;
 };
 } // namespace AAGuiComponents

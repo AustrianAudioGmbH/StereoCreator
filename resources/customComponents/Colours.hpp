@@ -61,5 +61,11 @@ namespace Colours
         textButtonActiveRedFrameColor.withAlpha (0.1f);
     static const juce::Colour toggleButtonActiveRedBackgroundColor =
         juce::Colour (182, 22, 22).withAlpha (0.7f);
+
+    static const juce::Colour ClFace = juce::Colour (0xFFD8D8D8);
+    static const juce::Colour ClFaceShadow = juce::Colour (0XFF272727);
+    static const juce::Colour ClFaceShadowOutline = juce::Colour (0xFF212121);
+    static const juce::Colour ClRotSliderArrow = juce::Colour (0xFF4A4A4A);
+    static const juce::Colour ClRotSliderArrowShadow = juce::Colour (0x445D5D5D);
 } // namespace Colours
 } // namespace AAGuiComponents
