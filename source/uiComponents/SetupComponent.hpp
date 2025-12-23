@@ -24,6 +24,8 @@
 
 #include "../../resources/customComponents/ComboBox.hpp"
 #include "../../resources/customComponents/GroupComponent.hpp"
+#include "../../resources/customComponents/ToggleButton.hpp"
+#include "../../resources/lookAndFeel/BinaryFonts.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
@@ -42,6 +44,13 @@ struct Setup : public GroupComponent
 
     Setup()
     {
+        using namespace juce;
+
+        auto fontOptions =
+            FontOptions (Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansRegular_ttf,
+                                                            BinaryFonts::NunitoSansRegular_ttfSize))
+                .withHeight (17.0f);
+
         setText ("Setup");
 
         addAndMakeVisible (stereoMode);
@@ -56,9 +65,11 @@ struct Setup : public GroupComponent
             1);
         stereoMode.setEditableText (false);
 
+        addAndMakeVisible (lrSwapLabel);
+        lrSwapLabel.setText ("L/R channel swap", NotificationType::dontSendNotification);
+        lrSwapLabel.setFont (fontOptions);
+
         addAndMakeVisible (lrSwapButton);
-        // TODO: restyle the L/R button to be consistent with PD3
-        lrSwapButton.setButtonText ("L/R channel swap");
     }
 
     void resized() override
@@ -67,10 +78,12 @@ struct Setup : public GroupComponent
         area.removeFromTop (textMarginTop);
         stereoMode.setBounds (area.removeFromTop (20));
         area.removeFromTop (10);
-        lrSwapButton.setBounds (area.removeFromTop (20));
+        lrSwapLabel.setBounds (area.removeFromLeft (area.getWidth() - 35));
+        lrSwapButton.setBounds (area.removeFromRight (30));
     }
 
     ComboBox stereoMode;
-    juce::ToggleButton lrSwapButton;
+    juce::Label lrSwapLabel;
+    ToggleButton lrSwapButton;
 };
 } // namespace AAGuiComponents
