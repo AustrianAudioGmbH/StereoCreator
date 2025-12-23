@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include "../lookAndFeel/BinaryFonts.h"
 #include "Colours.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -43,6 +44,10 @@ struct ComboBox : public juce::ComboBox
         lookAndFeel.setColour (PopupMenu::highlightedBackgroundColourId,
                                Colours::textButtonHoverRedBackgroundColor);
         lookAndFeel.setColour (PopupMenu::textColourId, Colours::mainTextColor);
+
+        lookAndFeel.setDefaultSansSerifTypeface (
+            Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansRegular_ttf,
+                                               BinaryFonts::NunitoSansRegular_ttfSize));
 
         // TODO: consistently style the popup menu (text size, outline color, etc.)
     }
