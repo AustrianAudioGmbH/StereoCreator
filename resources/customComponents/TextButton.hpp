@@ -44,6 +44,8 @@ class TextButton : public juce::TextButton
     {
         using namespace juce;
 
+        ignoreUnused (shouldDrawButtonAsDown);
+
         Colour backgroundColor;
         Colour frameColor;
         Colour hoverBackgroundColor;
