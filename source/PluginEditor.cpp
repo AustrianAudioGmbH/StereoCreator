@@ -268,7 +268,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
     dirVis[1].setColour (AAGuiComponents::Colours::polarVisualizerRed);
     dirVis[1].shouldDrawGridLines (false);
 
-    setSliderVisibility (false, false, false, false, false, false, false);
+    comboBoxChanged (&setupComponent.stereoMode);
 
     startTimer (80);
 }
