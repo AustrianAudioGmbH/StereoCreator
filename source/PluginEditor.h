@@ -29,6 +29,7 @@
 #include "../resources/customComponents/GroupComponent.hpp"
 #include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
+#include "../resources/customComponents/RotarySlider.hpp"
 #include "../resources/customComponents/SimpleLabel.h"
 
 #include "PluginProcessor.h"
@@ -93,7 +94,7 @@ private:
 
     juce::TooltipWindow sharedTooltipWindow;
 
-    juce::Slider slMidGain[2], slSideGain[2], slXyAngle,
+    AAGuiComponents::RotarySlider slMidGain[2], slSideGain[2], slXyAngle,
         slRotation; //slWidth, slXyPattern, slMidPattern,
 
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
