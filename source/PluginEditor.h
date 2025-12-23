@@ -35,7 +35,7 @@
 #include "PluginProcessor.h"
 #include "uiComponents/CompensationGain.hpp"
 #include "uiComponents/InputOutputLevels.hpp"
-#include "uiComponents/Setup.hpp"
+#include "uiComponents/SetupComponent.hpp"
 
 #include <juce_audio_processors/juce_audio_processors.h>
 
