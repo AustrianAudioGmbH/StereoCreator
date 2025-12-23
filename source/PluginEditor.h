@@ -30,7 +30,7 @@
 #include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/SimpleLabel.h"
-#include "../resources/customComponents/TitleBar.h"
+
 #include "PluginProcessor.h"
 #include "uiComponents/CompensationGain.hpp"
 #include "uiComponents/InputOutputLevels.hpp"
@@ -90,8 +90,6 @@ private:
     AAGuiComponents::AALogo logo;
 
     AAGuiComponents::ABComponent abButton;
-
-    Footer footer;
 
     juce::TooltipWindow sharedTooltipWindow;
 

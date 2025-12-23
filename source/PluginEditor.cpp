@@ -46,8 +46,6 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
 
     addAndMakeVisible (abButton);
 
-    addAndMakeVisible (&footer);
-
     sharedTooltipWindow.setMillisecondsBeforeTipAppears (500);
 
     // loading image data
@@ -344,7 +342,6 @@ void StereoCreatorAudioProcessorEditor::resized()
 
     constexpr int leftRightMargin = 20;
     constexpr int headerHeight = 50;
-    constexpr int footerHeight = 15;
     constexpr int topMargin = 10;
     constexpr int rotarySliderHeight = 70;
     constexpr int rotarySliderWidth = 80;
@@ -363,14 +360,10 @@ void StereoCreatorAudioProcessorEditor::resized()
     constexpr int twoSlWidth = 2 * rotarySliderWidth + hSpace;
 
     Rectangle<int> area (getLocalBounds());
-    area.removeFromTop (topMargin);
-    area.removeFromLeft (leftRightMargin);
-    area.removeFromRight (leftRightMargin);
+    area.reduce (leftRightMargin, topMargin);
 
     // header and footer
-    Rectangle<int> footerArea (area.removeFromBottom (footerHeight));
     helpToolTip.setBounds (5, getHeight() - 30, 40, 25);
-    footer.setBounds (footerArea);
 
     Rectangle<int> headerArea = area.removeFromTop (headerHeight);
 
