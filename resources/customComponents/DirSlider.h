@@ -64,13 +64,9 @@ public:
         dirStripTop (this),
         dirStripBottom (this),
         lastDistanceFromDragStart (0),
-        reversed (false),
-        isDual (false),
-        scrollWheelEnabled (true),
         tooltipActive (false),
         tooltipWidth (40),
         tooltipHeight (20),
-        activePolarPatternPath (-1.0f),
         patternStripSize (12)
     {
         setTextBoxStyle (Slider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
@@ -79,8 +75,6 @@ public:
         addAndMakeVisible (&dirStripBottom);
         //        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
     }
-
-    ~DirSlider() {}
 
     class DirPatternStrip : public Component
     {
@@ -99,18 +93,16 @@ public:
             //            dirStripTop.setPatternPathsAndFactors(bCardPath, hCardPath, bCardFact, hCardFact);
         }
 
-        ~DirPatternStrip() {}
-
         void paint (juce::Graphics& g) override
         {
             using namespace juce;
 
             Rectangle<int> bounds = getLocalBounds();
-            int lrMargin = 7;
-            int topMargin = 1;
-            int boundsX = bounds.getX() + lrMargin;
-            int boundsY = bounds.getY() + topMargin;
-            int width = bounds.getWidth() - 2 * lrMargin;
+            constexpr auto lrMargin = 7.f;
+            constexpr auto topMargin = 1.0f;
+            const auto boundsX = static_cast<float> (bounds.getX()) + lrMargin;
+            const auto boundsY = static_cast<float> (bounds.getY()) + topMargin;
+            const auto width = static_cast<float> (bounds.getWidth()) - 2 * lrMargin;
 
             leftPath.applyTransform (leftPath.getTransformToScaleToFit (boundsX,
                                                                         boundsY,
@@ -120,8 +112,9 @@ public:
                                                                         Justification::centred));
             (slider->isEnabled()) ? g.setColour (Colours::white)
                                   : g.setColour (Colours::white.withMultipliedAlpha (0.5f));
-            g.strokePath (leftPath,
-                          PathStrokeType (activePatternPath == patternFactorL ? 2.0f : 1.0f));
+            g.strokePath (
+                leftPath,
+                PathStrokeType (exactlyEqual (activePatternPath, patternFactorL) ? 2.0f : 1.0f));
 
             rightPath.applyTransform (
                 rightPath.getTransformToScaleToFit (boundsX + width - dirImgSize,
@@ -130,8 +123,9 @@ public:
                                                     dirImgSize,
                                                     true,
                                                     Justification::centred));
-            g.strokePath (rightPath,
-                          PathStrokeType (activePatternPath == patternFactorR ? 2.0f : 1.0f));
+            g.strokePath (
+                rightPath,
+                PathStrokeType (exactlyEqual (activePatternPath, patternFactorR) ? 2.0f : 1.0f));
         }
 
         void setPatternPathsAndFactors (juce::Path pathL,
@@ -165,7 +159,7 @@ public:
             //            else if (cardPath.getBounds().contains(posf)) activePatternPath = cardFact;
             //            else if (revCardPath.getBounds().contains(posf)) activePatternPath = revCardFact;
 
-            if (oldActivePath != activePatternPath)
+            if (! exactlyEqual (oldActivePath, activePatternPath))
                 repaint();
         }
 
@@ -173,10 +167,12 @@ public:
         {
             using namespace juce;
 
+            ignoreUnused (e);
+
             if (! slider->isEnabled())
                 return;
 
-            if (activePatternPath != -1)
+            if (! exactlyEqual (activePatternPath, -1.0f))
             {
                 slider->setValue (activePatternPath, NotificationType::sendNotification);
             }
@@ -184,25 +180,17 @@ public:
 
         void mouseExit (const juce::MouseEvent& e) override
         {
+            ignoreUnused (e);
             activePatternPath = -1;
             repaint();
         }
 
     private:
-        int dirImgSize;
+        float dirImgSize;
         float activePatternPath;
-        const float omniFact = 0.0f;
-        const float eightFact = 1.0f;
-        const float bCardFact = 0.37f;
-        const float cardFact = 0.5f;
-        const float sCardFact = 0.634f;
-        const float hCardFact = 0.75f;
-        //        const float revCardFact = -0.5f;
 
         float patternFactorL;
         float patternFactorR;
-        //        float patternFactorBottomL;
-        //        float patternFactorBottomR;
 
         juce::Path bCardPath;
         juce::Path cardPath;
@@ -210,12 +198,9 @@ public:
         juce::Path hCardPath;
         juce::Path eightPath;
         juce::Path omniPath;
-        //        juce::Path revCardPath;
 
         juce::Path leftPath;
         juce::Path rightPath;
-        //        Path bottomLPath;
-        //        Path bottomRPath;
 
         DirSlider* slider;
     };
@@ -238,7 +223,7 @@ public:
                              sliderRect.getY(),
                              sliderRect.getWidth(),
                              sliderRect.getHeight(),
-                             currentValue,
+                             static_cast<float> (currentValue),
                              minRotaryAngle,
                              maxRotaryAngle,
                              *this);
@@ -272,6 +257,10 @@ public:
 
     void mouseExit (const juce::MouseEvent& e) override
     {
+        using namespace juce;
+
+        ignoreUnused (e);
+
         tooltipActive = false;
 
         if (tooltipValueBox != nullptr && ! tooltipValueBox->isMouseOver()
@@ -295,7 +284,7 @@ public:
         auto layout = lf.getSliderLayout (*this);
 
         sliderRect = layout.sliderBounds;
-        sliderRect.removeFromTop (patternStripSize);
+        sliderRect.removeFromTop (static_cast<int> (patternStripSize));
         sliderRect.removeFromBottom (patternStripSize);
 
         dirPatternTopBounds = getLocalBounds().removeFromTop (patternStripSize);
@@ -336,12 +325,12 @@ public:
     {
         using namespace juce;
 
-        if (getValueFromText (tooltipValueBox->getText()) == getValue())
+        if (exactlyEqual (getValueFromText (tooltipValueBox->getText()), getValue()))
             return;
 
         double newValue = snapValueToRange (getValueFromText (tooltipValueBox->getText()));
 
-        if (newValue != static_cast<double> (getValue()))
+        if (! exactlyEqual (newValue, static_cast<double> (getValue())))
         {
             setValue (newValue, NotificationType::sendNotification);
             tooltipValueBox->setText (getTextFromValue (newValue),
@@ -370,9 +359,6 @@ public:
 
 private:
     int lastDistanceFromDragStart;
-    bool reversed;
-    bool isDual;
-    bool scrollWheelEnabled;
     bool tooltipActive;
     juce::Rectangle<int> sliderRect;
     juce::Rectangle<int> dirPatternTopBounds;
@@ -380,8 +366,7 @@ private:
 
     int tooltipWidth;
     int tooltipHeight;
-    float activePolarPatternPath;
-    float patternStripSize;
+    int patternStripSize;
 
     std::unique_ptr<juce::Label> tooltipValueBox;
 };
