@@ -26,15 +26,14 @@
 #include "../resources/customComponents/ABComponent.hpp"
 #include "../resources/customComponents/DirSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
-#include "../resources/customComponents/GroupComponent.hpp"
 #include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
-#include "../resources/customComponents/RotarySlider.hpp"
 #include "../resources/customComponents/SimpleLabel.h"
 
 #include "PluginProcessor.h"
 #include "uiComponents/CompensationGain.hpp"
 #include "uiComponents/InputOutputLevels.hpp"
+#include "uiComponents/RotarySliderGroup.hpp"
 #include "uiComponents/SetupComponent.hpp"
 
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -94,9 +93,6 @@ private:
 
     juce::TooltipWindow sharedTooltipWindow;
 
-    AAGuiComponents::RotarySlider slMidGain[2], slSideGain[2], slXyAngle,
-        slRotation; //slWidth, slXyPattern, slMidPattern,
-
     DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
 
     SimpleLabel helpToolTip;
@@ -111,8 +107,9 @@ private:
     AAGuiComponents::CompensationGain compensationGainComponent;
     AAGuiComponents::InputOutputLevels levelMeters;
 
-    AAGuiComponents::GroupComponent grpMidGain[2], grpSideGain[2], grpPseudoStPattern,
-        grpMidPattern, grpXyPattern, grpXyAngle, grpRotation;
+    AAGuiComponents::RotarySliderGroup grpMidGain[2], grpSideGain[2], grpXyAngle, grpRotation;
+
+    AAGuiComponents::GroupComponent grpPseudoStPattern, grpMidPattern, grpXyPattern;
 
     //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
     //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
@@ -126,7 +123,6 @@ private:
 
     juce::Image arrayImage2Ch;
     juce::Image arrayImage4Ch;
-    juce::Rectangle<float> arrayImageArea;
 
     juce::Image arrayImage;
 
