@@ -62,7 +62,6 @@ class FirstOrderDirectivityVisualizer : public juce::Component
 {
     const float deg2rad = std::numbers::pi_v<float> / 180.0f;
     const int degStep = 4;
-    const int nLookUpSamples = 360;
 
 public:
     FirstOrderDirectivityVisualizer()

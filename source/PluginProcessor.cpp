@@ -847,13 +847,14 @@ void StereoCreatorAudioProcessor::changeAbLayerState()
     }
 
     // in case the number of input channels changed
-    if (numInputs == 4 && stereoModeIdx->load() < StereoMode::trueMsIdx)
+    if (numInputs == 4 && static_cast<int> (stereoModeIdx->load()) < StereoMode::trueMsIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (
                 params.getParameter ("stereoMode")->convertTo0to1 ((float) StereoMode::trueMsIdx));
     }
-    else if (numInputs == 2 && stereoModeIdx->load() > StereoMode::pseudoStereoIdx)
+    else if (numInputs == 2
+             && static_cast<int> (stereoModeIdx->load()) > StereoMode::pseudoStereoIdx)
     {
         params.getParameter ("stereoMode")
             ->setValueNotifyingHost (params.getParameter ("stereoMode")
