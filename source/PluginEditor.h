@@ -93,8 +93,6 @@ private:
 
     juce::TooltipWindow sharedTooltipWindow;
 
-    DirSlider slXyPattern, slMidPattern, slPseudoStPattern;
-
     SimpleLabel helpToolTip;
 
     std::unique_ptr<ReverseSlider::SliderAttachment> slAttMidGain[2], slAttSideGain[2],
@@ -107,15 +105,11 @@ private:
     AAGuiComponents::CompensationGain compensationGainComponent;
     AAGuiComponents::InputOutputLevels levelMeters;
 
-    AAGuiComponents::RotarySliderGroup grpMidGain[2], grpSideGain[2], grpXyAngle, grpRotation;
-
-    AAGuiComponents::GroupComponent grpPseudoStPattern, grpMidPattern, grpXyPattern;
-
-    //    const juce::String wrongBusConfigMessageShort = "Wrong Bus Configuration!";
-    //    const juce::String wrongBusConfigMessageLong = "Make sure to use a two- or four channel track configuration containing the dual-mode signals from the OC-818";
+    AAGuiComponents::RotarySliderGroup<AAGuiComponents::RotarySlider> grpMidGain[2], grpSideGain[2],
+        grpXyAngle, grpRotation;
+    AAGuiComponents::RotarySliderGroup<DirSlider> grpPseudoStPattern, grpMidPattern, grpXyPattern;
 
     FirstOrderDirectivityVisualizer dirVis[2];
-    juce::Colour colours[3];
 
 #ifdef AA_SHOW_LOGO
     Path aaLogoBgPath;
@@ -135,7 +129,6 @@ private:
     };
 
     const float omniFact = 0.0f;
-    const float eightFact = 1.0f;
     const float bCardFact = 0.37f;
     const float cardFact = 0.5f;
     const float sCardFact = 0.634f;

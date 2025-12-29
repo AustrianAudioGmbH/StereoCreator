@@ -23,12 +23,13 @@
 #pragma once
 
 #include "../../resources/customComponents/GroupComponent.hpp"
-#include "../../resources/customComponents/RotarySlider.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
 namespace AAGuiComponents
 {
+
+template <typename SliderType>
 struct RotarySliderGroup : public GroupComponent
 {
     RotarySliderGroup()
@@ -40,11 +41,12 @@ struct RotarySliderGroup : public GroupComponent
 
     void resized() override
     {
-        auto area = getLocalBounds().reduced (5);
+        auto area = getLocalBounds().reduced (10);
         area.removeFromTop (textMarginTop);
         slider.setBounds (area);
     }
 
-    RotarySlider slider;
+    SliderType slider;
 };
+
 } // namespace AAGuiComponents

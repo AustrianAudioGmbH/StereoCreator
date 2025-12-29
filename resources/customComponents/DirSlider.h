@@ -52,28 +52,25 @@
 
 #pragma once
 #include "ImgPaths.h"
+#include "RotarySlider.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #define RS_FLT_EPSILON 1.19209290E-07F
-class DirSlider : public juce::Slider
+class DirSlider : public AAGuiComponents::RotarySlider
 {
 public:
     DirSlider() :
-        Slider(),
+        RotarySlider(),
         dirStripTop (this),
         dirStripBottom (this),
         lastDistanceFromDragStart (0),
-        tooltipActive (false),
-        tooltipWidth (40),
-        tooltipHeight (20),
         patternStripSize (12)
     {
-        setTextBoxStyle (Slider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
-        setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
+        setTextBoxStyle (RotarySlider::NoTextBox, false, 60, 20); // use tooltipValueBox instead
+        setSliderStyle (RotarySlider::RotaryHorizontalVerticalDrag);
         addAndMakeVisible (&dirStripTop);
         addAndMakeVisible (&dirStripBottom);
-        //        dirStripBottom.setPatternPathsAndFactors(omniPath, eightPath, omniFact, eightFact);
     }
 
     class DirPatternStrip : public Component
@@ -205,39 +202,7 @@ public:
         DirSlider* slider;
     };
 
-    void paint (juce::Graphics& g) override
-    {
-        auto& lf = getLookAndFeel();
-
-        float minRotaryAngle = 3.76991153f;
-        float maxRotaryAngle = 8.7964592f;
-
-        auto maxValue = getMaximum();
-        auto minValue = getMinimum();
-        auto currentValue = getValue();
-
-        currentValue = (currentValue - minValue) / (maxValue - minValue);
-
-        lf.drawRotarySlider (g,
-                             sliderRect.getX(),
-                             sliderRect.getY(),
-                             sliderRect.getWidth(),
-                             sliderRect.getHeight(),
-                             static_cast<float> (currentValue),
-                             minRotaryAngle,
-                             maxRotaryAngle,
-                             *this);
-
-        if (tooltipActive)
-            tooltipValueBox->setVisible (true);
-    }
-
-    void valueChanged() override
-    {
-        using namespace juce;
-
-        tooltipValueBox->setText (String (getValue(), 2), NotificationType::dontSendNotification);
-    }
+    void paint (juce::Graphics& g) override { RotarySlider::paintInBounds (g, sliderRect); }
 
     void mouseDown (const juce::MouseEvent& e) override
     {
@@ -255,35 +220,9 @@ public:
         Slider::mouseDrag (e);
     }
 
-    void mouseExit (const juce::MouseEvent& e) override
-    {
-        using namespace juce;
-
-        ignoreUnused (e);
-
-        tooltipActive = false;
-
-        if (tooltipValueBox != nullptr && ! tooltipValueBox->isMouseOver()
-            && ! tooltipValueBox->isBeingEdited())
-            tooltipValueBox->setVisible (false);
-    }
-
-    void mouseEnter (const juce::MouseEvent& e) override
-    {
-        if (e.eventComponent != this)
-            return;
-
-        if (tooltipValueBox != nullptr && isEnabled())
-            tooltipActive = true;
-    }
-
     void resized() override
     {
-        Slider::resized();
-        auto& lf = getLookAndFeel();
-        auto layout = lf.getSliderLayout (*this);
-
-        sliderRect = layout.sliderBounds;
+        sliderRect = getLocalBounds();
         sliderRect.removeFromTop (static_cast<int> (patternStripSize));
         sliderRect.removeFromBottom (patternStripSize);
 
@@ -292,53 +231,6 @@ public:
 
         dirPatternBottomBounds = getLocalBounds().removeFromBottom (patternStripSize);
         dirStripBottom.setBounds (dirPatternBottomBounds);
-
-        initValueBox();
-    }
-
-    void initValueBox()
-    {
-        using namespace juce;
-
-        auto& lf = getLookAndFeel();
-
-        tooltipValueBox.reset (lf.createSliderTextBox (*this));
-        tooltipValueBox->addMouseListener (this, false);
-        auto* parent = getParentComponent();
-        if (parent != nullptr)
-            parent->addChildComponent (tooltipValueBox.get());
-
-        Rectangle<int> bounds = getBounds();
-
-        tooltipValueBox->setBounds (bounds.getRight(), bounds.getY(), tooltipWidth, tooltipHeight);
-        tooltipValueBox->setText (String (getValue(), 2), NotificationType::dontSendNotification);
-        tooltipValueBox->setAlwaysOnTop (true);
-        tooltipValueBox->onTextChange = [this] { tooltipTextChanged(); };
-        tooltipValueBox->onEditorHide = [this]
-        {
-            if (! tooltipActive)
-                tooltipValueBox->setVisible (false);
-        };
-    }
-
-    void tooltipTextChanged()
-    {
-        using namespace juce;
-
-        if (exactlyEqual (getValueFromText (tooltipValueBox->getText()), getValue()))
-            return;
-
-        double newValue = snapValueToRange (getValueFromText (tooltipValueBox->getText()));
-
-        if (! exactlyEqual (newValue, static_cast<double> (getValue())))
-        {
-            setValue (newValue, NotificationType::sendNotification);
-            tooltipValueBox->setText (getTextFromValue (newValue),
-                                      NotificationType::dontSendNotification);
-        }
-
-        if (! tooltipActive)
-            tooltipValueBox->setVisible (false);
     }
 
     double snapValueToRange (double attemptedValue)
@@ -348,25 +240,14 @@ public:
                    : (attemptedValue > getMaximum() ? getMaximum() : attemptedValue);
     }
 
-    void setTooltipEditable (bool shouldBeEditable)
-    {
-        if (tooltipValueBox != nullptr)
-            tooltipValueBox->setEditable (shouldBeEditable);
-    }
-
     DirPatternStrip dirStripTop;
     DirPatternStrip dirStripBottom;
 
 private:
     int lastDistanceFromDragStart;
-    bool tooltipActive;
     juce::Rectangle<int> sliderRect;
     juce::Rectangle<int> dirPatternTopBounds;
     juce::Rectangle<int> dirPatternBottomBounds;
 
-    int tooltipWidth;
-    int tooltipHeight;
     int patternStripSize;
-
-    std::unique_ptr<juce::Label> tooltipValueBox;
 };

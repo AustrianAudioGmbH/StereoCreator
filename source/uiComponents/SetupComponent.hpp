@@ -79,7 +79,7 @@ struct Setup : public GroupComponent
         stereoMode.setBounds (area.removeFromTop (20));
         area.removeFromTop (10);
         lrSwapLabel.setBounds (area.removeFromLeft (area.getWidth() - 35));
-        lrSwapButton.setBounds (area.removeFromRight (30));
+        lrSwapButton.setBounds (area.removeFromRight (30).withSizeKeepingCentre (30, 20));
     }
 
     ComboBox stereoMode;
