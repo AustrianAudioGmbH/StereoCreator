@@ -63,12 +63,14 @@ struct RotarySlider : public juce::Slider
         setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
     }
 
-    void paint (juce::Graphics& g) override
+    void paint (juce::Graphics& g) override { paintInBounds (g, getLocalBounds()); }
+
+    void paintInBounds (juce::Graphics& g, juce::Rectangle<int> bounds)
     {
         using namespace juce;
 
-        auto width = getWidth();
-        auto height = getHeight();
+        auto width = bounds.getWidth();
+        auto height = bounds.getHeight();
 
         const auto tbPosition = getTextBoxPosition();
 
@@ -83,8 +85,8 @@ struct RotarySlider : public juce::Slider
             width -= getTextBoxWidth() + 2;
         }
 
-        const auto x = 0;
-        const auto y = 0;
+        const auto x = bounds.getX();
+        const auto y = bounds.getY();
 
         const bool enabled = isEnabled();
         const float alpha = enabled ? 1.0f : 0.4f;
@@ -169,7 +171,5 @@ struct RotarySlider : public juce::Slider
         g.setColour (Colours::ClRotSliderArrow.withMultipliedAlpha (alpha));
         g.fillPath (p);
     }
-
-private:
 };
 } // namespace AAGuiComponents

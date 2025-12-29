@@ -56,7 +56,10 @@ public:
         g.setFont (font);
         g.setColour (isEnabled() ? Colours::mainTextColor : Colours::mainTextDisabledColor);
         const auto text = getText();
-        g.drawSingleLineText (text, textMarginLeft, textMarginTop);
+        const auto justification = getTextLabelPosition();
+        const auto textArea =
+            getLocalBounds().removeFromTop (textMarginTop + textSize).reduced (textMarginLeft, 0);
+        g.drawFittedText (text, textArea, justification, 1);
     }
 };
 } // namespace AAGuiComponents

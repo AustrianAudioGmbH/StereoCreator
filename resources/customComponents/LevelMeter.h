@@ -40,23 +40,26 @@ public:
         colour = Colours::black;
         setLookAndFeel (&mainLaF);
     }
-    ~LevelMeter() { setLookAndFeel (nullptr); }
+    ~LevelMeter() override { setLookAndFeel (nullptr); }
 
     void paint (juce::Graphics& g) override
     {
         using namespace juce;
         auto bounds = getLocalBounds();
-        float labelWidth = bounds.getWidth();
-        float labelHeight = labelWidth;
+        auto labelWidth = bounds.getWidth();
+        auto labelHeight = labelWidth;
         auto labelBounds = bounds.removeFromBottom (labelHeight);
         g.setColour (Colours::white);
-        g.setFont (getLookAndFeel().getTypefaceForFont (Font (labelHeight)));
-        g.setFont (labelHeight);
+        auto fontOptions = FontOptions (Typeface::createSystemTypefaceFor (
+                                            BinaryFonts::NunitoSansSemiBold_ttf,
+                                            BinaryFonts::NunitoSansSemiBold_ttfSize))
+                               .withHeight (static_cast<float> (labelHeight));
+        g.setFont (fontOptions);
         g.setColour (mainLaF.mainTextColor);
 
         g.drawText (labelText, labelBounds, Justification::centred);
 
-        float labelMargin = 6.0f;
+        auto labelMargin = 6;
         bounds.removeFromBottom (labelMargin);
         g.setColour (mainLaF.mainTextInactiveColor);
         g.drawRoundedRectangle (bounds.toFloat(), 4.0f, 2.0f);

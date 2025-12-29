@@ -154,7 +154,6 @@ private:
     float previousBlumleinEightRotationGainFront;
     float previousBlumleinEightRotationGainLeft;
 
-    float previousCompensationGain[5];
     int counter = 0;
     double secondsToAverage = 1.5;
     int blocksToAverage;
