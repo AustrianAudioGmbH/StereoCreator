@@ -92,7 +92,7 @@ struct InputOutputLevels : public GroupComponent
     LevelMeter outputMeter[2];
 
 private:
-    static constexpr std::array<std::string, 4> inMeterLabelText = { "L", "R", "F", "B" };
-    static constexpr std::array<std::string, 2> outMeterLabelText = { "L", "R" };
+    static constexpr std::array<const char*, 4> inMeterLabelText = { "L", "R", "F", "B" };
+    static constexpr std::array<const char*, 2> outMeterLabelText = { "L", "R" };
 };
 } // namespace AAGuiComponents

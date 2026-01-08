@@ -74,12 +74,17 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
                                                         setupComponent.lrSwapButton);
     setupComponent.stereoMode.setSelectedId (stereoCreatorProcessor.getStereoModeIdx());
 
+    addAndMakeVisible (footer);
+
     // help tooltip
     addAndMakeVisible (&helpToolTip);
     helpToolTip.setText ("help", juce::NotificationType::dontSendNotification);
     helpToolTip.setTextColour (juce::Colours::white.withAlpha (0.5f));
     helpToolTip.setInterceptsMouseClicks (true, false); // Enable mouse clicks
     helpToolTip.addMouseListener (this, false); // Listen for clicks
+    // TODO: reenable help tooltip when support website is done
+    helpToolTip.setVisible (false);
+    helpToolTip.setEnabled (false);
 
     for (int i = 0; i < 5; i++)
     {
@@ -283,7 +288,7 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
 
     if (stereoCreatorProcessor.getNumInpCh() == 2) // two channel input
     {
-        // title.setLineBounds (true, 0, 0, 0); // default line
+        g.setOpacity (0.7f);
         g.drawImageWithin (arrayImage2Ch,
                            0,
                            0,
@@ -295,28 +300,15 @@ void StereoCreatorAudioProcessorEditor::paint (juce::Graphics& g)
     }
     else // four channel input
     {
-        // title.setLineBounds (false, 0, 33, 101);
+        g.setOpacity (0.7f);
         g.drawImageWithin (arrayImage4Ch,
-                           4,
-                           8,
+                           0,
+                           0,
                            arrayImage4Ch.getWidth() / 2,
-                           arrayImage4Ch.getHeight() / 2,
+                           getHeight(),
                            RectanglePlacement::onlyReduceInSize);
         //        helpToolTip.setTooltip(helpText4Ch);
     }
-
-#ifdef AA_SHOW_LOGO
-    // background logo
-    aaLogoBgPath.applyTransform (aaLogoBgPath.getTransformToScaleToFit (0.50f * currWidth,
-                                                                        0.25f * currHeight,
-                                                                        0.58f * currWidth,
-                                                                        0.58f * currWidth,
-                                                                        true,
-                                                                        Justification::centred));
-    g.setColour (Colours::white.withAlpha (0.1f));
-    g.strokePath (aaLogoBgPath, PathStrokeType (0.1f));
-    g.fillPath (aaLogoBgPath);
-#endif
 }
 
 void StereoCreatorAudioProcessorEditor::resized()
@@ -353,6 +345,9 @@ void StereoCreatorAudioProcessorEditor::resized()
     abButton.setBounds (headerArea.removeFromLeft (160));
 
     area.removeFromLeft (arrayWidth);
+
+    auto footerArea = getLocalBounds().removeFromBottom (30);
+    footer.setBounds (footerArea);
 
     //--------------- SIDE AREA ----------------
     Rectangle<int> sideArea (area.removeFromLeft (sideAreaWidth));
