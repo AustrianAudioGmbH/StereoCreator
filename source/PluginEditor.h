@@ -26,6 +26,7 @@
 #include "../resources/customComponents/ABComponent.hpp"
 #include "../resources/customComponents/DirSlider.h"
 #include "../resources/customComponents/FirstOrderDirectivityVisualizer.h"
+#include "../resources/customComponents/Footer.hpp"
 #include "../resources/customComponents/Logo.hpp"
 #include "../resources/customComponents/ReverseSlider.h"
 #include "../resources/customComponents/SimpleLabel.h"
@@ -88,6 +89,7 @@ private:
     juce::AudioProcessorValueTreeState& valueTreeState;
 
     AAGuiComponents::AALogo logo;
+    AAGuiComponents::Footer footer;
 
     AAGuiComponents::ABComponent abButton;
 

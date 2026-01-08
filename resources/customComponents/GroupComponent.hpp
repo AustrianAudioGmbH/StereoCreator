@@ -55,11 +55,11 @@ public:
 
         g.setFont (font);
         g.setColour (isEnabled() ? Colours::mainTextColor : Colours::mainTextDisabledColor);
-        const auto text = getText();
-        const auto justification = getTextLabelPosition();
+        const auto componentText = getText();
+        const auto labelJustification = getTextLabelPosition();
         const auto textArea =
             getLocalBounds().removeFromTop (textMarginTop + textSize).reduced (textMarginLeft, 0);
-        g.drawFittedText (text, textArea, justification, 1);
+        g.drawFittedText (componentText, textArea, labelJustification, 1);
     }
 };
 } // namespace AAGuiComponents

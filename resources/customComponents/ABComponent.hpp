@@ -23,7 +23,7 @@
 #pragma once
 
 #include "../lookAndFeel/BinaryFonts.h"
-#include "MultiTextButton.h"
+#include "MultiTextButton.hpp"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 

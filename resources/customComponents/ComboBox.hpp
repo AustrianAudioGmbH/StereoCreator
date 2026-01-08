@@ -38,14 +38,13 @@ struct ComboBox : public juce::ComboBox
         setColour (ComboBox::outlineColourId, Colours::textButtonActiveRedFrameColor);
         setColour (ComboBox::textColourId, Colours::mainTextColor);
         setColour (ComboBox::arrowColourId, Colours::mainTextColor);
-        auto& lookAndFeel = getLookAndFeel();
-        lookAndFeel.setColour (PopupMenu::backgroundColourId,
-                               Colours::groupComponentBackgroundColor);
-        lookAndFeel.setColour (PopupMenu::highlightedBackgroundColourId,
-                               Colours::textButtonHoverRedBackgroundColor);
-        lookAndFeel.setColour (PopupMenu::textColourId, Colours::mainTextColor);
+        auto& laF = getLookAndFeel();
+        laF.setColour (PopupMenu::backgroundColourId, Colours::groupComponentBackgroundColor);
+        laF.setColour (PopupMenu::highlightedBackgroundColourId,
+                       Colours::textButtonHoverRedBackgroundColor);
+        laF.setColour (PopupMenu::textColourId, Colours::mainTextColor);
 
-        lookAndFeel.setDefaultSansSerifTypeface (
+        laF.setDefaultSansSerifTypeface (
             Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansRegular_ttf,
                                                BinaryFonts::NunitoSansRegular_ttfSize));
 

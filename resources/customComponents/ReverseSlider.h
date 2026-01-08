@@ -68,8 +68,8 @@ public:
     {
     }
 
-    ReverseSlider (const juce::String& componentName) :
-        Slider (componentName),
+    ReverseSlider (const juce::String& componentNameToUse) :
+        Slider (componentNameToUse),
         lastDistanceFromDragStart (0),
         reversed (false),
         isDual (false),

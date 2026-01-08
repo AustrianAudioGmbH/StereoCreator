@@ -38,6 +38,11 @@ enum class ButtonColor
 template <ButtonColor color>
 class TextButton : public juce::TextButton
 {
+    static constexpr auto fillReduceMargin = 1.0f;
+    static constexpr auto buttonFrameReduceMargin = 3.0f;
+    static constexpr auto buttonFrameThickness = 2.0f;
+
+public:
     void paintButton (juce::Graphics& g,
                       bool shouldDrawButtonAsHighlighted,
                       bool shouldDrawButtonAsDown) override
@@ -71,27 +76,27 @@ class TextButton : public juce::TextButton
         if (shouldDrawButtonAsHighlighted)
         {
             g.setColour (hoverBackgroundColor);
-            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+            g.fillRect (buttonArea.reduced (fillReduceMargin));
         }
         else
         {
             g.setColour (backgroundColor);
-            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+            g.fillRect (buttonArea.reduced (fillReduceMargin));
         }
 
-        const auto text = getButtonText();
+        const auto buttonText = getButtonText();
 
         g.setColour (Colours::mainTextColor);
         const auto font = Font (FontOptions (
             Typeface::createSystemTypefaceFor (BinaryFonts::NunitoSansSemiBold_ttf,
                                                BinaryFonts::NunitoSansSemiBold_ttfSize)));
         g.setFont (font);
-        g.drawFittedText (text, buttonArea, Justification::centred, 1);
+        g.drawFittedText (buttonText, buttonArea, Justification::centred, 1);
 
         if (getToggleState())
         {
             g.setColour (frameColor);
-            g.drawRect (buttonArea.reduced (3.0f, 3.0f), 2.0f);
+            g.drawRect (buttonArea.reduced (buttonFrameReduceMargin), buttonFrameThickness);
         }
     }
 };
@@ -99,8 +104,13 @@ class TextButton : public juce::TextButton
 template <ButtonColor color>
 class MultiTextButtonComponent : public juce::TextButton
 {
+    static constexpr auto fillReduceMargin = 1.0f;
+    static constexpr auto textReduceMargin = 6.0f;
+    static constexpr auto buttonFrameReduceMargin = 3.0f;
+    static constexpr auto buttonFrameThickness = 2.0f;
+
 public:
-    MultiTextButtonComponent<color>()
+    MultiTextButtonComponent()
     {
         setToggleable (true);
         setClickingTogglesState (true);
@@ -136,25 +146,28 @@ public:
         if (shouldDrawButtonAsHighlighted)
         {
             g.setColour (hoverBackgroundColor);
-            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+            g.fillRect (buttonArea.reduced (fillReduceMargin));
         }
         else
         {
             g.setColour (backgroundColor);
-            g.fillRect (buttonArea.reduced (1.0f, 1.0f));
+            g.fillRect (buttonArea.reduced (fillReduceMargin));
         }
 
-        const auto text = getButtonText();
+        const auto buttonText = getButtonText();
 
         g.setColour (getToggleState() ? Colours::mainTextColor : Colours::mainTextInactiveColor);
         const auto font = Font (FontOptions (normalFont));
         g.setFont (font);
-        g.drawFittedText (text, buttonArea, Justification::centred, 1);
+        g.drawFittedText (buttonText,
+                          buttonArea.reduced (textReduceMargin),
+                          Justification::centred,
+                          1);
 
         if (getToggleState())
         {
             g.setColour (frameColor);
-            g.drawRect (buttonArea.reduced (3.0f, 3.0f), 2.0f);
+            g.drawRect (buttonArea.reduced (buttonFrameReduceMargin), buttonFrameThickness);
         }
     }
 
