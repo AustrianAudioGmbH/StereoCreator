@@ -1,16 +1,41 @@
 # StereoCreator
+
 Our open-source Stereo plug-in developed by [Simon](https://github.com/becksimon) and [AA](https://austrian.audio/).
 
 The StereoCreator allows you to create several different stereo set-ups with one or two OC818 microphones in dual output mode.
 Installers for as VST3, AAX and AU are available at [austrian.audio](https://austrian.audio/).
 
-<img width="640" alt="4Ch_StereoCreator" src="https://user-images.githubusercontent.com/70842242/113834931-aafeb680-978b-11eb-9994-449ea329f510.png">
+<img width="640" alt="4Ch_StereoCreator" src="docs/StereoCreator3.png">
 
-## Building StereoCreator
-StereoCreator is based on [JUCE](https://juce.com/). To build StereoCreator, get a recent version of JUCE and open StereoCreator.jucer in Projucer. Select an exporter of your choice (e.g. Visual Studio or Xcode) to create and open a project file in your IDE.
+## Building StereoCreator3 from source
 
-## Requirements
-* For building AAX plugins you need to add the [AAX SDK](http://developer.avid.com/) location to your Projucer paths.
+Requirements:
 
-## Related repositories
-Parts of the code are based on the [IEM Plugin Suite](https://git.iem.at/audioplugins/IEMPluginSuite) - check it out, it's awesome!
+- cmake ( >= v3.24.1)
+- a C++20 compatible compiler (GCC, clang, MSVC)
+
+To build from source, you need to clone the repository and its submodules
+
+```bash
+git clone https://github.com/AustrianAudioGmbH/StereoCreator.git
+cd StereoCreator
+git submodule update --init --recursive
+```
+
+After that, create a build directory, configure & compile with
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build . --config Release
+```
+
+## Acknowledgements:
+
+StereoCreator 3 makes use of the following projects:
+
+- [JUCE (audio application framework)](https://juce.com)
+- [Pamplejuce (Audio plugin template)](https://github.com/sudara/Pamplejuce)
+- [pluginval (VST Plugin validation tests)](https://github.com/Tracktion/pluginval)
+- [Catch2 (Unit testing framework)](https://github.com/catchorg/Catch2)
+- [IEM Plugin Suite](https://git.iem.at/audioplugins/IEMPluginSuite)
