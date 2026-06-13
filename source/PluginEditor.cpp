@@ -194,7 +194,7 @@ StereoCreatorAudioProcessorEditor::StereoCreatorAudioProcessorEditor (
                                                                cardFact,
                                                                sCardFact);
     grpXyPattern.slider.dirStripBottom.setPatternPathsAndFactors (bCardPath,
-                                                                  sCardPath,
+                                                                  hCardPath,
                                                                   bCardFact,
                                                                   hCardFact);
 
