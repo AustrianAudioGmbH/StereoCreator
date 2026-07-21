@@ -166,9 +166,9 @@ private:
     float previousPseudoStereoPattern;
     float previousMsMidPattern;
     float previousTrueStereoPattern;
-    float previousOverallGain;
+    float previousOverallGain = 0;
 
-    float currentOverallGain;
+    float currentOverallGain = 0;
 
     int currentBlockSize;
     double currentSampleRate;

@@ -306,7 +306,7 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     blumleinLeftRightBuffer.clear();
 
     getXyAngleRelatedGains (params.getRawParameterValue ("trueStXyAngle")->load());
-    previousXyEightRotationGainLeft = currentBlumleinEightRotationGainLeft;
+    previousXyEightRotationGainLeft = currentXyEightRotationGainLeft;
     previousXyEightRotationGainFront = currentXyEightRotationGainFront;
 
     getBlumleinRotationGains (params.getRawParameterValue ("blumleinRot")->load());
@@ -323,6 +323,10 @@ void StereoCreatorAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 
     blocksToAverage =
         static_cast<int> (std::ceil (secondsToAverage * currentSampleRate / currentBlockSize));
+
+    currentOverallGain = Decibels::decibelsToGain (
+        params.getRawParameterValue ("compensationGain" + String (stereoModeIdx->load()))->load());
+    previousOverallGain = currentOverallGain;
 }
 
 void StereoCreatorAudioProcessor::releaseResources()
